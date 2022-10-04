@@ -4,3 +4,24 @@
 [submodule "components/btstack"]
 	path = components/btstack
 	url = https://github.com/BobbyIndustries/btstack.git
+[submodule "components/Adafruit-GFX-Library"]
+	path = components/Adafruit-GFX-Library
+	url = https://github.com/adafruit/Adafruit-GFX-Library.git
+[submodule "components/Adafruit_BusIO"]
+	path = components/Adafruit_BusIO
+	url = https://github.com/adafruit/Adafruit_BusIO.git
+[submodule "components/Adafruit_SSD1306"]
+	path = components/Adafruit_SSD1306
+	url = https://github.com/adafruit/Adafruit_SSD1306.git
+[submodule "components/Arduino-PID-AutoTune-Library"]
+	path = components/Arduino-PID-AutoTune-Library
+	url = https://github.com/BobbyIndustries/Arduino-PID-AutoTune-Library.git
+[submodule "components/Arduino-PID-Library"]
+	path = components/Arduino-PID-Library
+	url = https://github.com/BobbyIndustries/Arduino-PID-Library.git
+[submodule "components/espsoftwareserial"]
+	path = components/espsoftwareserial
+	url = https://github.com/BobbyIndustries/espsoftwareserial.git
+[submodule "components/memory_system_data"]
+	path = components/memory_system_data
+	url = https://github.com/LayerDE/memory_system_data.git
