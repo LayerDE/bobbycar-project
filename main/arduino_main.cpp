@@ -183,7 +183,7 @@ static inline void feedback_update(){
 // Arduino setup function. Runs in CPU 1
 void setup() {
     const int task_count = 3;
-    printf("Hoverboard Serial v1.0");
+    printf("Hoverboard Serial v1.1\n");
     TaskHandle_t tasks[task_count] = {NULL, NULL, NULL};
     xTaskCreate(&init_gamepad, "init_gamepad", 2048 * 3, NULL, 5, &tasks[0]);
     xTaskCreate(&init_adc_task, "init_adc_task", 2048 * 2, NULL, 5, &tasks[1]);

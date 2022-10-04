@@ -14,7 +14,7 @@ void bt_console_init(void *ignore){
     vTaskDelete(NULL);
 }
 void usb_console_init(void *ignore){
-    printf("console inited");
+    printf("console inited\n");
     vTaskDelete(NULL);
 }
 
