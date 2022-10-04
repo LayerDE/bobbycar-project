@@ -25,3 +25,6 @@
 [submodule "components/memory_system_data"]
 	path = components/memory_system_data
 	url = https://github.com/LayerDE/memory_system_data.git
+[submodule "components/LiquidCrystal_I2C"]
+	path = components/LiquidCrystal_I2C
+	url = https://github.com/BobbyIndustries/LiquidCrystal_I2C.git
