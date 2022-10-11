@@ -154,7 +154,6 @@ bool Receive(SoftwareSerial* board, SerialFeedback* out, SerialVariables *vars,S
             if (NewFeedback->start == START_FRAME && checksum == checksum_package) {
                 // Copy the new data
                 memcpy(out, NewFeedback, sizeof(SerialFeedback));
-                out->speedR_meas = -out->speedR_meas;
                 // Print data to built-in Serial
                 vars->lastUpdate = time;
                 data_complete = true;
