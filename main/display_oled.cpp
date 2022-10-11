@@ -33,6 +33,7 @@ display_oled :: ~display_oled(){
 }
 void display_oled::clear(){
     oled->clearDisplay();
+    oled->display();
 }
 void display_oled::draw_screen(int throttle, float steering, float steering_desired, int *torgue, int torgue_regulated, int speed, int voltage, int input_src){
     display::draw_screen(throttle, steering, steering_desired, torgue, torgue_regulated, speed, voltage, input_src);
@@ -49,14 +50,22 @@ bool display_oled::set_state(STATES_OF_DISPLAY hstate){
         switch (hstate)
         {
         case OFF:
-            clear();
+            //clear();
             break;
 
         case IDLE:
+            {
+                oled->setTextSize(1);      // Normal 1:1 pixel scale
+                oled->setTextColor(SSD1306_WHITE); // Draw white text
+                oled->cp437(true);         // Use full 256 char 'Code Page 437' font
+                char sprint_buffer[256];
+                sprintf(sprint_buffer, "OLED Address: 0x%02hhX\n", address);
+                draw_line(sprint_buffer, 0);
+            }
             break;
         
         case CONSOLE:
-            clear();
+            //clear();
             break;
         case USERINTERFACE:
             oled->setTextSize(1);      // Normal 1:1 pixel scale

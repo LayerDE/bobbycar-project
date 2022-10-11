@@ -82,20 +82,26 @@ bool display_2004::set_state(STATES_OF_DISPLAY hstate){
         switch (hstate)
         {
         case OFF:
-            clear();
+            //clear();
             lcd->noBacklight();
             break;
 
         case IDLE:
+            {
+                lcd->backlight();
+                 char sprint_buffer[256];
+                sprintf(sprint_buffer, "LCD Address: 0x%02hhX\n", address);
+                _draw_line(sprint_buffer, 0);
+            }
             break;
         
         case CONSOLE:
             lcd->backlight();
-            clear();
+            //clear();
             break;
         case USERINTERFACE:
             lcd->backlight();
-            clear();
+            //clear();
             break;
         default:
             break;
