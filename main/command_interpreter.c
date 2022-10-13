@@ -149,6 +149,21 @@ static bool cmd_set_pid_kd(const char* argv, c_data* out){
     return true;
 }
 
+static bool cmd_autolevel(const char* argv, c_data* out){
+    if(get_input_src()==0){
+        char buffer[20];
+        sprintf(buffer, "Failed I:%s\n",inputs[get_input_src()]);
+        c_data_extend_raw(out, buffer, strlen(buffer));
+    }
+    else{
+        char buffer[20];
+        sprintf(buffer, "Failed I:%s\n",inputs[get_input_src()]);
+        c_data_extend_raw(out, buffer, strlen(buffer));
+        return true;
+    }
+    
+}
+
 static bool cmd_set_input(const char* argv, c_data* out){
     char buffer[20];
     c_data parameter = c_data_spawn();
@@ -214,6 +229,7 @@ static const command commands[] = {
     {"setki",cmd_set_pid_ki},
     {"setkd",cmd_set_pid_kd},
     {"getpo",cmd_get_pid_out},
+    {"autolvl",cmd_autolevel},
     {"exec",exec}
 };
 

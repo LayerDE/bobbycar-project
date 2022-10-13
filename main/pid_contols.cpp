@@ -40,7 +40,7 @@ static void changeAutoTune()
 }
 
 extern "C" void pid_update(){
-      if(tuning)
+  if(tuning)
   {
     byte val = (pid_tuner->Runtime());
     if (val!=0)
