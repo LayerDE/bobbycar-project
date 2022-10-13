@@ -253,7 +253,7 @@ void loop() {
     int throttle = get_throttle();
     float steering =  get_steering();
     float des_steering = get_des_steering();
-    if((!isNear(last_throttle,throttle,100) && isNear(last_steering,steering,deg2rad(0.5)) && isNear(last_des_steering,des_steering, deg2rad(0.5)))){
+    if(!(isNear(last_throttle,throttle,100) && isNear(last_steering,steering,deg2rad(0.5)) && isNear(last_des_steering,des_steering, deg2rad(0.5)))){
         printf("update time %li %li\n",last_time, timeNow);
         last_time = timeNow;
         last_throttle = throttle;
