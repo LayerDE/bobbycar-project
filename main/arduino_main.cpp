@@ -254,7 +254,7 @@ void loop() {
     float steering =  get_steering();
     float des_steering = get_des_steering();
     if(!(isNear(last_throttle,throttle,100) && isNear(last_steering,steering,deg2rad(0.5)) && isNear(last_des_steering,des_steering, deg2rad(0.5)))){
-        printf("update time %li %li\n",last_time, timeNow);
+        //printf("update time %li %li\n",last_time, timeNow);
         last_time = timeNow;
         last_throttle = throttle;
         last_steering = steering;
@@ -270,7 +270,7 @@ void loop() {
         }
         else{
             pid_update();
-            calc_torque_per_wheel(throttle, des_steering,torgue_regulated = round(get_pid_steer() * THROTTLE_MAX) , torgue);
+            calc_torque_per_wheel(throttle, des_steering,torgue_regulated = -round(get_pid_steer() * (float)THROTTLE_MAX) , torgue);
         }
         Send(&HoverSerial_front, torgue[0], torgue[1]);
         Send(&HoverSerial_rear, torgue[2], torgue[3]);

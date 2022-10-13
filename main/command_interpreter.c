@@ -154,10 +154,11 @@ static bool cmd_autolevel(const char* argv, c_data* out){
         char buffer[20];
         sprintf(buffer, "Failed I:%s\n",inputs[get_input_src()]);
         c_data_extend_raw(out, buffer, strlen(buffer));
+        return false;
     }
     else{
         char buffer[20];
-        sprintf(buffer, "Failed I:%s\n",inputs[get_input_src()]);
+        sprintf(buffer, "Valid I:%s\n",inputs[get_input_src()]);
         c_data_extend_raw(out, buffer, strlen(buffer));
         return true;
     }
