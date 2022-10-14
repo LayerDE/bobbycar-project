@@ -272,8 +272,8 @@ void loop() {
     if(Receive(&HoverSerial_front, &SerialFeedback_front, &SerialVar_front, &NewFeedback_front, timeNow)
         || Receive(&HoverSerial_rear, &SerialFeedback_rear, &SerialVar_rear, &NewFeedback_rear, timeNow))
         feedback_update();
-    bool front_active = timeNow - SerialVar_front.lastUpdate > 1000,
-        rear_active = timeNow - SerialVar_front.lastUpdate > 1000;
+    bool front_active = timeNow - SerialVar_front.lastUpdate < 1000,
+        rear_active = timeNow - SerialVar_front.lastUpdate < 1000;
     if (iTimeSend <= timeNow){
         iTimeSend = timeNow + TIME_SEND;
         if (get_input_src()==0){

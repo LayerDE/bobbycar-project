@@ -81,10 +81,10 @@ extern "C" void init_pid(){
     double kp = 0,ki = 0, kd = 0;
     bool on = true;
     steering_controls = new PID(&isPoint, &output, &setPoint, kp, ki, kd, on);
-    steering_controls->SetOutputLimits(-1,1);
+    steering_controls->SetOutputLimits(-0.15,0.15);
 
     steering_controls->SetMode(AUTOMATIC);
-
+    steering_controls->SetSampleTime(50);
   if(tuning)
   {
     tuning=false;
