@@ -147,13 +147,21 @@ static inline void swp(int *x, int *y)
   *x = *y;
   *y = tmp;
 }
-static inline void sort_array(int x[], int cnt)
+static inline void sort_array(int *x, int cnt)
 {
   for (int y = 0; y < cnt - 1; y++)
     for (int z = y + 1; z < cnt; z++)
       if (x[y] > x[z])
         swp(&x[y], &x[z]);
 }
+
+int calc_average(const int *x, int cnt){
+  int sum = 0;
+  for(int y = 0; y < cnt; y++)
+    sum+=x[y];
+  return sum/cnt;
+}
+
 int calc_median(const int x[], int cnt)
 {
   int median;

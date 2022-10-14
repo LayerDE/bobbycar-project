@@ -18,7 +18,8 @@ extern "C" {
     int calc_torque(int throttle, int breaks);
     float calc_steering_eagle(int inval);
     void calc_torque_per_wheel(int throttle, float steering_eagle,int torque_regulated, int *torque);
-    int calc_median(int x[], int cnt);
+    int calc_median(const int *x, int cnt);
+    int calc_average(const int *x, int cnt);
     
 #ifdef __cplusplus
 }

@@ -170,13 +170,22 @@ bool Receive(SoftwareSerial* board, SerialFeedback* out, SerialVariables *vars,S
 
 static inline void feedback_update(){
     last_time = MAX(SerialVar_front.lastUpdate, SerialVar_rear.lastUpdate);
-    speed = 0;
-    speed += speed_per_wheel[0] = SerialFeedback_front.speedL_meas;
-    speed += speed_per_wheel[1] = SerialFeedback_front.speedR_meas;
-    speed += speed_per_wheel[2] = SerialFeedback_rear.speedL_meas;
-    speed += speed_per_wheel[3] = SerialFeedback_rear.speedR_meas;
-    voltage = SerialFeedback_front.batVoltage + SerialFeedback_rear.batVoltage / 2;
-    speed /= 4;
+    speed_per_wheel[0] = SerialFeedback_front.speedL_meas;
+    speed_per_wheel[1] = SerialFeedback_front.speedR_meas;
+    speed_per_wheel[2] = SerialFeedback_rear.speedL_meas;
+    speed_per_wheel[3] = SerialFeedback_rear.speedR_meas;
+    if(last_time - SerialVar_front.lastUpdate > 1000){
+        speed = calc_average((const int*)&(speed_per_wheel[2]),2);
+        voltage = SerialFeedback_rear.batVoltage;
+    }
+    else if(last_time - SerialVar_rear.lastUpdate > 1000){
+        speed = calc_average((const int*)&(speed_per_wheel[0]),2);
+        voltage = SerialFeedback_front.batVoltage;
+    }
+    else{
+        speed = calc_average((const int*)speed_per_wheel,4);
+        voltage = SerialFeedback_front.batVoltage + SerialFeedback_rear.batVoltage / 2;
+    }
 }
 
 // Arduino setup function. Runs in CPU 1
@@ -263,6 +272,8 @@ void loop() {
     if(Receive(&HoverSerial_front, &SerialFeedback_front, &SerialVar_front, &NewFeedback_front, timeNow)
         || Receive(&HoverSerial_rear, &SerialFeedback_rear, &SerialVar_rear, &NewFeedback_rear, timeNow))
         feedback_update();
+    bool front_active = timeNow - SerialVar_front.lastUpdate > 1000,
+        rear_active = timeNow - SerialVar_front.lastUpdate > 1000;
     if (iTimeSend <= timeNow){
         iTimeSend = timeNow + TIME_SEND;
         if (get_input_src()==0){
@@ -272,8 +283,10 @@ void loop() {
             pid_update();
             calc_torque_per_wheel(throttle, des_steering,torgue_regulated = -round(get_pid_steer() * (float)THROTTLE_MAX) , torgue);
         }
-        Send(&HoverSerial_front, torgue[0], torgue[1]);
-        Send(&HoverSerial_rear, torgue[2], torgue[3]);
+        if(front_active)
+            Send(&HoverSerial_front, torgue[0], torgue[1]);
+        if(rear_active)
+            Send(&HoverSerial_rear, torgue[2], torgue[3]);
         //printf("heartbeat %li %li\n",timeNow, rec_cnt);
         if (!((send_cnt++) % 7)) {
             if( last_time + 20000 < timeNow){
