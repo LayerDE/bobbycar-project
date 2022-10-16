@@ -71,6 +71,7 @@ extern "C" void pid_update(){
 }
 
 extern "C" void init_pid(){
+  const double limit = 0.1;
       pid_tuner = new PID_ATune(&isPoint, &output);
     pid_tuner->SetControlType(1); // set to pid
     pid_tuner->SetLookbackSec(10);
@@ -81,7 +82,7 @@ extern "C" void init_pid(){
     double kp = 0,ki = 0, kd = 0;
     bool on = true;
     steering_controls = new PID(&isPoint, &output, &setPoint, kp, ki, kd, on);
-    steering_controls->SetOutputLimits(-0.15,0.15);
+    steering_controls->SetOutputLimits(-limit,limit);
 
     steering_controls->SetMode(AUTOMATIC);
     steering_controls->SetSampleTime(50);

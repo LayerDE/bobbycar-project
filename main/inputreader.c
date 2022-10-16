@@ -27,17 +27,6 @@ int get_input_src(){
     return input_src;
 }
 
-void set_input_src(int src){
-    input_src = src;
-}
-
-int get_throttle(){
-    if(input_src == 0)
-        return throttle_calc(adc_throttle);
-    else
-        return external_throttle[input_src-1];
-}
-
 float get_steering(){
     return calc_steering_eagle(adc_steering);
 }
@@ -48,11 +37,36 @@ float get_des_steering(){
     else
         return desired_steering[input_src-1];
 }
+
 void set_des_steering(float steering){
     desired_steering[0] = steering;
 }
+
+void set_input_src(int src){
+    if(src == 0)
+        set_des_steering(0.0);
+    else
+        set_des_steering(get_steering());
+    input_src = src;
+}
+
+int get_throttle(){
+    if(input_src == 0)
+        return throttle_calc(adc_throttle);
+    else
+        return external_throttle[input_src-1];
+}
+
+static inline bool check_trottle(int throttle){
+    if(throttle < THROTTLE_MAX && throttle > THROTTLE_REVERSE_MAX)
+        return true;
+    else
+        return false;
+}
+
 void set_ext_throttle(int throttle){
-    external_throttle[0] = throttle;
+    if(check_trottle(throttle))
+        external_throttle[0] = throttle;
 }
 
 bool get_contoller_active(){
