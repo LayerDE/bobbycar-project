@@ -56,6 +56,13 @@ SoftwareSerial HoverSerial_rear(RX1, TX1);   // RX, TX
 // On an arduino MEGA 2560: 20(SDA), 21(SCL)
 // On an arduino LEONARDO:   2(SDA),  3(SCL), ...
 
+typedef struct {
+    unsigned long time;
+    double pout_value;
+    float steer_real;
+    float steer_des;
+} pid_log __attribute__((packed));
+
 bool dsp_connected;
 typedef struct {
     uint16_t start;
@@ -253,17 +260,41 @@ bool isNear(float a,float b, float range){
         return false;
 }
 
+pid_log pid_logging[1024];
+int pid_logging_ptr;
+int log_size;
+bool log_running;
+void start_log(){
+    log_running = true;
+}
+void add_log(double po, unsigned long time, float steer_real, float desired_steering){
+    if(!log_running)
+        return;
+    if(!(log_size == 1024)){
+        log_size = (log_size+1) % 1024;
+        log_running = false;
+    }
+    if(pid_logging[pid_logging_ptr].pout_value != po ||
+            pid_logging[pid_logging_ptr].steer_des != desired_steering ||
+            pid_logging[pid_logging_ptr].steer_real != steer_real)
+        pid_logging[++pid_logging_ptr] = pid_log {.time = time, .pout_value = po, .steer_real = steer_real, .steer_des = desired_steering};
+}
+
+void dump_log(){
+    printf("\n\n");
+    for(int i = 0; i < log_size;i++)
+        printf("%lu,%f,%f,%f\n",pid_logging[i].time,pid_logging[i].pout_value,pid_logging[i].steer_real,pid_logging[i].steer_des);
+    printf("\n\n");
+}
+
 void loop() {
 
     unsigned long timeNow = millis();
     int torgue_regulated = 0;
-    //int throttle = throttle_calc(clean_adc_full(value_buffer(analogRead(THROTTLE0_PIN),1)));
-    //float steering = calc_steering_eagle(clean_adc_steering(value_buffer(analogRead(STEERING_PIN),0)));
     int throttle = get_throttle();
     float steering =  get_steering();
     float des_steering = get_des_steering();
     if(!(isNear(last_throttle,throttle,100) && isNear(last_steering,steering,deg2rad(0.5)) && isNear(last_des_steering,des_steering, deg2rad(0.5)))){
-        //printf("update time %li %li\n",last_time, timeNow);
         last_time = timeNow;
         last_throttle = throttle;
         last_steering = steering;
@@ -282,6 +313,7 @@ void loop() {
         else{
             pid_update();
             double tmp_out = get_pid_steer();
+            add_log(tmp_out, timeNow,steering,des_steering);
             if(ABS(tmp_out) > 0.01)
                 tmp_out += SIGN(tmp_out)* CLAMP((0.05-(double)speed/100.0),0,0.05);  
             calc_torque_per_wheel(throttle, des_steering,torgue_regulated = -round(tmp_out * (float)THROTTLE_MAX) , torgue);

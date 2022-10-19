@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include "c_data.h"
 #include "math_functions.h"
+#include "defines.h"
 #include "inputreader.h"
 #include "command_interpreter.h"
 #include "pid_controls.h"
@@ -73,7 +74,8 @@ static bool cmd_set_steering(const char* argv, c_data* out){
         sprintf(buffer, "setS:%f\n",deg2rad(tmp));
         c_data_extend_raw(out, buffer, strlen(buffer));
     }
-    set_des_steering(deg2rad(tmp));
+    if(ABS(tmp)<=35)
+        set_des_steering(deg2rad(tmp));
     return true;
 }
 
