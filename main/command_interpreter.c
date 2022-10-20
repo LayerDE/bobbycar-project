@@ -9,10 +9,11 @@
 #include "inputreader.h"
 #include "command_interpreter.h"
 #include "pid_controls.h"
+#include "logging.h"
 
 const char endl4ptr = '\0';
 const char newl4ptr = '\n';
-
+static bool log_active = false;
 typedef bool (*func_ptr)(const char*, c_data*);
 typedef struct 
 {
@@ -21,6 +22,7 @@ typedef struct
 } command;
 
 const char* inputs[] = {"ADC","CONSOLE", "GAMEPAD"};
+
 
 void clean_argv_cdata(c_data* argv){
     for (int i=0; ((char*)argv->content)[i] && i < argv->size; i++)
@@ -76,6 +78,8 @@ static bool cmd_set_steering(const char* argv, c_data* out){
     }
     if(ABS(tmp)<=35)
         set_des_steering(deg2rad(tmp));
+    if(log_active)
+        start_log();
     return true;
 }
 
@@ -92,10 +96,41 @@ static bool cmd_set_throttle(const char* argv, c_data* out){
     return true;
 }
 
+static bool cmd_set_log(const char* argv, c_data* out){
+    int tmp = 0;
+    if(!internal_set_int(argv,&tmp))
+        return false;
+    if(tmp != 0 && tmp != 1)
+        return false;
+    {
+        char buffer[20];
+        sprintf(buffer, "setLog:%i\n",tmp);
+        c_data_extend_raw(out, buffer, strlen(buffer));
+    }
+    log_active = tmp;
+    return true;
+}
+
 
 static bool cmd_get_steering(const char* argv, c_data* out){
     char buffer[20];
     sprintf(buffer, "S:%f\n",rad2deg(get_steering()));
+    c_data_extend_raw(out, buffer, strlen(buffer));
+    return true;
+}
+
+static bool cmd_get_log(const char* argv, c_data* out){
+    int tmp = dump_log();
+    char buffer[20];
+    sprintf(buffer, "%i lines dumped\n",tmp);
+    c_data_extend_raw(out, buffer, strlen(buffer));
+    return tmp;
+}
+
+static bool cmd_start_log(const char* argv, c_data* out){
+    start_log();
+    char buffer[20];
+    sprintf(buffer, "log started\n");
     c_data_extend_raw(out, buffer, strlen(buffer));
     return true;
 }
@@ -124,6 +159,8 @@ static bool cmd_set_pid_kp(const char* argv, c_data* out){
         c_data_extend_raw(out, buffer, strlen(buffer));
     }
     set_pid_kp(tmp);
+    if(log_active)
+        start_log();
     return true;
 }
 static bool cmd_set_pid_ki(const char* argv, c_data* out){
@@ -136,6 +173,8 @@ static bool cmd_set_pid_ki(const char* argv, c_data* out){
         c_data_extend_raw(out, buffer, strlen(buffer));
     }
     set_pid_ki(tmp);
+    if(log_active)
+        start_log();
     return true;
 }
 static bool cmd_set_pid_kd(const char* argv, c_data* out){
@@ -148,6 +187,8 @@ static bool cmd_set_pid_kd(const char* argv, c_data* out){
         c_data_extend_raw(out, buffer, strlen(buffer));
     }
     set_pid_kd(tmp);
+    if(log_active)
+        start_log();
     return true;
 }
 
@@ -232,6 +273,9 @@ static const command commands[] = {
     {"setki",cmd_set_pid_ki},
     {"setkd",cmd_set_pid_kd},
     {"getpo",cmd_get_pid_out},
+    {"getlog",cmd_get_log},
+    {"setlog",cmd_set_log},
+    {"startlog",cmd_start_log},
     {"autolvl",cmd_autolevel},
     {"exec",exec}
 };
