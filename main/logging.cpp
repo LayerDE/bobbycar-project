@@ -33,11 +33,13 @@ extern "C" int dump_log(){
 extern "C" void add_log(double po, unsigned long time, float steer_real, float desired_steering){
     if(!log_running)
         return;
-    if(!(pid_logging_ptr == 1024)){
+    if(pid_logging_ptr >= 1024){
         log_running = false;
     }
-    if(pid_logging[pid_logging_ptr].pout_value != po ||
-            pid_logging[pid_logging_ptr].steer_des != desired_steering ||
-            pid_logging[pid_logging_ptr].steer_real != steer_real)
-        pid_logging[++pid_logging_ptr] = pid_log {.time = time, .pout_value = po, .steer_real = steer_real, .steer_des = desired_steering};
+    if(pid_logging_ptr == 0)
+        pid_logging[pid_logging_ptr++] = pid_log {.time = time, .pout_value = po, .steer_real = steer_real, .steer_des = desired_steering};
+    else if(pid_logging[pid_logging_ptr-1].pout_value != po ||
+            pid_logging[pid_logging_ptr-1].steer_des != desired_steering ||
+            pid_logging[pid_logging_ptr-1].steer_real != steer_real)
+        pid_logging[pid_logging_ptr++] = pid_log {.time = time, .pout_value = po, .steer_real = steer_real, .steer_des = desired_steering};
 }

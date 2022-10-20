@@ -85,7 +85,7 @@ extern "C" void init_pid(){
     steering_controls->SetOutputLimits(-limit,limit);
 
     steering_controls->SetMode(AUTOMATIC);
-    steering_controls->SetSampleTime(50);
+    steering_controls->SetSampleTime(25);
   if(tuning)
   {
     tuning=false;
