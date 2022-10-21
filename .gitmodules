@@ -28,3 +28,6 @@
 [submodule "components/LiquidCrystal_I2C"]
 	path = components/LiquidCrystal_I2C
 	url = https://github.com/BobbyIndustries/LiquidCrystal_I2C.git
+[submodule "components/crsfSerial"]
+	path = components/crsfSerial
+	url = https://github.com/BobbyIndustries/crsfSerial.git
