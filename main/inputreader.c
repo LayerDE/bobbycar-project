@@ -23,7 +23,7 @@ void set_pid_steer(float in){
     regulated_steering_factor = in;
 }
 
-int get_input_src(){
+unsigned int get_input_src(){
     return input_src;
 }
 
@@ -38,15 +38,18 @@ float get_des_steering(){
         return desired_steering[input_src-1];
 }
 
-void set_des_steering(float steering){
-    desired_steering[0] = steering;
+void set_des_steering(float steering, unsigned int src){
+    if(src == 0)
+        return;
+    if(src < 3)
+        desired_steering[src-1] = steering;
 }
 
-void set_input_src(int src){
-    if(src == 0)
-        set_des_steering(0.0);
-    else
-        set_des_steering(get_steering());
+void set_input_src(unsigned int src){
+    if(src > 2)
+        return;
+    if(src != 0)
+        set_des_steering(get_steering(), src);
     input_src = src;
 }
 
@@ -64,9 +67,9 @@ static inline bool check_trottle(int throttle){
         return false;
 }
 
-void set_ext_throttle(int throttle){
-    if(check_trottle(throttle))
-        external_throttle[0] = throttle;
+void set_ext_throttle(int throttle, unsigned int src){
+    if(check_trottle(throttle) && src < 2 && src != 0)
+        external_throttle[src - 1] = throttle;
 }
 
 bool get_contoller_active(){

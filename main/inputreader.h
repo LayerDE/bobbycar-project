@@ -6,16 +6,16 @@ extern "C" {
 //extern volatile float adc_steering;
 //extern volatile float desired_steering;
 
-int get_input_src();
-void set_input_src(int src);
+unsigned int get_input_src();
+void set_input_src(unsigned int src);
 
 int get_throttle();
 float get_steering();
 float get_des_steering();
 float get_pid_steer();
 void set_pid_steer(float in);
-void set_des_steering(float steering);
-void set_ext_throttle(int throttle);
+void set_des_steering(float steering, unsigned int src);
+void set_ext_throttle(int throttle, unsigned int src);
 
 void init_gamepad(void* ignore);
 void init_adc_task(void* ignore);
