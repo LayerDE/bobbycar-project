@@ -40,5 +40,5 @@ void crsf_task()
 {
     // Must call CrsfSerial.loop() in loop() to process data
     crsf->loop();
-
+    vTaskDelay(10);
 }
