@@ -10,6 +10,7 @@
 #include "command_interpreter.h"
 #include "pid_controls.h"
 #include "logging.h"
+#include "config.h"
 
 const char endl4ptr = '\0';
 const char newl4ptr = '\n';
@@ -21,7 +22,7 @@ typedef struct
     func_ptr exec;
 } command;
 
-const char* inputs[] = {"ADC","CONSOLE", "GAMEPAD"};
+const char* inputs[] = {"ADC","CONSOLE", "GAMEPAD", "RC"};
 
 
 void clean_argv_cdata(c_data* argv){
@@ -77,7 +78,7 @@ static bool cmd_set_steering(const char* argv, c_data* out){
         c_data_extend_raw(out, buffer, strlen(buffer));
     }
     if(ABS(tmp)<=35)
-        set_des_steering(deg2rad(tmp),0);
+        set_des_steering(deg2rad(tmp),INPUT_CONSOLE);
     if(log_active)
         start_log();
     return true;
@@ -92,7 +93,7 @@ static bool cmd_set_throttle(const char* argv, c_data* out){
         sprintf(buffer, "setT:%i\n",tmp);
         c_data_extend_raw(out, buffer, strlen(buffer));
     }
-    set_ext_throttle(tmp,0);
+    set_ext_throttle(tmp,INPUT_CONSOLE);
     return true;
 }
 

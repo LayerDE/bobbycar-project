@@ -46,7 +46,7 @@ void set_des_steering(float steering, unsigned int src){
 }
 
 void set_input_src(unsigned int src){
-    if(src > 2)
+    if(src > 3)
         return;
     if(src != 0)
         set_des_steering(get_steering(), src);
@@ -73,7 +73,7 @@ void set_ext_throttle(int throttle, unsigned int src){
 }
 
 bool get_contoller_active(){
-    return input_src == 2;
+    return input_src == INPUT_GAMEPAD;
 }
 
 void init_gamepad(void* ignore){
@@ -100,8 +100,10 @@ void gamepad_task(void* ignore){
     while(true){
         tmp = input_src;
         gpm_read(&pad_data[0],&pad_data[1],&tmp);
-        external_throttle[1] = pad_data[0];
-        desired_steering[1] = pad_data[1];
+        //external_throttle[1] = pad_data[0];
+        set_ext_throttle(pad_data[0],INPUT_GAMEPAD);
+        set_des_steering(pad_data[1],INPUT_GAMEPAD);
+        //desired_steering[1] = pad_data[1];
         input_src = tmp;
         vTaskDelay(20);
     }

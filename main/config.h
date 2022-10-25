@@ -40,3 +40,8 @@
 
 #define BUFFERSIZE 128
 #define VAL_CNT 3
+
+#define INPUT_ADC 0
+#define INPUT_CONSOLE 1
+#define INPUT_GAMEPAD 2
+#define INPUT_RC 3

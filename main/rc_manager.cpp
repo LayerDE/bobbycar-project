@@ -1,6 +1,6 @@
 #include <CrsfSerial.h>
 #include "inputreader.h"
-
+#include "config.h"
 CrsfSerial *crsf;
 
 
@@ -13,13 +13,16 @@ static float typecast_steering(unsigned int us_in){
 }
 
 static void packetChannels(){
-    set_des_steering(typecast_steering(crsf->getChannel(1)),2);
-    set_ext_throttle(typecast_throttle(crsf->getChannel(2)),2);
+    set_des_steering(typecast_steering(crsf->getChannel(1)),INPUT_RC);
+    set_ext_throttle(typecast_throttle(crsf->getChannel(2)),INPUT_RC);
+    if(crsf->getChannel(5)>1500)
+        set_input_src(INPUT_RC);
+
 }
 
 static void LinkDownHandle(){
-    set_des_steering(get_steering(),2);
-    set_ext_throttle(0,2);
+    set_des_steering(get_steering(),INPUT_RC); // stop pid
+    set_ext_throttle(0,INPUT_RC); // stop throttle
 }
 
 void init_crsf()
