@@ -20,6 +20,9 @@ void set_ext_throttle(int throttle, unsigned int src);
 void init_gamepad(void* ignore);
 void init_adc_task(void* ignore);
 
+void init_rc_in(void* ignore);
+void rc_in_task(void* ignore);
+
 void gamepad_task(void* ignore);
 void adc_task(void* ignore);
 #ifdef __cplusplus

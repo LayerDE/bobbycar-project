@@ -38,6 +38,7 @@ limitations under the License.
 #include "defines.h"
 #include "inputreader.h"
 #include "console_task.h"
+
 #include "pid_controls.h"
 #include "display.hpp"
 #include "display_oled.hpp"
@@ -191,12 +192,13 @@ static inline void feedback_update(){
 
 // Arduino setup function. Runs in CPU 1
 void setup() {
-    const int task_count = 3;
+    const int task_count = 4;
     printf("Hoverboard Serial v1.1\n");
-    TaskHandle_t tasks[task_count] = {NULL, NULL, NULL};
+    TaskHandle_t tasks[task_count] = {NULL, NULL, NULL, NULL};
     xTaskCreate(&init_gamepad, "init_gamepad", 2048 * 3, NULL, 5, &tasks[0]);
     xTaskCreate(&init_adc_task, "init_adc_task", 2048 * 2, NULL, 5, &tasks[1]);
     xTaskCreate(&usb_console_init, "usb_console_init", 2048 * 2, NULL, 5, &tasks[2]);
+    xTaskCreate(&init_rc_in, "rc_in_init", 2048 * 2, NULL, 5, &tasks[3]);
     for(int y = task_count; y > 0;){
         y = task_count;
         for(int x = 0; x < task_count; x++)
@@ -213,6 +215,7 @@ void setup() {
     xTaskCreate(&tast_usb_console, "tast_usb_console", 2048 * 2, NULL, 2, NULL);
     // xTaskCreate(&tast_bt_console, "tast_bt_console", 2048 * 2, NULL, 2, NULL);
     xTaskCreate(&gamepad_task, "tast_bt_gamepad", 2048 * 2, NULL, 3, NULL);
+    xTaskCreate(&rc_in_task, "tast_rc_in", 2048 * 2, NULL, 3, NULL);
       SerialFeedback_front.speedL_meas = SerialFeedback_front.speedR_meas = SerialFeedback_rear.speedL_meas = SerialFeedback_rear.speedR_meas = 0;
     HoverSerial_front.begin(HOVER_SERIAL_BAUD);
     HoverSerial_rear.begin(HOVER_SERIAL_BAUD);

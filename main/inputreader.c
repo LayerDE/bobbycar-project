@@ -5,6 +5,7 @@
 //#include "adc1_read.h"
 #include "math_functions.h"
 #include "gamepad_manager.h"
+#include "rc_manager.h"
 #include "config.h"
 #include <Arduino.h>
 #include <stddef.h>
@@ -61,14 +62,14 @@ int get_throttle(){
 }
 
 static inline bool check_trottle(int throttle){
-    if(throttle < THROTTLE_MAX && throttle > THROTTLE_REVERSE_MAX)
+    if(throttle < THROTTLE_MAX && throttle > -THROTTLE_REVERSE_MAX)
         return true;
     else
         return false;
 }
 
 void set_ext_throttle(int throttle, unsigned int src){
-    if(check_trottle(throttle) && src < 2 && src != 0)
+    if(check_trottle(throttle) && src < 4 && src != 0)
         external_throttle[src - 1] = throttle;
 }
 
@@ -121,6 +122,19 @@ void adc_task(void* ignore){
             #endif
         }
         vTaskDelay(1);
+    }
+    vTaskDelete(NULL);
+}
+
+void init_rc_in(void* ignore){
+    init_crsf();
+    vTaskDelete(NULL);
+}
+
+void rc_in_task(void* ignore){
+    while(true){
+        crsf_task();
+        vTaskDelay(10);
     }
     vTaskDelete(NULL);
 }

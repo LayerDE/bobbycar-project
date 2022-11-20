@@ -1,11 +1,21 @@
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/queue.h>
+
 #include <CrsfSerial.h>
 #include "inputreader.h"
 #include "config.h"
+#include "defines.h"
+#include <math.h>
 CrsfSerial *crsf;
 
 
 static int typecast_throttle(unsigned int us_in){
-    return ((int)us_in-1500)*2;
+    int throttle = ((int)us_in-1500)*2;
+    if(abs(throttle)>1000)
+        return SIGN(throttle) * 1000;
+    else
+        return throttle;
 }
 
 static float typecast_steering(unsigned int us_in){
@@ -25,7 +35,7 @@ static void LinkDownHandle(){
     set_ext_throttle(0,INPUT_RC); // stop throttle
 }
 
-void init_crsf()
+extern "C" void init_crsf()
 {
     crsf = new CrsfSerial(Serial1, CRSF_BAUDRATE);
     // If something other than changing the baud of the UART needs to be done, do it here
@@ -36,9 +46,9 @@ void init_crsf()
     crsf->onPacketChannels = &packetChannels;
 }
 
-void crsf_task()
+extern "C" void crsf_task()
 {
-    // Must call CrsfSerial.loop() in loop() to process data
-    crsf->loop();
-    vTaskDelay(10);
+        // Must call CrsfSerial.loop() in loop() to process data
+        crsf->loop();
+
 }

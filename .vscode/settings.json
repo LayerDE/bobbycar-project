@@ -1,5 +1,10 @@
 {
     "idf.port": "/dev/ttyUSB3",
     "idf.flashType": "UART",
-    "idf.adapterTargetName": "esp32"
+    "idf.adapterTargetName": "esp32",
+    "files.associations": {
+        "iosfwd": "cpp",
+        "limits": "cpp",
+        "streambuf": "cpp"
+    }
 }

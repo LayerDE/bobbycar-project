@@ -27,6 +27,8 @@
 #define RX0 5
 #define TX1 17
 #define RX1 16
+#define CRSF_RX 9
+#define CRSF_TX 10
 #define LED_BUILTIN 22
 // ########################## DEFINES ##########################
 #define HOVER_SERIAL_BAUD 57600 // [-] Baud rate for HoverSerial (used to communicate with the hoverboard)
@@ -42,6 +44,6 @@
 #define VAL_CNT 3
 
 #define INPUT_ADC 0
-#define INPUT_CONSOLE 1
-#define INPUT_GAMEPAD 2
-#define INPUT_RC 3
+#define INPUT_CONSOLE (INPUT_ADC+1)
+#define INPUT_GAMEPAD (INPUT_CONSOLE+1)
+#define INPUT_RC (INPUT_GAMEPAD+1)
