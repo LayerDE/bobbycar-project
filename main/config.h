@@ -25,10 +25,10 @@
 #define I2C_SCL 23
 #define TX0 18
 #define RX0 5
-#define TX1 17
-#define RX1 16
-#define CRSF_RX 9
-#define CRSF_TX 10
+#define TX1 4
+#define RX1 0
+#define CRSF_RX 16
+#define CRSF_TX 17
 #define LED_BUILTIN 22
 // ########################## DEFINES ##########################
 #define HOVER_SERIAL_BAUD 57600 // [-] Baud rate for HoverSerial (used to communicate with the hoverboard)

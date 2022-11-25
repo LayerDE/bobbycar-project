@@ -37,7 +37,7 @@ static void LinkDownHandle(){
 
 extern "C" void init_crsf()
 {
-    crsf = new CrsfSerial(Serial1, CRSF_BAUDRATE);
+    crsf = new CrsfSerial(Serial2, CRSF_BAUDRATE);
     // If something other than changing the baud of the UART needs to be done, do it here
     // Serial1.end(); Serial1.begin(500000, SERIAL_8N1, 16, 17);
 
