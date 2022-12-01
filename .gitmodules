@@ -31,3 +31,6 @@
 [submodule "components/crsfSerial"]
 	path = components/crsfSerial
 	url = https://github.com/BobbyIndustries/crsfSerial.git
+[submodule "components/Arduino-CRSF"]
+	path = components/Arduino-CRSF
+	url = https://github.com/BobbyIndustries/Arduino-CRSF.git
