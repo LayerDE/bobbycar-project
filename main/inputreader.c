@@ -12,8 +12,8 @@
 
 volatile static int adc_throttle;
 volatile static int adc_steering;
-volatile static int external_throttle[2];
-volatile static float desired_steering[2];
+volatile static int external_throttle[3];
+volatile static float desired_steering[3];
 volatile static int input_src = 0;
 volatile static float regulated_steering_factor = 0;
 
@@ -40,14 +40,15 @@ float get_des_steering(){
 }
 
 void set_des_steering(float steering, unsigned int src){
+    printf("setDs(%i) = %f\n",src,steering);
     if(src == 0)
         return;
-    if(src < 3)
+    if(src < 4)
         desired_steering[src-1] = steering;
 }
 
 void set_input_src(unsigned int src){
-    if(src > 3)
+    if(src > 4)
         return;
     if(src != 0)
         set_des_steering(get_steering(), src);
@@ -128,6 +129,8 @@ void adc_task(void* ignore){
 
 void init_rc_in(void* ignore){
     init_crsf();
+    //printf("end init crsf\n");
+    //vTaskDelay(1000);
     vTaskDelete(NULL);
 }
 

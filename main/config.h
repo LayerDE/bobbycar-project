@@ -25,8 +25,8 @@
 #define I2C_SCL 23
 #define TX0 18
 #define RX0 5
-#define TX1 4
-#define RX1 0
+#define TX1 15
+#define RX1 13
 #define CRSF_RX 16
 #define CRSF_TX 17
 #define LED_BUILTIN 22

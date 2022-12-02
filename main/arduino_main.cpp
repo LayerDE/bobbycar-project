@@ -205,7 +205,7 @@ void setup() {
             if(eTaskGetState(tasks[x]))
                 y--;
         vTaskDelay(10);
-        printf("next %i\n",y);
+        //printf("next %i\n",y);
     }
     Wire.begin(I2C_SDA,I2C_SCL);
     // ESP_BT.begin("ESP32_BobbyCon"); //Name of your Bluetooth Signal
@@ -215,6 +215,7 @@ void setup() {
     xTaskCreate(&tast_usb_console, "tast_usb_console", 2048 * 2, NULL, 2, NULL);
     // xTaskCreate(&tast_bt_console, "tast_bt_console", 2048 * 2, NULL, 2, NULL);
     xTaskCreate(&gamepad_task, "tast_bt_gamepad", 2048 * 2, NULL, 3, NULL);
+
     xTaskCreate(&rc_in_task, "tast_rc_in", 2048 * 2, NULL, 3, NULL);
       SerialFeedback_front.speedL_meas = SerialFeedback_front.speedR_meas = SerialFeedback_rear.speedL_meas = SerialFeedback_rear.speedR_meas = 0;
     HoverSerial_front.begin(HOVER_SERIAL_BAUD);
