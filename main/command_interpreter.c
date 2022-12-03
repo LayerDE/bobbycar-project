@@ -136,13 +136,6 @@ static bool cmd_start_log(const char* argv, c_data* out){
     return true;
 }
 
-static bool cmd_get_des_steering(const char* argv, c_data* out){
-    char buffer[20];
-    sprintf(buffer, "dS:%f\n",rad2deg(get_des_steering()));
-    c_data_extend_raw(out, buffer, strlen(buffer));
-    return true;
-}
-
 static bool cmd_get_throttle(const char* argv, c_data* out){
     char buffer[20];
     sprintf(buffer, "T:%i\n",get_throttle());
@@ -227,6 +220,13 @@ static bool cmd_set_input(const char* argv, c_data* out){
 static bool cmd_get_input(const char* argv, c_data* out){
     char buffer[20];
     sprintf(buffer, "I:%s\n",inputs[get_input_src()]);
+    c_data_extend_raw(out, buffer, strlen(buffer));
+    return true;
+}
+
+static bool cmd_get_des_steering(const char* argv, c_data* out){
+    char buffer[20];
+    sprintf(buffer, "dS:%f\n",rad2deg(get_des_steering()));
     c_data_extend_raw(out, buffer, strlen(buffer));
     return true;
 }

@@ -192,20 +192,22 @@ static inline void feedback_update(){
 
 // Arduino setup function. Runs in CPU 1
 void setup() {
-    const int task_count = 3;
+    const int task_count = INPUT_COUNT;
     printf("Hoverboard Serial v1.1\n");
-    TaskHandle_t tasks[task_count] = {NULL, NULL, NULL};
-    //xTaskCreate(&init_gamepad, "init_gamepad", 2048 * 3, NULL, 5, &tasks[0]);
+    TaskHandle_t tasks[task_count] = {NULL, NULL, NULL, NULL};
+    xTaskCreate(&init_gamepad, "init_gamepad", 2048 * 3, NULL, 5, &tasks[3]);
     xTaskCreate(&init_adc_task, "init_adc_task", 2048 * 2, NULL, 5, &tasks[0]);
     xTaskCreate(&usb_console_init, "usb_console_init", 2048 * 2, NULL, 5, &tasks[1]);
     xTaskCreate(&init_rc_in, "rc_in_init", 2048 * 2, NULL, 5, &tasks[2]);
-    for(int y = task_count; y > 0; y = task_count){
+    for(int y = task_count; y > 0;){
+        y = task_count;
         for(int x = 0; x < task_count; x++)
             if(eTaskGetState(tasks[x]))
                 y--;
         vTaskDelay(10);
         //printf("next %i\n",y);
     }
+    printf("next\n");
     Wire.begin(I2C_SDA,I2C_SCL);
     // ESP_BT.begin("ESP32_BobbyCon"); //Name of your Bluetooth Signal
     // lcd.init(); //Im Setup wird der LCD gestartet

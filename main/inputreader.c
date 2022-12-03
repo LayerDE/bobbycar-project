@@ -12,8 +12,8 @@
 
 volatile static int adc_throttle;
 volatile static int adc_steering;
-volatile static int external_throttle[3];
-volatile static float desired_steering[3];
+volatile static int external_throttle[INPUT_COUNT-1];
+volatile static float desired_steering[INPUT_COUNT-1];
 volatile static int input_src = 0;
 volatile static float regulated_steering_factor = 0;
 
@@ -33,22 +33,21 @@ float get_steering(){
 }
 
 float get_des_steering(){
-    if(input_src == 0)
+    if(input_src == INPUT_ADC)
         return get_steering();
     else
         return desired_steering[input_src-1];
 }
 
 void set_des_steering(float steering, unsigned int src){
-    printf("setDs(%i) = %f\n",src,steering);
-    if(src == 0)
+    if(src == INPUT_ADC)
         return;
-    if(src < 4)
+    if(src < INPUT_COUNT)
         desired_steering[src-1] = steering;
 }
 
 void set_input_src(unsigned int src){
-    if(src > 4)
+    if(src >= INPUT_COUNT || src == get_input_src())
         return;
     if(src != 0)
         set_des_steering(get_steering(), src);
@@ -70,7 +69,7 @@ static inline bool check_trottle(int throttle){
 }
 
 void set_ext_throttle(int throttle, unsigned int src){
-    if(check_trottle(throttle) && src < 4 && src != 0)
+    if(check_trottle(throttle) && src < INPUT_COUNT && src != 0)
         external_throttle[src - 1] = throttle;
 }
 
@@ -115,13 +114,13 @@ void gamepad_task(void* ignore){
 void adc_task(void* ignore){
     while(true){
         adc_steering = clean_adc_steering(value_buffer(analogRead(STEERING_PIN),0));
-        if(input_src == 0){
+        //if(input_src == 0){
             #if(THROTTLE0_PIN != THROTTLE1_PIN)
                 adc_throttle = clean_adc_half(value_buffer(analogRead(THROTTLE0_PIN),1)) - clean_adc_half(value_buffer(analogRead(THROTTLE1_PIN),2));
             #else
                 adc_throttle = clean_adc_full(value_buffer(analogRead(THROTTLE0_PIN),1));
             #endif
-        }
+        //}
         vTaskDelay(1);
     }
     vTaskDelete(NULL);
