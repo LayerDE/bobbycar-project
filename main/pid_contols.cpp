@@ -79,7 +79,7 @@ extern "C" void init_pid(){
     pid_tuner->SetNoiseBand(0);
         if(steering_controls != nullptr)
         delete steering_controls;
-    double kp = 0,ki = 0, kd = 0;
+    double kp = 0.125,ki = 0, kd = 0;
     bool on = true;
     steering_controls = new PID(&isPoint, &output, &setPoint, kp, ki, kd, on);
     steering_controls->SetOutputLimits(-limit,limit);
