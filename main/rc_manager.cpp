@@ -38,14 +38,14 @@ extern "C" void crsf_task()
         //printf("T: %i,%i; S: %i,%f; Switch: %i\n",crsf.channels[2],get_throttle(),crsf.channels[0],rad2deg(get_des_steering()), crsf.channels[5]);
     }
     else{
-        if(get_input_src() == INPUT_RC)
-            set_input_src(INPUT_ADC);
+        //if(get_input_src() == INPUT_RC)
+        //    set_input_src(INPUT_ADC);
         //set_des_steering(0,INPUT_RC);
         //set_ext_throttle(0,INPUT_RC);
     }
     if(crsf.channels[5]>1500 && get_input_src() != INPUT_RC)
         set_input_src(INPUT_RC);
-    else if(get_input_src() == INPUT_RC)
+    else if(get_input_src() == INPUT_RC && crsf.channels[5]<500)
         set_input_src(INPUT_ADC);
         // Must call CrsfSerial.loop() in loop() to process data
         //crsf->loop();
