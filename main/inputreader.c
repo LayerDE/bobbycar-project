@@ -12,9 +12,10 @@
 
 volatile static int adc_throttle;
 volatile static int adc_steering;
+volatile static int adc_follower;
 volatile static int external_throttle[INPUT_COUNT-1];
 volatile static float desired_steering[INPUT_COUNT-1];
-volatile static int input_src = 0;
+volatile static int input_src = DEFAULT_INPUT;
 volatile static float regulated_steering_factor = 0;
 
 float get_pid_steer(){

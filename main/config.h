@@ -23,8 +23,8 @@
 #define STEERING_PIN 33
 #define I2C_SDA 19
 #define I2C_SCL 23
-#define TX0 18
-#define RX0 5
+#define TX0 12
+#define RX0 14
 #define TX1 15
 #define RX1 13
 #define CRSF_RX 16
@@ -47,5 +47,5 @@
 #define INPUT_CONSOLE (INPUT_ADC+1)
 #define INPUT_GAMEPAD (INPUT_CONSOLE+1)
 #define INPUT_RC (INPUT_GAMEPAD+1)
-
+#define DEFAULT_INPUT INPUT_CONSOLE
 #define INPUT_COUNT 4
