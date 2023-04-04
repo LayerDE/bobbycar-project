@@ -9,6 +9,7 @@ extern "C" {
     float deg2rad(float in);
     void init_buffer();
     uint32_t value_buffer(uint32_t in, int val);
+    inline float pow2(float x);
     // bobbycar
     int sign(float in);
     int clean_adc_full(uint32_t inval);

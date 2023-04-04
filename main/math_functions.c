@@ -100,11 +100,9 @@ float calc_steering_eagle(int inval)
   return (float)inval * STEERING_EAGLE_FACTOR;
 }
 
-static inline float pow2(float x){
+inline float pow2(float x){
   return x*x;
 }
-
-#define L_WHEELBASE2 (L_WHEELBASE * L_WHEELBASE)
 
 void calc_torque_per_wheel(int throttle, float alpha_steer,int torque_regulated, int *torque)
 {
@@ -117,8 +115,8 @@ void calc_torque_per_wheel(int throttle, float alpha_steer,int torque_regulated,
     V[2] = (V_bw + L_WIDTH/2.0*sign(alpha_steer)) / V_bw; //torque[2] 
     V[3]= (V_bw - L_WIDTH/2.0*sign(alpha_steer)) / V_bw; //torque[3] 
 
-    V[0] = (sqrt(pow2(V_bw + (L_STEERING_WIDTH/2.0)*sign(alpha_steer))+L_WHEELBASE2)+L_STEERING_TO_WHEEL)/V_bw; //torque[0] 
-    V[1] = (sqrt(pow2(V_bw - (L_STEERING_WIDTH/2.0)*sign(alpha_steer))+L_WHEELBASE2)+L_STEERING_TO_WHEEL)/V_bw; //torque[1]
+    V[0] = (sqrt(pow2(V_bw + (L_STEERING_WIDTH/2.0)*sign(alpha_steer))+pow2(L_WHEELBASE))+L_STEERING_TO_WHEEL)/V_bw; //torque[0] 
+    V[1] = (sqrt(pow2(V_bw - (L_STEERING_WIDTH/2.0)*sign(alpha_steer))+pow2(L_WHEELBASE))+L_STEERING_TO_WHEEL)/V_bw; //torque[1]
 
     float correction_factor = 4.0/(V[0]+V[1]+V[2]+V[3]);
     for(int x = 0; x < 4; x++)

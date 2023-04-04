@@ -2,13 +2,14 @@
 #include <stdint.h>
 #include "defines.h"
 #include "config.h"
+#include "math_functions.h"
 
 float calc_beta_const(float alpha_steer){
     if(alpha_steer == 0.0)
         return 0.0;
     float V_bw = L_WHEELBASE/tan(fabs(alpha_steer));
-    float delta_1 = tan(L_REAR_TO_HITCH/V_bw);
-    float delta_2 = sin(L_HITCH_TO_FOLLOWER_AXLE/sqrt(V_bw*V_bw+L_REAR_TO_HITCH*L_REAR_TO_HITCH));
+    return tan(L_REAR_TO_HITCH/V_bw);
+    float delta_2 = sin(L_HITCH_TO_FOLLOWER_AXLE/sqrt(pow2(V_bw)+pow2(L_REAR_TO_HITCH)));
     return delta_1;
 }
 
