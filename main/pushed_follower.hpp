@@ -8,7 +8,9 @@ typedef int (*get_int)();
 
 class follower{
     public:
-        follower(int rc_axle2hitch, int hitch2car_axle);
+        follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle,
+            get_float steering_ptr, get_float hitch_angle_ptr, get_int speed_ptr,
+            double ki, double kp, double kd);
         ~follower();
         double calculate(int des_speed, float des_steering);
     private:
@@ -24,5 +26,4 @@ class follower{
         int hitch2axle;
         int car2hitch;
         int car_wheelbase;
-
 };

@@ -5,6 +5,7 @@
     "files.associations": {
         "iosfwd": "cpp",
         "limits": "cpp",
-        "streambuf": "cpp"
+        "streambuf": "cpp",
+        "*.tcc": "cpp"
     }
 }
