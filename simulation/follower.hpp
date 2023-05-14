@@ -2,7 +2,7 @@
 #include "car.hpp"
 #include "position.hpp"
 
-class follower : position{
+class follower : public position{
     private:
         car* connected_car;
         float lenght;

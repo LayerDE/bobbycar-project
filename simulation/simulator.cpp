@@ -7,6 +7,11 @@ simulator::simulator(float bbx, float bby, float bbangle, float bbalpha, float f
     bb = car(2,1,bbx,bby,bbangle,bbalpha);
 };
 void simulator::simulate(float lenght){
-    while(lenght-=step_lengt)
+    while(lenght-=step_lengt > 0){
         step();
+        if(use_output){
+            bb_out(bb.x,bb.y,bb.direction);
+            trail_out(trail.x, trail.y, trail.direction);
+        }
+    }
 }

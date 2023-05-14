@@ -1,7 +1,7 @@
 #pragma once
 #include "position.hpp"
 
-class car : position{
+class car : public position{
     private:
         float wheelbase;
         float rear2hitch;
