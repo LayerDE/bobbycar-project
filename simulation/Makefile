@@ -2,7 +2,7 @@ CXX = g++ -Wall -pedantic -std=c++11
 MAIN_BINARIES = $(basename $(wildcard *Main.cpp))
 HEADERS = $(wildcard *.hpp)
 OBJECTS = $(addsuffix .o, $(basename $(filter-out %Main.cpp, $(wildcard *.cpp))))
-LIBRARIES = lm
+LIBRARIES = -lm
 
 .PRECIOUS: %.o
 .SUFFIXES:

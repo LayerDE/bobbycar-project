@@ -9,7 +9,3 @@ follower::follower(car* bbc, float len, float hbeta) : position(bbc->x,bbc->y,bb
     direction+=beta;
     move_straight(-lenght,0);
 }
-
-follower::follower(float len, float hx, float hy, car* bbc) : position(hx,hy,0){
-    lenght = len;
-}
