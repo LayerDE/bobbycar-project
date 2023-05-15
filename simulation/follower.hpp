@@ -6,7 +6,7 @@ class follower : public position{
     private:
         car* connected_car;
         float lenght;
-        float beta;
+        float beta();
         position last_car_pos;
     public:
         float angle;
