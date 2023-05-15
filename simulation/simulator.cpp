@@ -17,3 +17,8 @@ void simulator::simulate(float lenght){
         }
     }
 }
+
+void simulator::set_output(point_out car,point_out trailer){
+    bb_out = car;
+    trail_out = trailer;
+}
