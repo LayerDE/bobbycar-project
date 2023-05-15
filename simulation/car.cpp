@@ -27,7 +27,7 @@ void car::calc_curve(float lenght, float alpha_steer, float &x, float &y, float 
 }
 void car::move(float move_lenght){
     float x,y,a;
-    calc_curve(lenght,alpha,x,y,a);
+    calc_curve(move_lenght,alpha,x,y,a);
     move_straight(x,y);
     direction+=a;
 };

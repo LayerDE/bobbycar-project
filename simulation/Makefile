@@ -1,24 +1,16 @@
 CXX = g++ -Wall -pedantic -std=c++11
 MAIN_BINARIES = $(basename $(wildcard *Main.cpp))
-TEST_BINARIES = $(basename $(wildcard *Test.cpp))
-HEADERS = $(wildcard *.h)
-OBJECTS = $(addsuffix .o, $(basename $(filter-out %Main.cpp %Test.cpp, $(wildcard *.cpp))))
-LIBRARIES =
+HEADERS = $(wildcard *.hpp)
+OBJECTS = $(addsuffix .o, $(basename $(filter-out %Main.cpp, $(wildcard *.cpp))))
+LIBRARIES = lm
 
 .PRECIOUS: %.o
 .SUFFIXES:
-.PHONY: all compile test checkstyle
+.PHONY: all compile
 
-all: compile test checkstyle
+all: compile
 
 compile: $(MAIN_BINARIES)
-
-test: $(TEST_BINARIES)
-#	for T in $(TEST_BINARIES); do valgrind --leak-check=full ./$$T; done
-	for T in $(TEST_BINARIES); do ./$$T; done
-
-checkstyle:
-	python3 ../cpplint.py --repository=. *.h *.cpp
 
 clean:
 	rm -f *.o
@@ -27,9 +19,6 @@ clean:
 
 %Main: %Main.o $(OBJECTS)
 	$(CXX) -o $@ $^ $(LIBRARIES)
-
-%Test: %Test.o $(OBJECTS)
-	$(CXX) -o $@ $^ $(LIBRARIES) -lgtest -lgtest_main -lpthread
 
 %.o: %.cpp $(HEADERS)
 	$(CXX) -c $<
