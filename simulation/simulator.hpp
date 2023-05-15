@@ -13,7 +13,7 @@ class simulator{
         point_out trail_out;
         car bb;
         follower trail;
-        void step();
+        void step(float move_lenght);
 
     public:
         simulator(float bbx, float bby, float bbangle, float bbalpha, float followerx, float followery, float step_size);

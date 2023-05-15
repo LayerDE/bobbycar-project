@@ -6,6 +6,11 @@ car::car(float wb, float rh, float hx, float hy, float hdirection, float halpha)
     rear2hitch = rh;
     alpha = halpha;
 }
+
+float car::get_r2h(){
+    return rear2hitch;
+}
+
 void car::calc_curve(float lenght, float alpha_steer, float &x, float &y, float &angle)
 {
     if(alpha_steer == 0.0f){
@@ -20,7 +25,7 @@ void car::calc_curve(float lenght, float alpha_steer, float &x, float &y, float 
         y = (1 - cos(angle)) * r_bw;
     }
 }
-void car::move(){
+void car::move(float move_lenght){
     float x,y,a;
     calc_curve(lenght,alpha,x,y,a);
     move_straight(x,y);
