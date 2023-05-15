@@ -5,7 +5,9 @@ void simulator::step(float step_lenght){
 
 }
 
-simulator::simulator(float bbx, float bby, float bbangle, float bbalpha, float followerx, float followery, float step_size) : bb(2,1,bbx,bby,bbangle,bbalpha),trail(&bb,1,0){
+simulator::simulator(float bbx, float bby, float bbangle, float bbalpha, float followerx, float followery, float step_size)
+        : bb(2,1,bbx,bby,bbangle,bbalpha), trail(&bb,1,0){
+    
 };
 
 void simulator::simulate(float lenght){
@@ -16,4 +18,9 @@ void simulator::simulate(float lenght){
             trail_out(trail.x, trail.y, trail.direction);
         }
     }
+}
+
+void simulator::set_output(point_out car,point_out trailer){
+    bb_out = car;
+    trail_out = trailer;
 }
