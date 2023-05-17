@@ -61,16 +61,16 @@ SoftwareSerial HoverSerial_rear(RX1, TX1);   // RX, TX
 bool dsp_connected;
 typedef struct {
     uint16_t start;
-    int16_t steer;
-    int16_t speed_per_wheel;
+    int16_t speed0;
+    int16_t speed1;
     uint16_t checksumL;
     uint16_t checksumH;
 } SerialCommand;
 
 typedef struct {
     uint16_t start;
-    int16_t cmd1;
-    int16_t cmd2;
+    int16_t steps0;
+    int16_t steps1;
     int16_t speedR_meas;
     int16_t speedL_meas;
     int16_t batVoltage;
@@ -109,8 +109,8 @@ void Send(SoftwareSerial* board, int16_t speed0, int16_t speed1) {
     SerialCommand Command;
     // Create command
     Command.start = (uint16_t)START_FRAME;
-    Command.steer = (int16_t)speed0;
-    Command.speed_per_wheel = (int16_t)speed1;
+    Command.speed0 = (int16_t)speed0;
+    Command.speed1 = (int16_t)speed1;
     uint32_t checksum = calc_crc32((uint8_t*)&Command, sizeof(SerialCommand) - sizeof(uint16_t)*2);
     Command.checksumL = checksum & 0xFFFF;
     Command.checksumH = checksum >> 16;
@@ -300,7 +300,7 @@ void loop() {
             if( last_time + 20000 < timeNow){
                 lcd->set_power(0);
             }else{
-                lcd->draw_screen(throttle, steering, des_steering, torgue, torgue_regulated, speed, voltage, get_input_src());
+                lcd->draw_screen(throttle, steering, des_steering, false, 0.0, torgue, torgue_regulated, speed, voltage, get_input_src());
             }
         }
     }

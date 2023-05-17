@@ -19,7 +19,7 @@ class display_2004 : display{
         display_2004(TwoWire *bus, char adr);
         ~display_2004();
         void clear();
-        void draw_screen(int throttle, float steering, float steering_desired, int *torgue, int torgue_regulated, int speed, int voltage, int input_src);
+        void draw_screen(int throttle, float steering, float steering_desired, bool trailer_en, float trailer_angle, int *torgue, int torgue_regulated, int speed, int voltage, int input_src);
         void draw_menu(int options, char* option_name[], int highlight);
         void draw_menu_w_selection(int options, char* option_name[], int highlight, char* selection);
         void draw_confirmation(char* text, int options, char* option_name[], int highlight);

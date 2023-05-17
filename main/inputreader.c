@@ -30,8 +30,23 @@ unsigned int get_input_src(){
 }
 
 float get_steering(){
-    return calc_steering_eagle(adc_steering);
+    return calc_angle(adc_steering)* 19f / 13f;
 }
+
+bool get_trailer_connected(){
+    if(adc_follower <= 50)
+        return false;
+    else
+        return true;
+}
+
+float get_trailer(){
+    if(get_trailer_connected())
+        return calc_angle(calc_trailer_clean_10k100k((float)adc_follower/(float)((1<<12)-1))*(float)((1<<12)-1));
+    else
+        return 1f/0f;
+}
+
 
 float get_des_steering(){
     if(input_src == INPUT_ADC)
@@ -102,10 +117,8 @@ void gamepad_task(void* ignore){
     while(true){
         tmp = input_src;
         gpm_read(&pad_data[0],&pad_data[1],&tmp);
-        //external_throttle[1] = pad_data[0];
         set_ext_throttle(pad_data[0],INPUT_GAMEPAD);
         set_des_steering(pad_data[1],INPUT_GAMEPAD);
-        //desired_steering[1] = pad_data[1];
         input_src = tmp;
         vTaskDelay(20);
     }
@@ -115,11 +128,12 @@ void gamepad_task(void* ignore){
 void adc_task(void* ignore){
     while(true){
         adc_steering = clean_adc_steering(value_buffer(analogRead(STEERING_PIN),0));
+        adc_follower = value_buffer(analogRead(TRAILER_PIN),1);
         //if(input_src == 0){
             #if(THROTTLE0_PIN != THROTTLE1_PIN)
-                adc_throttle = clean_adc_half(value_buffer(analogRead(THROTTLE0_PIN),1)) - clean_adc_half(value_buffer(analogRead(THROTTLE1_PIN),2));
+                adc_throttle = clean_adc_half(value_buffer(analogRead(THROTTLE0_PIN),2)) - clean_adc_half(value_buffer(analogRead(THROTTLE1_PIN),3));
             #else
-                adc_throttle = clean_adc_full(value_buffer(analogRead(THROTTLE0_PIN),1));
+                adc_throttle = clean_adc_full(value_buffer(analogRead(THROTTLE0_PIN),2));
             #endif
         //}
         vTaskDelay(1);

@@ -25,6 +25,7 @@
 #define THROTTLE0_PIN 32
 #define THROTTLE1_PIN 32
 #define STEERING_PIN 33
+#define TRAILER_PIN 35
 #define I2C_SDA 19
 #define I2C_SCL 23
 #define TX0 12
@@ -45,7 +46,13 @@
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 #define BUFFERSIZE 128
+
+
+#if(THROTTLE0_PIN != THROTTLE1_PIN)
+#define VAL_CNT 4
+#else
 #define VAL_CNT 3
+#endif
 
 #define INPUT_ADC 0
 #define INPUT_CONSOLE (INPUT_ADC+1)

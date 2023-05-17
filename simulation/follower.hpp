@@ -14,5 +14,5 @@ class follower : public position{
         follower(car* bbc, float len, float hbeta);
         bool check_connection();
         void set_angle();
-        void move(float lenght);
+        void move();
 };

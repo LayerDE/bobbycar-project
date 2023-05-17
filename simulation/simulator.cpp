@@ -2,6 +2,7 @@
 
 void simulator::step(float step_lenght){
     bb.move(step_lenght);
+    trail.move();
 
 }
 

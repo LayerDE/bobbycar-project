@@ -23,7 +23,7 @@ void display::set_power(bool on){
     }
 }
 
-void display::draw_screen(int throttle, float steering, float steering_desired, int *torgue, int torgue_regulated, int speed, int voltage, int input_src){
+void display::draw_screen(int throttle, float steering, float steering_desired, bool trailer_en, float trailer_angle, int *torgue, int torgue_regulated, int speed, int voltage, int input_src){
     set_state(USERINTERFACE);
 }
 
