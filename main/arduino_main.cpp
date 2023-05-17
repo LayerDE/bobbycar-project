@@ -300,7 +300,7 @@ void loop() {
             if( last_time + 20000 < timeNow){
                 lcd->set_power(0);
             }else{
-                lcd->draw_screen(throttle, steering, des_steering, false, 0.0, torgue, torgue_regulated, speed, voltage, get_input_src());
+                lcd->draw_screen(throttle, steering, des_steering, get_trailer_connected(), get_trailer(), torgue, torgue_regulated, speed, voltage, get_input_src());
             }
         }
     }

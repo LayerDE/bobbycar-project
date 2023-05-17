@@ -62,7 +62,7 @@ int clean_adc_steering(uint32_t inval)
   return abs_outval * STR_MAX / (STR_RANGE - DEAD_ZONE * 3 / 2) * sign(outval);
 }
 
-int clean_adc_follower{
+int clean_adc_follower(uint32_t inval){
   int outval = (int)(inval) - STR_MID;
   int abs_outval = abs(outval);
   if (abs_outval < (DEAD_ZONE / 2)) // deadzone
@@ -109,7 +109,7 @@ int calc_torque(int throttle, int breaks)
 
 float calc_angle(int inval)
 {
-  return (float)inval * STEERING_EAGLE_FACTOR * 13f / 19f;
+  return (float)inval * STEERING_EAGLE_FACTOR * 13.0f / 19.0f;
 }
 
 inline float pow2(float x){
@@ -117,7 +117,7 @@ inline float pow2(float x){
 }
 
 float calc_trailer_clean_10k100k(float y){
-  return (sqrt(41*pow2(y)-62*y+121)+y+9)/2*(y-1)
+  return (sqrt(41*pow2(y)-62*y+121)+y+9)/2*(y-1);
 }
 
 void calc_torque_per_wheel(int throttle, float alpha_steer,int torque_regulated, int *torque)

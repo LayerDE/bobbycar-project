@@ -30,7 +30,7 @@ unsigned int get_input_src(){
 }
 
 float get_steering(){
-    return calc_angle(adc_steering)* 19f / 13f;
+    return calc_angle(adc_steering)* 19.0f / 13.0f;
 }
 
 bool get_trailer_connected(){
@@ -44,7 +44,7 @@ float get_trailer(){
     if(get_trailer_connected())
         return calc_angle(calc_trailer_clean_10k100k((float)adc_follower/(float)((1<<12)-1))*(float)((1<<12)-1));
     else
-        return 1f/0f;
+        return 1.0f/0.0f;
 }
 
 

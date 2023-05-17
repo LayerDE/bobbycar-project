@@ -36,14 +36,14 @@ void display_oled::clear(){
     oled->display();
 }
 void display_oled::draw_screen(int throttle, float steering, float steering_desired, bool trailer_en, float trailer_angle, int *torgue, int torgue_regulated, int speed, int voltage, int input_src){
-    display::draw_screen(throttle, steering, steering_desired, ,trailer_en. trailer_angle, torgue, torgue_regulated, speed, voltage, input_src);
+    display::draw_screen(throttle, steering, steering_desired, trailer_en, trailer_angle, torgue, torgue_regulated, speed, voltage, input_src);
     char sprint_buffer[256];
     if(trailer_en)
-        sprintf(sprint_buffer, "Throttle: %i\nSteer: %f->%f Trail: %f\n%i %c %i  \t  %i %c %i\n%i      \t      %i\n%i: S%i B%i T%i\nV:%i    SPEED: %i", throttle,
-            rad2deg(steering), rad2deg(steering_desired), rad2deg(trailer_angle) torgue[0], torgue_regulated<0 ? '+' : '-' , ABS(torgue_regulated), torgue[1], torgue_regulated>0 ? '+' : '-' , ABS(torgue_regulated), torgue[2], torgue[3], input_src , 0, 0,
+        sprintf(sprint_buffer, "Throttle: %i\nS: %.2f->%.2f T: %.2f\n%i %c %i  \t  %i %c %i\n%i      \t      %i\n%i: S%i B%i T%i\nV:%i    SPEED: %i", throttle,
+            rad2deg(steering), rad2deg(steering_desired), rad2deg(trailer_angle), torgue[0], torgue_regulated<0 ? '+' : '-' , ABS(torgue_regulated), torgue[1], torgue_regulated>0 ? '+' : '-' , ABS(torgue_regulated), torgue[2], torgue[3], input_src , 0, 0,
             throttle, voltage, speed);
     else
-        sprintf(sprint_buffer, "Throttle: %i\nSteering: %f->%f\n%i %c %i  \t  %i %c %i\n%i      \t      %i\n%i: S%i B%i T%i\nV:%i    SPEED: %i", throttle,
+        sprintf(sprint_buffer, "Throttle: %i\nSteering: %.2f->%.2f\n%i %c %i  \t  %i %c %i\n%i      \t      %i\n%i: S%i B%i T%i\nV:%i    SPEED: %i", throttle,
             rad2deg(steering), rad2deg(steering_desired), torgue[0], torgue_regulated<0 ? '+' : '-' , ABS(torgue_regulated), torgue[1], torgue_regulated>0 ? '+' : '-' , ABS(torgue_regulated), torgue[2], torgue[3], input_src , 0, 0,
             throttle, voltage, speed);
     oled->clearDisplay();
