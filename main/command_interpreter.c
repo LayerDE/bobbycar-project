@@ -120,6 +120,19 @@ static bool cmd_get_steering(const char* argv, c_data* out){
     return true;
 }
 
+static bool cmd_get_follower(const char* argv, c_data* out){
+    if(get_trailer_connected()){
+        char buffer[20];
+        sprintf(buffer, "F:%f\n",rad2deg(get_trailer()));
+        c_data_extend_raw(out, buffer, strlen(buffer));
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+
 static bool cmd_get_log(const char* argv, c_data* out){
     int tmp = dump_log();
     char buffer[20];
@@ -266,6 +279,7 @@ static const command commands[] = {
     {"gets",cmd_get_steering},
     {"getds",cmd_get_des_steering},
     {"gett",cmd_get_throttle},
+    {"getf",cmd_get_follower},
     {"geti",cmd_get_input},
     {"getkp",cmd_get_pid_kp},
     {"getki",cmd_get_pid_ki},

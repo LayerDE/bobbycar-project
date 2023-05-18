@@ -109,7 +109,7 @@ int calc_torque(int throttle, int breaks)
 
 float calc_angle(int inval)
 {
-  return (float)inval * STEERING_EAGLE_FACTOR * 13.0f / 19.0f;
+  return (float)inval * STEERING_ANGLE_FACTOR * 13.0f / 19.0f;
 }
 
 inline float pow2(float x){
