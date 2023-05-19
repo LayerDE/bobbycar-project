@@ -50,9 +50,17 @@
 #include <btstack.h>
 #include <inttypes.h>
 
-#include "uni_bluetooth.h"
+#include "sdkconfig.h"
+#include "uni_bt.h"
+#include "uni_bt_bredr.h"
 #include "uni_common.h"
-#include "uni_debug.h"
+#include "uni_config.h"
+#include "uni_log.h"
+
+// These are the only two supported platforms with BR/EDR support.
+#if !(defined(CONFIG_IDF_TARGET_ESP32) || defined(CONFIG_TARGET_LIBUSB))
+#error "This file can only be compiled for ESP32 or LibUSB"
+#endif
 
 #define MAX_ATTRIBUTE_VALUE_SIZE 512  // Apparently PS4 has a 470-bytes report
 
@@ -66,8 +74,6 @@ static const unsigned int sdp_attribute_value_buffer_size = MAX_ATTRIBUTE_VALUE_
 static uni_hid_device_t* sdp_device = NULL;
 static btstack_timer_source_t sdp_query_timer;
 
-static void handle_sdp_hid_query_result(uint8_t packet_type, uint16_t channel, uint8_t* packet, uint16_t size);
-static void handle_sdp_pid_query_result(uint8_t packet_type, uint16_t channel, uint8_t* packet, uint16_t size);
 static void sdp_query_timeout(btstack_timer_source_t* ts);
 
 // SDP Server
@@ -181,7 +187,7 @@ static void handle_sdp_pid_query_result(uint8_t packet_type, uint16_t channel, u
                  uni_hid_device_get_product_id(sdp_device));
             uni_hid_device_guess_controller_type_from_pid_vid(sdp_device);
             uni_bt_conn_set_state(&sdp_device->conn, UNI_BT_CONN_STATE_SDP_VENDOR_FETCHED);
-            uni_bluetooth_process_fsm(sdp_device);
+            uni_bt_bredr_process_fsm(sdp_device);
             break;
         default:
             // TODO: xxx
@@ -234,7 +240,7 @@ void uni_bt_sdp_query_end(uni_hid_device_t* d) {
     uni_bt_conn_set_state(&d->conn, UNI_BT_CONN_STATE_SDP_HID_DESCRIPTOR_FETCHED);
     sdp_device = NULL;
     btstack_run_loop_remove_timer(&sdp_query_timer);
-    uni_bluetooth_process_fsm(d);
+    uni_bt_bredr_process_fsm(d);
 }
 
 void uni_bt_sdp_query_start_vid_pid(uni_hid_device_t* d) {

@@ -22,10 +22,13 @@ limitations under the License.
 #include <sys/time.h>
 
 #include "sdkconfig.h"
+#include "uni_bt_bredr.h"
 #include "uni_bt_defines.h"
+#include "uni_bt_le.h"
 #include "uni_circular_buffer.h"
+#include "uni_common.h"
 #include "uni_config.h"
-#include "uni_debug.h"
+#include "uni_controller.h"
 #include "uni_gamepad.h"
 #include "uni_hid_device_vendors.h"
 #include "uni_hid_parser_8bitdo.h"
@@ -38,10 +41,13 @@ limitations under the License.
 #include "uni_hid_parser_mouse.h"
 #include "uni_hid_parser_nimbus.h"
 #include "uni_hid_parser_ouya.h"
+#include "uni_hid_parser_psmove.h"
 #include "uni_hid_parser_smarttvremote.h"
+#include "uni_hid_parser_steam.h"
 #include "uni_hid_parser_switch.h"
 #include "uni_hid_parser_wii.h"
 #include "uni_hid_parser_xboxone.h"
+#include "uni_log.h"
 #include "uni_platform.h"
 
 enum {
@@ -64,8 +70,9 @@ static void misc_button_enable_callback(btstack_timer_source_t* ts);
 static void device_connection_timeout(btstack_timer_source_t* ts);
 static void start_connection_timeout(uni_hid_device_t* d);
 
-void uni_hid_device_init(void) {
-    memset(g_devices, 0, sizeof(g_devices));
+void uni_hid_device_setup(void) {
+    for (int i = 0; i < CONFIG_BLUEPAD32_MAX_DEVICES; i++)
+        uni_hid_device_init(&g_devices[i]);
 }
 
 uni_hid_device_t* uni_hid_device_create(bd_addr_t address) {
@@ -75,7 +82,6 @@ uni_hid_device_t* uni_hid_device_create(bd_addr_t address) {
 
             memset(&g_devices[i], 0, sizeof(g_devices[i]));
             memcpy(g_devices[i].conn.btaddr, address, 6);
-            g_devices[i].hids_cid = -1;
 
             // Delete device if it doesn't have a connection
             start_connection_timeout(&g_devices[i]);
@@ -83,6 +89,17 @@ uni_hid_device_t* uni_hid_device_create(bd_addr_t address) {
         }
     }
     return NULL;
+}
+
+void uni_hid_device_init(uni_hid_device_t* d) {
+    if (d == NULL) {
+        loge("Invalid device\n");
+        return;
+    }
+    memset(d, 0, sizeof(*d));
+    d->hids_cid = 0xffff;
+
+    uni_bt_conn_init(&d->conn);
 }
 
 uni_hid_device_t* uni_hid_device_get_instance_for_address(bd_addr_t addr) {
@@ -115,7 +132,7 @@ uni_hid_device_t* uni_hid_device_get_instance_for_hids_cid(uint16_t cid) {
 }
 
 uni_hid_device_t* uni_hid_device_get_instance_for_connection_handle(hci_con_handle_t handle) {
-    if (handle == 0)
+    if (handle == UNI_BT_CONN_HANDLE_INVALID)
         return NULL;
     for (int i = 0; i < CONFIG_BLUEPAD32_MAX_DEVICES; i++) {
         if (g_devices[i].conn.handle == handle) {
@@ -123,12 +140,6 @@ uni_hid_device_t* uni_hid_device_get_instance_for_connection_handle(hci_con_hand
         }
     }
     return NULL;
-}
-
-uni_hid_device_t* uni_hid_device_get_instance_for_idx(int idx) {
-    if (idx < 0 || idx >= CONFIG_BLUEPAD32_MAX_DEVICES)
-        return NULL;
-    return &g_devices[idx];
 }
 
 uni_hid_device_t* uni_hid_device_get_instance_with_predicate(uni_hid_device_predicate_t predicate, void* data) {
@@ -140,6 +151,20 @@ uni_hid_device_t* uni_hid_device_get_instance_with_predicate(uni_hid_device_pred
             return &g_devices[i];
     }
     return NULL;
+}
+
+uni_hid_device_t* uni_hid_device_get_instance_for_idx(int idx) {
+    if (idx < 0 || idx >= CONFIG_BLUEPAD32_MAX_DEVICES)
+        return NULL;
+    return &g_devices[idx];
+}
+
+int uni_hid_device_get_idx_for_instance(uni_hid_device_t* d) {
+    int idx = (d - &g_devices[0]) / sizeof(g_devices[0]);
+
+    if (idx < 0 || idx >= CONFIG_BLUEPAD32_MAX_DEVICES)
+        return -1;
+    return idx;
 }
 
 uni_hid_device_t* uni_hid_device_get_first_device_with_state(uni_bt_conn_state_t state) {
@@ -358,29 +383,35 @@ void uni_hid_device_connect(uni_hid_device_t* d) {
 }
 
 void uni_hid_device_disconnect(uni_hid_device_t* d) {
+    // Might be called from different states... perhaps the device was already connected.
+    // Or perhaps it got disconnected in the middle of a connection.
+    bool connected = false;
+
     if (d == NULL) {
         loge("uni_hid_device_disconnect: invalid hid device: NULL\n");
         return;
     }
 
     logi("Disconnecting device: %s\n", bd_addr_to_str(d->conn.btaddr));
-    if (!d->conn.connected) {
-        logi("Device %s already disconnected, ignoring\n", bd_addr_to_str(d->conn.btaddr));
-        return;
-    }
+
+    connected = d->conn.connected;
+
+    // Cleanup
+    if (IS_ENABLED(UNI_ENABLE_BREDR))
+        uni_bt_bredr_disconnect(&d->conn);
+    if (IS_ENABLED(UNI_ENABLE_BLE))
+        uni_bt_le_disconnect(&d->conn);
 
     // Close possible open connections
     uni_bt_conn_disconnect(&d->conn);
-
-    // Tell platforms
-    uni_hid_device_on_connected(d, false);
 
     // Disconnected, so no longer needs the timers
     btstack_run_loop_remove_timer(&d->connection_timer);
     btstack_run_loop_remove_timer(&d->inquiry_remote_name_timer);
 
-    // TODO: If the inquiry_remote_name_timeout_callback is associated with this device,
-    // then it should be removed as well.
+    // If it was already connected, tell platforms
+    if (connected)
+        uni_hid_device_on_connected(d, false);
 }
 
 void uni_hid_device_delete(uni_hid_device_t* d) {
@@ -393,13 +424,32 @@ void uni_hid_device_delete(uni_hid_device_t* d) {
     // Remove the timer. If it was still running, it will crash if the handler gets called.
     btstack_run_loop_remove_timer(&d->connection_timer);
 
-    memset(d, 0, sizeof(*d));
+    uni_hid_device_init(d);
 }
 
 void uni_hid_device_dump_device(uni_hid_device_t* d) {
-    logi("%s\n", bd_addr_to_str(d->conn.btaddr));
-    logi("\tbt: handle=%d, ctrl_cid=0x%04x, intr_cid=0x%04x, cod=0x%08x, flags=0x%08x, incoming=%d\n", d->conn.handle,
-         d->conn.control_cid, d->conn.interrupt_cid, d->cod, d->flags, d->conn.incoming);
+    char* conn_type;
+    gap_connection_type_t type;
+
+    type = gap_get_connection_type(d->conn.handle);
+    switch (type) {
+        case GAP_CONNECTION_ACL:
+            conn_type = "ACL";
+            break;
+        case GAP_CONNECTION_SCO:
+            conn_type = "SCO";
+            break;
+        case GAP_CONNECTION_LE:
+            conn_type = "BLE";
+            break;
+        default:
+            conn_type = "Invalid";
+            break;
+    }
+
+    logi("\tbtaddr: %s\n", bd_addr_to_str(d->conn.btaddr));
+    logi("\tbt: handle=%d (%s), ctrl_cid=0x%04x, intr_cid=0x%04x, cod=0x%08x, flags=0x%08x, incoming=%d\n",
+         d->conn.handle, conn_type, d->conn.control_cid, d->conn.interrupt_cid, d->cod, d->flags, d->conn.incoming);
     logi("\tmodel: vid=0x%04x, pid=0x%04x, model='%s', name='%s'\n", d->vendor_id, d->product_id,
          uni_gamepad_get_model_name(d->controller_type), d->name);
     if (uni_get_platform()->device_dump)
@@ -413,6 +463,7 @@ void uni_hid_device_dump_all(void) {
     for (int i = 0; i < CONFIG_BLUEPAD32_MAX_DEVICES; i++) {
         if (bd_addr_cmp(g_devices[i].conn.btaddr, zero_addr) == 0)
             continue;
+        logi("idx=%d:\n", i);
         uni_hid_device_dump_device(&g_devices[i]);
         logi("\n");
     }
@@ -475,7 +526,7 @@ void uni_hid_device_guess_controller_type_from_pid_vid(uni_hid_device_t* d) {
             d->report_parser.init_report = uni_hid_parser_xboxone_init_report;
             d->report_parser.parse_usage = uni_hid_parser_xboxone_parse_usage;
             d->report_parser.set_rumble = uni_hid_parser_xboxone_set_rumble;
-            logi("Device detected as Xbox One: 0x%02x\n", type);
+            logi("Device detected as Xbox Wireless: 0x%02x\n", type);
             break;
         case CONTROLLER_TYPE_AndroidController:
             d->report_parser.init_report = uni_hid_parser_android_init_report;
@@ -493,6 +544,14 @@ void uni_hid_device_guess_controller_type_from_pid_vid(uni_hid_device_t* d) {
             d->report_parser.init_report = uni_hid_parser_smarttvremote_init_report;
             d->report_parser.parse_usage = uni_hid_parser_smarttvremote_parse_usage;
             logi("Device detected as Smart TV remote: 0x%02x\n", type);
+            break;
+        case CONTROLLER_TYPE_PSMoveController:
+            d->report_parser.setup = uni_hid_parser_psmove_setup;
+            d->report_parser.init_report = uni_hid_parser_psmove_init_report;
+            d->report_parser.parse_input_report = uni_hid_parser_psmove_parse_input_report;
+            d->report_parser.set_lightbar_color = uni_hid_parser_psmove_set_lightbar_color;
+            d->report_parser.set_rumble = uni_hid_parser_psmove_set_rumble;
+            logi("Device detected as PS Move: 0x%02x\n", type);
             break;
         case CONTROLLER_TYPE_PS3Controller:
             d->report_parser.setup = uni_hid_parser_ds3_setup;
@@ -553,6 +612,12 @@ void uni_hid_device_guess_controller_type_from_pid_vid(uni_hid_device_t* d) {
             d->report_parser.device_dump = uni_hid_parser_switch_device_dump;
             logi("Device detected as Nintendo Switch Pro controller: 0x%02x\n", type);
             break;
+        case CONTROLLER_TYPE_SteamController:
+            d->report_parser.setup = uni_hid_parser_steam_setup;
+            d->report_parser.init_report = uni_hid_parser_steam_init_report;
+            d->report_parser.parse_input_report = uni_hid_parser_steam_parse_input_report;
+            logi("Device detected as Steam: 0x%02x\n", type);
+            break;
         case CONTROLLER_TYPE_GenericMouse:
             d->report_parser.setup = uni_hid_parser_mouse_setup;
             d->report_parser.parse_input_report = uni_hid_parser_mouse_parse_input_report;
@@ -585,22 +650,21 @@ void uni_hid_device_set_connection_handle(uni_hid_device_t* d, hci_con_handle_t 
     d->conn.handle = handle;
 }
 
-void uni_hid_device_process_gamepad(uni_hid_device_t* d) {
+void uni_hid_device_process_controller(uni_hid_device_t* d) {
     uni_gamepad_t gp;
-
     if (uni_bt_conn_get_state(&d->conn) != UNI_BT_CONN_STATE_DEVICE_READY) {
         return;
     }
 
-    // Don't propagate the event if there are no changes in the gamepad state.
-    // This could happen when a gamepad process a "control" report instead of
-    // data.
-    if (d->gamepad.updated_states == 0)
-        return;
+    if (d->controller.klass == UNI_CONTROLLER_CLASS_GAMEPAD) {
+        gp = uni_gamepad_remap(&d->controller.gamepad);
+        d->controller.gamepad = gp;
+    }
 
-    gp = uni_gamepad_remap(&d->gamepad);
-
-    uni_get_platform()->on_gamepad_data(d, &gp);
+    if (uni_get_platform()->on_controller_data != NULL)
+        uni_get_platform()->on_controller_data(d, &d->controller);
+    else if (uni_get_platform()->on_gamepad_data != NULL)
+        uni_get_platform()->on_gamepad_data(d, &d->controller.gamepad);
 
     // FIXME: each backend should decide what to do with misc buttons
     process_misc_button_system(d);
@@ -727,12 +791,7 @@ static void misc_button_enable_callback(btstack_timer_source_t* ts) {
 
 // process_mic_button_system swaps joystick port A and B only if there is one device attached.
 static void process_misc_button_system(uni_hid_device_t* d) {
-    if ((d->gamepad.updated_states & GAMEPAD_STATE_MISC_BUTTON_SYSTEM) == 0) {
-        // System button released (or never have been pressed). Return, and clean wait_release button.
-        return;
-    }
-
-    if ((d->gamepad.misc_buttons & MISC_BUTTON_SYSTEM) == 0) {
+    if ((d->controller.gamepad.misc_buttons & MISC_BUTTON_SYSTEM) == 0) {
         // System button released ?
         d->misc_button_wait_release &= ~MISC_BUTTON_SYSTEM;
         return;
@@ -766,12 +825,7 @@ static void process_misc_button_system(uni_hid_device_t* d) {
 
 // process_misc_button_home dumps uni_hid_device debug info in the console.
 static void process_misc_button_home(uni_hid_device_t* d) {
-    if ((d->gamepad.updated_states & GAMEPAD_STATE_MISC_BUTTON_HOME) == 0) {
-        // Home button not available, not pressed or released.
-        return;
-    }
-
-    if ((d->gamepad.misc_buttons & MISC_BUTTON_HOME) == 0) {
+    if ((d->controller.gamepad.misc_buttons & MISC_BUTTON_HOME) == 0) {
         // Home button released ? Clear "wait" flag.
         d->misc_button_wait_release &= ~MISC_BUTTON_HOME;
         return;

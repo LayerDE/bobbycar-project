@@ -10,68 +10,74 @@
 
 #include <Arduino.h>
 #include <inttypes.h>
-#include <uni_bluetooth.h>
-#include <uni_debug.h>
+#include <uni_bt.h>
+#include <uni_log.h>
 #include <uni_platform_arduino.h>
 #include <uni_version.h>
 
-Bluepad32::Bluepad32() : _prevConnectedGamepads(0), _gamepads(), _onConnect(), _onDisconnect() {}
+Bluepad32::Bluepad32() : _prevConnectedControllers(0), _controllers(), _onConnect(), _onDisconnect() {}
 
 const char* Bluepad32::firmwareVersion() const {
     return "Bluepad32 for Arduino v" UNI_VERSION;
 }
 
 void Bluepad32::update() {
-    int connectedGamepads = 0;
+    int connectedControllers = 0;
     for (int i = 0; i < BP32_MAX_GAMEPADS; i++) {
-        if (arduino_get_gamepad_data(i, &_gamepads[i]._data) == -1)
+        if (arduino_get_controller_data(i, &_controllers[i]._data) == -1)
             continue;
         // Update Idx in case it is the first time to get updated.
-        _gamepads[i]._idx = i;
-        connectedGamepads |= (1 << i);
+        _controllers[i]._idx = i;
+        connectedControllers |= (1 << i);
     }
 
-    // No changes in connected gamepads. No need to call onConnected or onDisconnected.
-    if (connectedGamepads == _prevConnectedGamepads)
+    // No changes in connected controllers. No need to call onConnected or onDisconnected.
+    if (connectedControllers == _prevConnectedControllers)
         return;
 
-    logi("connected in total: 0x%02x (flag)\n", connectedGamepads);
+    logi("connected in total: 0x%02x (flag)\n", connectedControllers);
 
     // Compare bit by bit, and find which one got connected and which one disconnected.
     for (int i = 0; i < BP32_MAX_GAMEPADS; i++) {
         int bit = (1 << i);
-        int current = connectedGamepads & bit;
-        int prev = _prevConnectedGamepads & bit;
+        int current = connectedControllers & bit;
+        int prev = _prevConnectedControllers & bit;
 
-        // No changes in this gamepad, skip
+        // No changes in this controller, skip
         if (current == prev)
             continue;
 
         if (current) {
-            logi("gamepad connected: %d\n", i);
-            _gamepads[i].onConnected();
-            _onConnect(&_gamepads[i]);
+            logi("controller connected: %d\n", i);
+            _controllers[i].onConnected();
+            _onConnect(&_controllers[i]);
         } else {
-            _onDisconnect(&_gamepads[i]);
-            _gamepads[i].onDisconnected();
-            logi("gamepad disconnected: %d\n", i);
+            _onDisconnect(&_controllers[i]);
+            _controllers[i].onDisconnected();
+            logi("controller disconnected: %d\n", i);
         }
     }
 
-    _prevConnectedGamepads = connectedGamepads;
+    _prevConnectedControllers = connectedControllers;
 }
 
 void Bluepad32::forgetBluetoothKeys() {
-    uni_bluetooth_del_keys_safe();
+    uni_bt_del_keys_safe();
 }
 
 void Bluepad32::enableNewBluetoothConnections(bool enabled) {
-    uni_bluetooth_enable_new_connections_safe(enabled);
+    uni_bt_enable_new_connections_safe(enabled);
 }
 
 void Bluepad32::setup(const GamepadCallback& onConnect, const GamepadCallback& onDisconnect) {
     _onConnect = onConnect;
     _onDisconnect = onDisconnect;
+}
+
+const uint8_t* Bluepad32::localBdAddress() {
+    static bd_addr_t addr;
+    uni_bt_get_local_bd_addr_safe(addr);
+    return addr;
 }
 
 Bluepad32 BP32;

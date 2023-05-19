@@ -20,14 +20,19 @@ limitations under the License.
 
 #include <string.h>
 
-#include "uni_debug.h"
+#include "uni_log.h"
 
 void uni_bt_conn_init(uni_bt_conn_t* conn) {
     memset(conn, 0, sizeof(*conn));
+    conn->handle = UNI_BT_CONN_HANDLE_INVALID;
 }
 
 void uni_bt_conn_set_state(uni_bt_conn_t* conn, uni_bt_conn_state_t state) {
     conn->state = state;
+}
+
+void uni_bt_conn_set_protocol(uni_bt_conn_t* conn, uni_bt_conn_protocol_t protocol) {
+    conn->protocol = protocol;
 }
 
 uni_bt_conn_state_t uni_bt_conn_get_state(uni_bt_conn_t* conn) {
@@ -55,13 +60,5 @@ bool uni_bt_conn_is_connected(uni_bt_conn_t* conn) {
 }
 
 void uni_bt_conn_disconnect(uni_bt_conn_t* conn) {
-    if (conn->control_cid) {
-        l2cap_disconnect(conn->control_cid);
-        conn->control_cid = 0;
-    }
-    if (conn->interrupt_cid) {
-        l2cap_disconnect(conn->interrupt_cid);
-        conn->interrupt_cid = 0;
-    }
     uni_bt_conn_set_connected(conn, false);
 }

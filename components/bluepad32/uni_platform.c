@@ -19,12 +19,15 @@ limitations under the License.
 #include "uni_platform.h"
 
 #include "sdkconfig.h"
-#include "uni_debug.h"
+#include "uni_log.h"
 #include "uni_platform_arduino.h"
 #include "uni_platform_mightymiggy.h"
 #include "uni_platform_nina.h"
 #include "uni_platform_pc_debug.h"
+
+#ifdef CONFIG_BLUEPAD32_PLATFORM_UNIJOYSTICLE
 #include "uni_platform_unijoysticle.h"
+#endif
 
 // Platform "object"
 static struct uni_platform* _platform;

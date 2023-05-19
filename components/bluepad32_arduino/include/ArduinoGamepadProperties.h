@@ -9,11 +9,9 @@
 #error "Must only be compiled when using Bluepad32 Arduino platform"
 #endif  // !CONFIG_BLUEPAD32_PLATFORM_ARDUINO
 
-#include <uni_platform_arduino.h>
+#include "ArduinoControllerProperties.h"
 
-#include "ArduinoGamepadProperties.h"
-
-typedef arduino_gamepad_properties_t GamepadProperties;
-typedef GamepadProperties* GamepadPropertiesPtr;
+using GamepadProperties = ControllerProperties;
+using GamepadPropertiesPtr = ControllerPropertiesPtr;
 
 #endif  // BP32_ARDUINO_GAMEPAD_PROPERTIES_H

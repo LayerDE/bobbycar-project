@@ -29,21 +29,38 @@ limitations under the License.
 
 #include "hid_usage.h"
 #include "uni_config.h"
-#include "uni_debug.h"
 #include "uni_hid_device.h"
 #include "uni_hid_parser.h"
+#include "uni_log.h"
 #include "uni_utils.h"
 
 #define DS4_FEATURE_REPORT_FIRMWARE_VERSION 0xa3
 #define DS4_FEATURE_REPORT_FIRMWARE_VERSION_SIZE 49
 #define DS4_FEATURE_REPORT_CALIBRATION 0x02
 #define DS4_FEATURE_REPORT_CALIBRATION_SIZE 37
+#define DS4_STATUS_BATTERY_CAPACITY GENMASK(3, 0)
+
+// DualShock4 hardware limits
+#define DS4_ACC_RES_PER_G 8192
+#define DS4_ACC_RANGE (4 * DS4_ACC_RES_PER_G)
+#define DS4_GYRO_RES_PER_DEG_S 1024
+#define DS4_GYRO_RANGE (2048 * DS4_GYRO_RES_PER_DEG_S)
+
+// Calibration data for motion sensors.
+struct ds4_calibration_data {
+    int16_t bias;
+    int32_t sens_numer;
+    int32_t sens_denom;
+};
 
 typedef struct {
     btstack_timer_source_t rumble_timer;
     bool rumble_in_progress;
     uint16_t fw_version;
     uint16_t hw_version;
+
+    struct ds4_calibration_data gyro_calib_data[3];
+    struct ds4_calibration_data accel_calib_data[3];
 } ds4_instance_t;
 _Static_assert(sizeof(ds4_instance_t) < HID_DEVICE_MAX_PARSER_DATA, "DS4 intance too big");
 
@@ -79,6 +96,14 @@ typedef struct __attribute((packed)) {
     uint8_t brake;
     uint8_t throttle;
 
+    // Motion sensors
+    uint16_t sensor_timestamp;
+    uint8_t sensor_temperature;
+    uint16_t gyro[3];   // x, y, z
+    uint16_t accel[3];  // x, y, z
+    uint8_t reserved[5];
+    uint8_t status[2];
+
     // Add missing data
 } ds4_input_report_t;
 
@@ -98,6 +123,33 @@ typedef struct __attribute((packed)) {
 _Static_assert(sizeof(ds4_feature_report_firmware_version_t) == DS4_FEATURE_REPORT_FIRMWARE_VERSION_SIZE,
                "Invalid size");
 
+typedef struct __attribute((packed)) {
+    uint8_t report_id;  // Must be DS4_FEATURE_REPORT_CALIBRATION
+    int16_t gyro_pitch_bias;
+    int16_t gyro_yaw_bias;
+    int16_t gyro_roll_bias;
+
+    // USB has different order than BT
+    int16_t gyro_pitch_plus;
+    int16_t gyro_yaw_plus;
+    int16_t gyro_roll_plus;
+    int16_t gyro_pitch_minus;
+    int16_t gyro_yaw_minus;
+    int16_t gyro_roll_minus;
+
+    int16_t gyro_speed_plus;
+    int16_t gyro_speed_minus;
+
+    int16_t acc_x_plus;
+    int16_t acc_x_minus;
+    int16_t acc_y_plus;
+    int16_t acc_y_minus;
+    int16_t acc_z_plus;
+    int16_t acc_z_minus;
+    char unk[2];
+} ds4_feature_report_calibration_t;
+_Static_assert(sizeof(ds4_feature_report_calibration_t) == DS4_FEATURE_REPORT_CALIBRATION_SIZE, "Invalid size");
+
 // When sending the FF report, which "features" should be set.
 enum {
     DS4_FF_FLAG_RUMBLE = 1 << 0,
@@ -116,9 +168,20 @@ void uni_hid_parser_ds4_setup(struct uni_hid_device_s* d) {
     ds4_instance_t* ins = get_ds4_instance(d);
     memset(ins, 0, sizeof(*ins));
 
+    // Default values for Accel / Gyro calibration data, until calibration is supported.
+    for (size_t i = 0; i < ARRAY_SIZE(ins->accel_calib_data); i++) {
+        ins->gyro_calib_data[i].bias = 0;
+        ins->gyro_calib_data[i].sens_numer = DS4_GYRO_RANGE;
+        ins->gyro_calib_data[i].sens_denom = INT16_MAX;
+
+        ins->accel_calib_data[i].bias = 0;
+        ins->accel_calib_data[i].sens_numer = DS4_ACC_RANGE;
+        ins->accel_calib_data[i].sens_denom = INT16_MAX;
+    }
+
     // Send in order:
     // - enable lightbar: enables light and enables report 0x11 on most devices
-    // - calibration report: enbles report 0x11 on other reports
+    // - calibration report: enables report 0x11 on other reports
     ds4_send_enable_lightbar_report(d);
     ds4_request_calibration_report(d);
     uni_hid_device_set_ready_complete(d);
@@ -128,36 +191,92 @@ void uni_hid_parser_ds4_setup(struct uni_hid_device_s* d) {
 }
 
 void uni_hid_parser_ds4_init_report(uni_hid_device_t* d) {
-    uni_gamepad_t* gp = &d->gamepad;
-    memset(gp, 0, sizeof(*gp));
+    uni_controller_t* ctl = &d->controller;
+    memset(ctl, 0, sizeof(*ctl));
 
-    // Only report 0x11 is supported which is a "full report". It is safe to set
-    // the reported states just once, here:
-    gp->updated_states = GAMEPAD_STATE_AXIS_X | GAMEPAD_STATE_AXIS_Y | GAMEPAD_STATE_AXIS_RX | GAMEPAD_STATE_AXIS_RY;
-    gp->updated_states |= GAMEPAD_STATE_BRAKE | GAMEPAD_STATE_THROTTLE;
-    gp->updated_states |= GAMEPAD_STATE_DPAD;
-    gp->updated_states |=
-        GAMEPAD_STATE_BUTTON_X | GAMEPAD_STATE_BUTTON_Y | GAMEPAD_STATE_BUTTON_A | GAMEPAD_STATE_BUTTON_B;
-    gp->updated_states |= GAMEPAD_STATE_BUTTON_TRIGGER_L | GAMEPAD_STATE_BUTTON_TRIGGER_R |
-                          GAMEPAD_STATE_BUTTON_SHOULDER_L | GAMEPAD_STATE_BUTTON_SHOULDER_R;
-    gp->updated_states |= GAMEPAD_STATE_BUTTON_THUMB_L | GAMEPAD_STATE_BUTTON_THUMB_R;
-    gp->updated_states |=
-        GAMEPAD_STATE_MISC_BUTTON_BACK | GAMEPAD_STATE_MISC_BUTTON_HOME | GAMEPAD_STATE_MISC_BUTTON_SYSTEM;
+    ctl->klass = UNI_CONTROLLER_CLASS_GAMEPAD;
 }
 
 void uni_hid_parser_ds4_parse_feature_report(uni_hid_device_t* d, const uint8_t* report, uint16_t len) {
     ds4_instance_t* ins = get_ds4_instance(d);
     uint8_t report_id = report[0];
+
     switch (report_id) {
-        case DS4_FEATURE_REPORT_CALIBRATION:
-            /* TODO: Don't ignore calibration */
+        case DS4_FEATURE_REPORT_CALIBRATION: {
+            int speed_2x;
+            int range_2g;
+
             if (len != DS4_FEATURE_REPORT_CALIBRATION_SIZE) {
                 loge("DS4: Unexpected calibration size: got %d, want: %d\n", len, DS4_FEATURE_REPORT_CALIBRATION_SIZE);
                 /* fallthrough */
             }
+
+            logi("DS4: Calibration report received\n");
+            ds4_feature_report_calibration_t* r = (ds4_feature_report_calibration_t*)report;
+            // Taken from Linux Kernel
+            // Set gyroscope calibration and normalization parameters.
+            // Data values will be normalized to 1/DS_GYRO_RES_PER_DEG_S degree/s.
+            speed_2x = r->gyro_speed_plus + r->gyro_speed_minus;
+            ins->gyro_calib_data[0].bias = 0;
+            ins->gyro_calib_data[0].sens_numer = speed_2x * DS4_GYRO_RES_PER_DEG_S;
+            ins->gyro_calib_data[0].sens_denom =
+                abs(r->gyro_pitch_plus - r->gyro_pitch_bias) + abs(r->gyro_pitch_minus + r->gyro_pitch_bias);
+
+            ins->gyro_calib_data[1].bias = 0;
+            ins->gyro_calib_data[1].sens_numer = speed_2x * DS4_GYRO_RES_PER_DEG_S;
+            ins->gyro_calib_data[1].sens_denom =
+                abs(r->gyro_yaw_plus - r->gyro_yaw_bias) + abs(r->gyro_yaw_minus - r->gyro_yaw_bias);
+
+            ins->gyro_calib_data[2].bias = 0;
+            ins->gyro_calib_data[2].sens_numer = speed_2x * DS4_GYRO_RES_PER_DEG_S;
+            ins->gyro_calib_data[2].sens_denom =
+                abs(r->gyro_roll_plus - r->gyro_roll_bias) + abs(r->gyro_roll_minus - r->gyro_roll_bias);
+
+            // Sanity check gyro calibration data. This is needed to prevent crashes
+            // during report handling of virtual, clone or broken devices not implementing
+            // calibration data properly.
+            for (size_t i = 0; i < ARRAY_SIZE(ins->gyro_calib_data); i++) {
+                if (ins->gyro_calib_data[i].sens_denom == 0) {
+                    loge("Invalid gyro calibration data for axis (%d), disabling calibration for axis = %d\n", i);
+                    ins->gyro_calib_data[i].bias = 0;
+                    ins->gyro_calib_data[i].sens_numer = DS4_GYRO_RANGE;
+                    ins->gyro_calib_data[i].sens_denom = INT16_MAX;
+                }
+            }
+
+            // Set accelerometer calibration and normalization parameters.
+            // Data values will be normalized to 1/DS_ACC_RES_PER_G g.
+            range_2g = r->acc_x_plus - r->acc_x_minus;
+            ins->accel_calib_data[0].bias = r->acc_x_plus - range_2g / 2;
+            ins->accel_calib_data[0].sens_numer = 2 * DS4_ACC_RES_PER_G;
+            ins->accel_calib_data[0].sens_denom = range_2g;
+
+            range_2g = r->acc_y_plus - r->acc_y_minus;
+            ins->accel_calib_data[1].bias = r->acc_y_plus - range_2g / 2;
+            ins->accel_calib_data[1].sens_numer = 2 * DS4_ACC_RES_PER_G;
+            ins->accel_calib_data[1].sens_denom = range_2g;
+
+            range_2g = r->acc_z_plus - r->acc_z_minus;
+            ins->accel_calib_data[2].bias = r->acc_z_plus - range_2g / 2;
+            ins->accel_calib_data[2].sens_numer = 2 * DS4_ACC_RES_PER_G;
+            ins->accel_calib_data[2].sens_denom = range_2g;
+
+            // Sanity check accelerometer calibration data. This is needed to prevent crashes
+            // during report handling of virtual, clone or broken devices not implementing calibration
+            // data properly.
+            for (size_t i = 0; i < ARRAY_SIZE(ins->accel_calib_data); i++) {
+                if (ins->accel_calib_data[i].sens_denom == 0) {
+                    loge("Invalid accelerometer calibration data for axis (%d), disabling calibration for axis=%d\n",
+                         i);
+                    ins->accel_calib_data[i].bias = 0;
+                    ins->accel_calib_data[i].sens_numer = DS4_ACC_RANGE;
+                    ins->accel_calib_data[i].sens_denom = INT16_MAX;
+                }
+            }
             ds4_request_firmware_version_report(d);
             break;
-        case DS4_FEATURE_REPORT_FIRMWARE_VERSION:
+        }
+        case DS4_FEATURE_REPORT_FIRMWARE_VERSION: {
             if (len != DS4_FEATURE_REPORT_FIRMWARE_VERSION_SIZE) {
                 loge("DS4: Unexpected firmware version size: got %d, want: %d\n", len,
                      DS4_FEATURE_REPORT_FIRMWARE_VERSION_SIZE);
@@ -170,6 +289,7 @@ void uni_hid_parser_ds4_parse_feature_report(uni_hid_device_t* d, const uint8_t*
             logi("DS4: fw version: 0x%04x, hw version: 0x%04x\n", ins->fw_version, ins->hw_version);
             logi("DS4: Firmware build date: %s, %s\n", r->string_date, r->string_time);
             break;
+        }
         default:
             loge("DS4: Unexpected report id in feature report: 0x%02x\n", report_id);
             break;
@@ -177,6 +297,8 @@ void uni_hid_parser_ds4_parse_feature_report(uni_hid_device_t* d, const uint8_t*
 }
 
 void uni_hid_parser_ds4_parse_input_report(uni_hid_device_t* d, const uint8_t* report, uint16_t len) {
+    ds4_instance_t* ins = get_ds4_instance(d);
+
     if (report[0] != 0x11) {
         loge("DS4: Unexpected report type: got 0x%02x, want: 0x11\n", report[0]);
         // printf_hexdump(report, len);
@@ -186,53 +308,74 @@ void uni_hid_parser_ds4_parse_input_report(uni_hid_device_t* d, const uint8_t* r
         loge("DS4: Unexpected report len: got %d, want: 78\n", len);
         return;
     }
-    uni_gamepad_t* gp = &d->gamepad;
+
+    uni_controller_t* ctl = &d->controller;
     const ds4_input_report_t* r = (ds4_input_report_t*)&report[3];
 
     // Axis
-    gp->axis_x = (r->x - 127) * 4;
-    gp->axis_y = (r->y - 127) * 4;
-    gp->axis_rx = (r->rx - 127) * 4;
-    gp->axis_ry = (r->ry - 127) * 4;
+    ctl->gamepad.axis_x = (r->x - 127) * 4;
+    ctl->gamepad.axis_y = (r->y - 127) * 4;
+    ctl->gamepad.axis_rx = (r->rx - 127) * 4;
+    ctl->gamepad.axis_ry = (r->ry - 127) * 4;
 
     // Hat
     uint8_t value = r->buttons[0] & 0xf;
     if (value > 7)
         value = 0xff; /* Center 0, 0 */
-    gp->dpad = uni_hid_parser_hat_to_dpad(value);
+    ctl->gamepad.dpad = uni_hid_parser_hat_to_dpad(value);
 
     // Buttons
     // TODO: ds4, ds5 have these buttons in common. Refactor.
     if (r->buttons[0] & 0x10)
-        gp->buttons |= BUTTON_X;  // West
+        ctl->gamepad.buttons |= BUTTON_X;  // West
     if (r->buttons[0] & 0x20)
-        gp->buttons |= BUTTON_A;  // South
+        ctl->gamepad.buttons |= BUTTON_A;  // South
     if (r->buttons[0] & 0x40)
-        gp->buttons |= BUTTON_B;  // East
+        ctl->gamepad.buttons |= BUTTON_B;  // East
     if (r->buttons[0] & 0x80)
-        gp->buttons |= BUTTON_Y;  // North
+        ctl->gamepad.buttons |= BUTTON_Y;  // North
     if (r->buttons[1] & 0x01)
-        gp->buttons |= BUTTON_SHOULDER_L;  // L1
+        ctl->gamepad.buttons |= BUTTON_SHOULDER_L;  // L1
     if (r->buttons[1] & 0x02)
-        gp->buttons |= BUTTON_SHOULDER_R;  // R1
+        ctl->gamepad.buttons |= BUTTON_SHOULDER_R;  // R1
     if (r->buttons[1] & 0x04)
-        gp->buttons |= BUTTON_TRIGGER_L;  // L2
+        ctl->gamepad.buttons |= BUTTON_TRIGGER_L;  // L2
     if (r->buttons[1] & 0x08)
-        gp->buttons |= BUTTON_TRIGGER_R;  // R2
+        ctl->gamepad.buttons |= BUTTON_TRIGGER_R;  // R2
     if (r->buttons[1] & 0x10)
-        gp->misc_buttons |= MISC_BUTTON_BACK;  // Share
+        ctl->gamepad.misc_buttons |= MISC_BUTTON_BACK;  // Share
     if (r->buttons[1] & 0x20)
-        gp->misc_buttons |= MISC_BUTTON_HOME;  // Options
+        ctl->gamepad.misc_buttons |= MISC_BUTTON_HOME;  // Options
     if (r->buttons[1] & 0x40)
-        gp->buttons |= BUTTON_THUMB_L;  // Thumb L
+        ctl->gamepad.buttons |= BUTTON_THUMB_L;  // Thumb L
     if (r->buttons[1] & 0x80)
-        gp->buttons |= BUTTON_THUMB_R;  // Thumb R
+        ctl->gamepad.buttons |= BUTTON_THUMB_R;  // Thumb R
     if (r->buttons[2] & 0x01)
-        gp->misc_buttons |= MISC_BUTTON_SYSTEM;  // PS
+        ctl->gamepad.misc_buttons |= MISC_BUTTON_SYSTEM;  // PS
 
     // Brake & throttle
-    gp->brake = r->brake * 4;
-    gp->throttle = r->throttle * 4;
+    ctl->gamepad.brake = r->brake * 4;
+    ctl->gamepad.throttle = r->throttle * 4;
+
+    // Gyro
+    for (size_t i = 0; i < ARRAY_SIZE(r->gyro); i++) {
+        int32_t raw_data = (int16_t)r->gyro[i];
+        int32_t calib_data =
+            mult_frac(ins->gyro_calib_data[i].sens_numer, raw_data, ins->gyro_calib_data[i].sens_denom);
+        ctl->gamepad.gyro[i] = calib_data;
+    }
+
+    // Accel
+    for (size_t i = 0; i < ARRAY_SIZE(r->accel); i++) {
+        int32_t raw_data = (int16_t)r->accel[i];
+        int32_t calib_data =
+            mult_frac(ins->accel_calib_data[i].sens_numer, raw_data, ins->accel_calib_data[i].sens_denom);
+        ctl->gamepad.accel[i] = calib_data;
+    }
+
+    // Value goes from 0 to 10. Make it from 0 to 250.
+    // The +1 is to avoid having a value of 0, which means "battery unavailable".
+    ctl->battery = (r->status[0] & DS4_STATUS_BATTERY_CAPACITY) * 25 + 1;
 }
 
 // uni_hid_parser_ds4_parse_usage() was removed since "stream" mode is the only

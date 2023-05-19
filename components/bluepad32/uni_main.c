@@ -18,20 +18,19 @@ limitations under the License.
 
 #include "uni_main.h"
 
+#include "sdkconfig.h"
 #include "uni_bt_setup.h"
 #include "uni_config.h"
 #include "uni_console.h"
-#include "uni_debug.h"
 #include "uni_hid_device.h"
+#include "uni_log.h"
 #include "uni_platform.h"
 #include "uni_property.h"
 #include "uni_version.h"
 
-#include "sdkconfig.h"
-
 // Main entry point, runs forever
 int uni_main(int argc, const char** argv) {
-    logi("Bluepad32 (C) 2016-2022 Ricardo Quesada and contributors.\n");
+    logi("Bluepad32 (C) 2016-2023 Ricardo Quesada and contributors.\n");
     logi("Version: v" UNI_VERSION "\n");
 
     // Honoring with BT copyright
@@ -39,7 +38,7 @@ int uni_main(int argc, const char** argv) {
 
     uni_property_init();
     uni_platform_init(argc, argv);
-    uni_hid_device_init();
+    uni_hid_device_setup();
 
     // Continue with bluetooth setup.
     uni_bt_setup();

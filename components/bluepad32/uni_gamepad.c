@@ -19,11 +19,12 @@ limitations under the License.
 #include "uni_gamepad.h"
 
 #include <stdbool.h>
+#include <stddef.h>
 
 #include "uni_common.h"
 #include "uni_config.h"
-#include "uni_debug.h"
 #include "uni_hid_device_vendors.h"
+#include "uni_log.h"
 
 static uni_gamepad_mappings_t map;
 static bool mappings_enabled = false;
@@ -58,6 +59,7 @@ static struct {
     {CONTROLLER_TYPE_GenericController, "Generic"},
     {CONTROLLER_TYPE_NimbusController, "Nimbus"},
     {CONTROLLER_TYPE_OUYAController, "OUYA"},
+    {CONTROLLER_TYPE_PSMoveController, "PS Move"},
 
     {CONTROLLER_TYPE_GenericKeyboard, "Keyboard"},
     {CONTROLLER_TYPE_GenericMouse, "Mouse"},
@@ -135,10 +137,6 @@ uni_gamepad_t uni_gamepad_remap(const uni_gamepad_t* gp) {
     if (!mappings_enabled)
         return *gp;
 
-    // Notice that "updated_states" is not updated. So the "bits" might not
-    // correspond to the right button after the mappings. But it seems it is safe
-    // to leave it as it is, since "update_states" should not used by the platforms.
-
     if (gp->buttons & BUTTON_A)
         new_gp.buttons |= BIT(map.button_a);
     if (gp->buttons & BUTTON_B)
@@ -201,11 +199,16 @@ void uni_gamepad_set_mappings(const uni_gamepad_mappings_t* mappings) {
 }
 
 void uni_gamepad_dump(const uni_gamepad_t* gp) {
-    logi("dpad=0x%02x, x=%d, y=%d, rx=%d, ry=%d, brake=%d, accel=%d, buttons=0x%08x, misc=0x%02x, state=0x%04x\n",
-         gp->dpad, gp->axis_x, gp->axis_y, gp->axis_rx, gp->axis_ry,  // axis
-         gp->brake, gp->throttle, gp->buttons, gp->misc_buttons,      // misc
-         gp->updated_states                                           // state
-
+    // Don't add "\n"
+    logi(
+        "dpad=0x%02x, x=%4d, y=%4d, rx=%4d, ry=%4d, brake=%4d, throttle=%4d, buttons=0x%04x, misc=0x%02x, "
+        "gyro=%7d,%7d,%7d accel=%7d,%7d,%7d",
+        gp->dpad,                                          // dpad
+        gp->axis_x, gp->axis_y, gp->axis_rx, gp->axis_ry,  // axis
+        gp->brake, gp->throttle,                           // brake/gas
+        gp->buttons, gp->misc_buttons,                     // buttons
+        gp->gyro[0], gp->gyro[1], gp->gyro[2],             // gyro
+        gp->accel[0], gp->accel[1], gp->accel[2]           // accel
     );
 }
 
