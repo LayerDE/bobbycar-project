@@ -34,3 +34,6 @@
 [submodule "components/Arduino-CRSF"]
 	path = components/Arduino-CRSF
 	url = https://github.com/BobbyIndustries/Arduino-CRSF.git
+[submodule "components/simulator"]
+	path = components/simulator
+	url = https://github.com/LayerDE/simulator.git
