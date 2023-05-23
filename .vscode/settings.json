@@ -7,5 +7,6 @@
         "limits": "cpp",
         "streambuf": "cpp",
         "*.tcc": "cpp"
-    }
+    },
+    "idf.portWin": "COM10"
 }
