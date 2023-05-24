@@ -112,7 +112,7 @@ float calc_angle(int inval)
   return (float)inval * STEERING_ANGLE_FACTOR * 13.0f / 19.0f;
 }
 
-inline float pow2(float x){
+static inline float pow2(float x){
   return x*x;
 }
 
