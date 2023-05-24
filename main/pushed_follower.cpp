@@ -3,7 +3,7 @@
 
 pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle,
             get_float steering_ptr, get_float hitch_angle_ptr, get_int speed_ptr,
-            double ki, double kp, double kd) : simulation = simulator(){
+            double ki, double kp, double kd) : simulation(0,0,c_wheelbase,hitch2car_axle,0,steering_ptr(),rc_axle2hitch, hitch_angle_ptr(),0.01){
     alpha_calc = new PID(&isPoint, &output, &setPoint, ki, kp, kd, 0);
 }
 
