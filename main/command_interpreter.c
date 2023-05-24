@@ -296,9 +296,14 @@ static const command commands[] = {
 };
 
 static bool print_help_of(const char* argv, c_data* out){
-    printf("help:\n");
-    for(int i = 0;i < (sizeof(commands)/sizeof(command));i++)
-        printf("%s\n",commands[i].name);
+    char* help_string = "help:\n";
+    c_data_extend_raw(out, help_string, strlen(help_string));
+    //printf("help:\n");
+    for(int i = 0;i < (sizeof(commands)/sizeof(command));i++){
+        //printf("%s\n",commands[i].name);
+        c_data_extend_raw(out, commands[i].name, strlen(commands[i].name));
+        c_data_extend_raw(out, "\n", 1);
+    }
     return true;
 }
 
