@@ -1,22 +1,22 @@
 #pragma once
 #include "PID_v1.h"
+#include "simulator.hpp"
 
 
 typedef float (*get_float)();
 typedef int (*get_int)();
 
 
-class follower{
+class pushed_follower{
     public:
-        follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle,
+        pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle,
             get_float steering_ptr, get_float hitch_angle_ptr, get_int speed_ptr,
             double ki, double kp, double kd);
-        ~follower();
+        ~pushed_follower();
         double calculate(int des_speed, float des_steering);
     private:
         PID *alpha_calc;
-        float calc_beta_const(float alpha_steer);
-        float calc_alpha_const(float beta);
+        simulator simulation;
         double setPoint;
         double isPoint;
         double output;
