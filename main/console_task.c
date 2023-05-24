@@ -35,6 +35,7 @@ void tast_usb_console(void *ignore){
             c_data_extend_raw(&string_buffer,buffer,strlen(buffer));
             printf("%s",buffer);
             if(strchr(buffer, '\n') != NULL){
+                c_data_extend_raw(&string_buffer, &endl4ptr, sizeof(endl4ptr));
                 exec(string_buffer.content,&buffer2);
                 if(buffer2.size != 0){
                     c_data_extend_raw(&buffer2, &endl4ptr, sizeof(endl4ptr));
