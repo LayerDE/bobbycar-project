@@ -63,15 +63,7 @@ int clean_adc_steering(uint32_t inval)
 }
 
 int clean_adc_follower(uint32_t inval){
-  int outval = (int)(inval) - STR_MID;
-  int abs_outval = abs(outval);
-  if (abs_outval < (DEAD_ZONE / 2)) // deadzone
-    return 0;
-  else
-    abs_outval -= (DEAD_ZONE / 2);
-  if (abs_outval > (STR_RANGE - DEAD_ZONE * 3 / 2))
-    return STR_MAX * sign(outval);
-  return abs_outval * STR_MAX / (STR_RANGE - DEAD_ZONE * 3 / 2) * sign(outval);
+  return (int)(inval) - FLW_MID;
 }
 
 unsigned int clean_adc_half(uint32_t inval)

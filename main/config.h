@@ -8,6 +8,8 @@
 #define STR_MID (ADC_MID-100)
 #define STR_RANGE (ADC_MID*10/9)
 
+#define FLW_MID (ADC_MID)
+
 #define STEERING_ANGLE_FACTOR (M_PI_4/1000.0f)
 #define L_WHEELBASE 35.0
 #define L_WIDTH 30.0

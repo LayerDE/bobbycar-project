@@ -13,6 +13,7 @@ extern "C" {
     int sign(float in);
     int clean_adc_full(uint32_t inval);
     int clean_adc_steering(uint32_t inval);
+    int clean_adc_follower(uint32_t inval);
     unsigned int clean_adc_half(uint32_t inval);
     int throttle_calc(int cleaned_adc);
     int calc_torque(int throttle, int breaks);

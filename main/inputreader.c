@@ -13,6 +13,7 @@
 volatile static int adc_throttle;
 volatile static int adc_steering;
 volatile static int adc_follower;
+volatile static bool trailer_connected;
 volatile static int external_throttle[INPUT_COUNT-1];
 volatile static float desired_steering[INPUT_COUNT-1];
 volatile static int input_src = DEFAULT_INPUT;
@@ -34,15 +35,12 @@ float get_steering(){
 }
 
 bool get_trailer_connected(){
-    if(adc_follower <= 50)
-        return false;
-    else
-        return true;
+    return trailer_connected;
 }
 
 float get_trailer(){
-    if(get_trailer_connected())
-        return calc_angle(calc_trailer_clean_10k100k((float)adc_follower/(float)((1<<12)-1))*(float)((1<<12)-1));
+    if(trailer_connected)
+        return calc_angle(adc_follower);
     else
         return 1.0f/0.0f;
 }
@@ -128,7 +126,14 @@ void gamepad_task(void* ignore){
 void adc_task(void* ignore){
     while(true){
         adc_steering = clean_adc_steering(value_buffer(analogRead(STEERING_PIN),0));
-        adc_follower = value_buffer(analogRead(TRAILER_PIN),1);
+        uint buffered_trailer = value_buffer(analogRead(TRAILER_PIN),1);
+        if(buffered_trailer <= 50){
+            trailer_connected = false;
+        }
+        else{
+            trailer_connected = true;
+            adc_follower = clean_adc_follower(buffered_trailer);
+        }
         //if(input_src == 0){
             #if(THROTTLE0_PIN != THROTTLE1_PIN)
                 adc_throttle = clean_adc_half(value_buffer(analogRead(THROTTLE0_PIN),2)) - clean_adc_half(value_buffer(analogRead(THROTTLE1_PIN),3));
