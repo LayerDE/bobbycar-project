@@ -141,3 +141,7 @@ extern "C" void gpm_read(int *throttle,int *steering, int *active){
         }
     }
 }
+
+bool get_gamepad_connected(){
+    return myGamepads[0] && myGamepads[0]->isConnected();
+}
