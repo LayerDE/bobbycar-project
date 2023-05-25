@@ -49,8 +49,8 @@ limitations under the License.
 #include "logging.h"
 
 // unserem Fall „lcd“. Die Adresse des I²C Displays kann je nach Modul variieren.
-SoftwareSerial HoverSerial_front(RX0, TX0);  // RX, TX
-SoftwareSerial HoverSerial_rear(RX1, TX1);   // RX, TX
+EspSoftwareSerial::UART HoverSerial_front(RX0, TX0);  // RX, TX
+EspSoftwareSerial::UART HoverSerial_rear(RX1, TX1);   // RX, TX
 // BluetoothSerial ESP_BT; //Object for Bluetooth
 // PID steering_calculator;
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)

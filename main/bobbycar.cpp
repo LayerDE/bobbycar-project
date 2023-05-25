@@ -7,7 +7,7 @@
 #include "bobbycar.hpp"
 
 
-void Send(SoftwareSerial* board, int16_t speed0, int16_t speed1) {
+void Send(EspSoftwareSerial::UART* board, int16_t speed0, int16_t speed1) {
     SerialCommand Command;
     // Create command
     Command.start = (uint16_t)START_FRAME;
@@ -26,7 +26,7 @@ void Send(SoftwareSerial* board, int16_t speed0, int16_t speed1) {
 
 // ########################## RECEIVE ##########################
 
-bool Receive(SoftwareSerial* board, SerialFeedback* out, SerialVariables *vars,SerialFeedback *NewFeedback, unsigned long time) {
+bool Receive(EspSoftwareSerial::UART* board, SerialFeedback* out, SerialVariables *vars,SerialFeedback *NewFeedback, unsigned long time) {
     uint16_t bufStartFrame;  // Buffer Start Frame
     // byte buffer[sizeof(SerialFeedback)];
     //  Check for new data availability in the Serial buffer

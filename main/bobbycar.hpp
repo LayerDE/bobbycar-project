@@ -32,5 +32,5 @@ typedef struct {
     unsigned long lastUpdate;
 } SerialVariables;
 
-void Send(SoftwareSerial* board, int16_t speed0, int16_t speed1);
-bool Receive(SoftwareSerial* board, SerialFeedback* out, SerialVariables *vars,SerialFeedback *NewFeedback, unsigned long time);
+void Send(EspSoftwareSerial::UART* board, int16_t speed0, int16_t speed1);
+bool Receive(EspSoftwareSerial::UART* board, SerialFeedback* out, SerialVariables *vars,SerialFeedback *NewFeedback, unsigned long time);
