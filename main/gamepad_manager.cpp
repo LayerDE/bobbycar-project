@@ -57,8 +57,7 @@ extern "C" void init_gpm(){
     // Calling "forgetBluetoothKeys" in setup() just as an example.
     // Forgetting Bluetooth keys prevents "paired" gamepads to reconnect.
     // But might also fix some connection / re-connection issues.
-    // BP32.forgetBluetoothKeys();
-    BP32.enableNewBluetoothConnections(true);
+    BP32.enableNewBluetoothConnections(false);
 }
 
 extern "C" void gpm_read(int *throttle,int *steering, int *active){
@@ -144,4 +143,9 @@ extern "C" void gpm_read(int *throttle,int *steering, int *active){
 
 bool get_gamepad_connected(){
     return myGamepads[0] && myGamepads[0]->isConnected();
+}
+
+void reset_gamepads(){
+    BP32.forgetBluetoothKeys();
+    BP32.enableNewBluetoothConnections(true);
 }
