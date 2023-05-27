@@ -201,7 +201,6 @@ void loop() {
             Send(&HoverSerial_front, torgue[0], torgue[1]);
         if(rear_active)
             Send(&HoverSerial_rear, torgue[2], torgue[3]);
-        //printf("heartbeat %li %li\n",timeNow, rec_cnt);
         if (!((send_cnt++) % 7)) {
             if( last_time + 20000 < timeNow){
                 lcd->set_power(0);
