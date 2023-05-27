@@ -147,7 +147,6 @@ void setup() {
 
 unsigned long iTimeSend = 0;
 
-bool controller = false;
 int torgue[4];
 
 int send_cnt = 0;
