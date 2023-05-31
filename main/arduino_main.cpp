@@ -72,9 +72,13 @@ SerialVariables SerialVar_front;
 SerialVariables SerialVar_rear;
 
 volatile int speed_per_wheel[4];
+volatile int64_t distance_per_wheel[4];
+volatile uint16_t last_distance[4];
 volatile int speed = 0;
 volatile long last_time;
 volatile int voltage =0;
+
+bool front_active = false, rear_active = false;
 
 static inline void feedback_update(){
     last_time = MAX(SerialVar_front.lastUpdate, SerialVar_rear.lastUpdate);
@@ -82,6 +86,10 @@ static inline void feedback_update(){
     speed_per_wheel[1] = SerialFeedback_front.speedR_meas;
     speed_per_wheel[2] = SerialFeedback_rear.speedL_meas;
     speed_per_wheel[3] = SerialFeedback_rear.speedR_meas;
+    distance_per_wheel[0] += (SerialFeedback_front.steps0 - last_distance[0]) * sign(speed_per_wheel[0]);
+    distance_per_wheel[1] += (SerialFeedback_front.steps1 - last_distance[1]) * sign(speed_per_wheel[1]);
+    distance_per_wheel[2] += (SerialFeedback_rear.steps0 - last_distance[2]) * sign(speed_per_wheel[2]);
+    distance_per_wheel[3] += (SerialFeedback_rear.steps1 - last_distance[3]) * sign(speed_per_wheel[3]);
     if(last_time - SerialVar_front.lastUpdate > 1000){
         speed = calc_average((const int*)&(speed_per_wheel[2]),2);
         voltage = SerialFeedback_rear.batVoltage;
@@ -178,11 +186,18 @@ void loop() {
         last_steering = steering;
         last_des_steering = des_steering;
     }
-    if(Receive(&HoverSerial_front, &SerialFeedback_front, &SerialVar_front, &NewFeedback_front, timeNow)
-        || Receive(&HoverSerial_rear, &SerialFeedback_rear, &SerialVar_rear, &NewFeedback_rear, timeNow))
+    if(Receive(&HoverSerial_front, &SerialFeedback_front, &SerialVar_front, &NewFeedback_front, timeNow)){
         feedback_update();
-    bool front_active = timeNow - SerialVar_front.lastUpdate < 1000,
-        rear_active = timeNow - SerialVar_front.lastUpdate < 1000;
+        last_distance[0] = SerialFeedback_front.steps0;
+        last_distance[1] = SerialFeedback_front.steps1;
+    }
+    front_active = timeNow - SerialVar_front.lastUpdate < 1000;
+    if(Receive(&HoverSerial_rear, &SerialFeedback_rear, &SerialVar_rear, &NewFeedback_rear, timeNow)){
+        feedback_update();
+        last_distance[2] = SerialFeedback_rear.steps0;
+        last_distance[3] = SerialFeedback_rear.steps1;
+    }
+    rear_active = timeNow - SerialVar_front.lastUpdate < 1000;
     if (iTimeSend <= timeNow){
         iTimeSend = timeNow + TIME_SEND;
         if (get_input_src()==0){
