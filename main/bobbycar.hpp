@@ -13,8 +13,8 @@ typedef struct {
 
 typedef struct {
     uint16_t start;
-    int16_t steps0;
-    int16_t steps1;
+    uint16_t steps0;
+    uint16_t steps1;
     int16_t speedR_meas;
     int16_t speedL_meas;
     int16_t batVoltage;
