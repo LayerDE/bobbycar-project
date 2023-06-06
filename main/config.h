@@ -30,8 +30,8 @@
 #define TRAILER_PIN 35
 #define I2C_SDA 19
 #define I2C_SCL 23
-#define TX0 12
-#define RX0 14
+#define TX0 18
+#define RX0 5
 #define TX1 15
 #define RX1 13
 #define CRSF_RX 16
