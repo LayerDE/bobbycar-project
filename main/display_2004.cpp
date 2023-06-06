@@ -113,8 +113,8 @@ bool display_2004::set_state(STATES_OF_DISPLAY hstate){
   }
 }
 
-void display_2004::draw_screen(int throttle, float steering, float steering_desired, bool trailer_en, float trailer_angle, int *torgue, int torgue_regulated, int speed, int voltage, int input_src){
-    display::draw_screen(throttle, steering, steering_desired, trailer_en, trailer_angle, torgue, torgue_regulated, speed, voltage, input_src);
+void display_2004::draw_screen(int throttle, float steering, float steering_desired, bool trailer_en, float trailer_angle, int *torgue, int torgue_regulated,bool front, bool rear, int speed, int voltage, int input_src){
+    display::draw_screen(throttle, steering, steering_desired, trailer_en, trailer_angle, torgue, torgue_regulated,front, rear, speed, voltage, input_src);
     char line_buffer[512];
     snprintf(line_buffer, 512, "T%i S%.1f SD%.1f", throttle,rad2deg(steering),rad2deg(steering_desired));
     _draw_line(line_buffer,0);

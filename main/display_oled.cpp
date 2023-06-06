@@ -35,17 +35,27 @@ void display_oled::clear(){
     oled->clearDisplay();
     oled->display();
 }
-void display_oled::draw_screen(int throttle, float steering, float steering_desired, bool trailer_en, float trailer_angle, int *torgue, int torgue_regulated, int speed, int voltage, int input_src){
-    display::draw_screen(throttle, steering, steering_desired, trailer_en, trailer_angle, torgue, torgue_regulated, speed, voltage, input_src);
+void display_oled::draw_screen(int throttle, float steering, float steering_desired, bool trailer_en, float trailer_angle, int *torgue, int torgue_regulated,bool front, bool rear, int speed, int voltage, int input_src){
+    display::draw_screen(throttle, steering, steering_desired, trailer_en, trailer_angle, torgue, torgue_regulated,front, rear, speed, voltage, input_src);
     char sprint_buffer[256];
+    char steer_buf[32];
+    char torgue_buf0[54];
+    char torgue_buf1[32];
     if(trailer_en)
-        sprintf(sprint_buffer, "Throttle: %i\nS: %.2f->%.2f T: %.2f\n%i %c %i  \t  %i %c %i\n%i      \t      %i\n%i: S%i B%i T%i\nV:%i    SPEED: %i", throttle,
-            rad2deg(steering), rad2deg(steering_desired), rad2deg(trailer_angle), torgue[0], torgue_regulated<0 ? '+' : '-' , ABS(torgue_regulated), torgue[1], torgue_regulated>0 ? '+' : '-' , ABS(torgue_regulated), torgue[2], torgue[3], input_src , 0, 0,
-            throttle, voltage, speed);
+        sprintf(steer_buf, "S: %.2f->%.2f T: %.2f",rad2deg(steering), rad2deg(steering_desired), rad2deg(trailer_angle));
     else
-        sprintf(sprint_buffer, "Throttle: %i\nSteering: %.2f->%.2f\n%i %c %i  \t  %i %c %i\n%i      \t      %i\n%i: S%i B%i T%i\nV:%i    SPEED: %i", throttle,
-            rad2deg(steering), rad2deg(steering_desired), torgue[0], torgue_regulated<0 ? '+' : '-' , ABS(torgue_regulated), torgue[1], torgue_regulated>0 ? '+' : '-' , ABS(torgue_regulated), torgue[2], torgue[3], input_src , 0, 0,
-            throttle, voltage, speed);
+        sprintf(steer_buf, "Steering: %.2f->%.2f", rad2deg(steering), rad2deg(steering_desired));
+    if(front)
+        sprintf(torgue_buf0, "%i %c %i  \t  %i %c %i", torgue[0], torgue_regulated<0 ? '+' : '-' , ABS(torgue_regulated), torgue[1], torgue_regulated>0 ? '+' : '-' , ABS(torgue_regulated));
+    else
+        sprintf(torgue_buf0, "front not connected");
+    if(rear)
+        sprintf(torgue_buf1,"%i      \t      %i",torgue[2], torgue[3]);
+    else
+        sprintf(torgue_buf1, "rear not connected");
+    sprintf(sprint_buffer, "Throttle: %i\n%s\n%s\n%s\n%i: S%i B%i T%i\nV:%i    SPEED: %i", throttle,
+        steer_buf, torgue_buf0, torgue_buf1, input_src , 0, 0,
+        throttle, voltage, speed);
     oled->clearDisplay();
     draw_line(sprint_buffer, 0);
 }

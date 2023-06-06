@@ -16,7 +16,7 @@ class display_oled : public display{
         display_oled(TwoWire *bus, char adr, uint8_t width, uint8_t height);
         ~display_oled();
         void clear();
-        void draw_screen(int throttle, float steering, float steering_desired, bool trailer_en, float trailer_angle, int *torgue, int torgue_regulated, int speed, int voltage, int input_src);
+        void draw_screen(int throttle, float steering, float steering_desired, bool trailer_en, float trailer_angle, int *torgue, int torgue_regulated,bool front, bool rear, int speed, int voltage, int input_src);
         void draw_menu(int options, char* option_name[], int highlight);
         void draw_menu_w_selection(int options, char* option_name[], int highlight, char* selection);
         void draw_confirmation(char* text, int options, char* option_name[], int highlight);

@@ -22,7 +22,7 @@ class display{
         display(TwoWire *bus, char adr);
         virtual ~display();
         virtual void clear() = 0;
-        virtual void draw_screen(int throttle, float steering, float steering_desired, bool trailer_en, float trailer_angle, int *torgue, int torgue_regulated, int speed, int voltage, int input_src) = 0;
+        virtual void draw_screen(int throttle, float steering, float steering_desired, bool trailer_en, float trailer_angle, int *torgue, int torgue_regulated,bool front, bool rear, int speed, int voltage, int input_src) = 0;
         virtual void draw_menu(int options, char* option_name[], int highlight) = 0;
         virtual void draw_menu_w_selection(int options, char* option_name[], int highlight, char* selection) = 0;
         virtual void draw_confirmation(char* text, int options, char* option_name[], int highlight) = 0;
