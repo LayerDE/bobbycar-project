@@ -26,11 +26,9 @@ typedef struct {
 
 typedef struct {
     uint8_t idx;  // index_buff_vals for new data pointer
-    byte* p;          // Pointer declaration for the new received data
-    byte incomingByte;
-    byte incomingBytePrev;
+    uint8_t buffer[sizeof(SerialFeedback)];
     unsigned long lastUpdate;
 } SerialVariables;
 
 void Send(EspSoftwareSerial::UART* board, int16_t speed0, int16_t speed1);
-bool Receive(EspSoftwareSerial::UART* board, SerialFeedback* out, SerialVariables *vars,SerialFeedback *NewFeedback, unsigned long time);
+bool Receive(EspSoftwareSerial::UART* board, SerialFeedback* out, SerialVariables *vars, unsigned long time);

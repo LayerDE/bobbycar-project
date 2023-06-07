@@ -26,13 +26,43 @@ void Send(EspSoftwareSerial::UART* board, int16_t speed0, int16_t speed1) {
 
 // ########################## RECEIVE ##########################
 
-bool Receive(EspSoftwareSerial::UART* board, SerialFeedback* out, SerialVariables *vars,SerialFeedback *NewFeedback, unsigned long time) {
+bool Receive(EspSoftwareSerial::UART* board, SerialFeedback* out, SerialVariables *vars, unsigned long time) {
     uint16_t bufStartFrame;  // Buffer Start Frame
     // byte buffer[sizeof(SerialFeedback)];
     //  Check for new data availability in the Serial buffer
     bool data_complete = false;
     while(board->available()){
-        vars->incomingByte = board->read();                                       // Read the incoming byte
+        vars->buffer[vars->idx = (vars->idx + 1) % sizeof(SerialFeedback)] = board->read();                                       // Read the incoming byte
+        bufStartFrame = ((uint16_t)(vars->buffer[(vars->idx + 2) % sizeof(SerialFeedback)]) << 8) | vars->buffer[(vars->idx + 1) % sizeof(SerialFeedback)];  // Construct the start frame
+
+            // Copy received data
+        if (bufStartFrame == START_FRAME) {  // Initialize if new data is detected
+            SerialFeedback NewFeedback;
+            memcpy(&NewFeedback, &vars->buffer[vars->idx],sizeof(SerialFeedback)-vars->idx);
+            memcpy(&(((uint8_t*)&NewFeedback)[sizeof(SerialFeedback)-vars->idx]), vars->buffer,vars->idx);
+            uint32_t checksum = calc_crc32((uint8_t*)&NewFeedback,sizeof(SerialFeedback)-sizeof(uint16_t)*2);
+            uint32_t checksum_package = (uint32_t)NewFeedback.checksumL | ((uint32_t)NewFeedback.checksumH << 16);
+            // printf("%x == %x\n",checksum_package,checksum);
+            // Check validity of the new data
+            if (NewFeedback.start == START_FRAME && checksum == checksum_package) {
+                // Copy the new data
+                memcpy(out, &NewFeedback, sizeof(SerialFeedback));
+                // Print data to built-in Serial
+                vars->lastUpdate = time;
+                data_complete = true;
+            }
+        }
+    }
+    return data_complete;
+}
+/*
+bool Receive(EspSoftwareSerial::UART* board, SerialFeedback* out, SerialVariables *vars, unsigned long time) {
+    uint16_t bufStartFrame;  // Buffer Start Frame
+    // byte buffer[sizeof(SerialFeedback)];
+    //  Check for new data availability in the Serial buffer
+    bool data_complete = false;
+    while(board->available()){
+        vars-> = board->read();                                       // Read the incoming byte
         bufStartFrame = ((uint16_t)(vars->incomingByte) << 8) | vars->incomingBytePrev;  // Construct the start frame
 
             // Copy received data
@@ -64,4 +94,4 @@ bool Receive(EspSoftwareSerial::UART* board, SerialFeedback* out, SerialVariable
         }
     }
     return data_complete;
-}
+}*/

@@ -129,7 +129,7 @@ void setup() {
     xTaskCreate(&adc_task, "adc", 2048 * 2, NULL, 4, NULL);
     xTaskCreate(&tast_usb_console, "tast_usb_console", 2048 * 2, NULL, 2, NULL);
     // xTaskCreate(&tast_bt_console, "tast_bt_console", 2048 * 2, NULL, 2, NULL);
-    //xTaskCreate(&gamepad_task, "tast_bt_gamepad", 2048 * 2, NULL, 3, NULL);
+    xTaskCreate(&gamepad_task, "tast_bt_gamepad", 2048 * 2, NULL, 3, NULL);
 
     xTaskCreate(&rc_in_task, "tast_rc_in", 2048 * 2, NULL, 3, NULL);
       SerialFeedback_front.speedL_meas = SerialFeedback_front.speedR_meas = SerialFeedback_rear.speedL_meas = SerialFeedback_rear.speedR_meas = 0;
@@ -186,13 +186,13 @@ void loop() {
         last_steering = steering;
         last_des_steering = des_steering;
     }
-    if(Receive(&HoverSerial_front, &SerialFeedback_front, &SerialVar_front, &NewFeedback_front, timeNow)){
+    if(Receive(&HoverSerial_front, &SerialFeedback_front, &SerialVar_front, timeNow)){
         feedback_update();
         last_distance[0] = SerialFeedback_front.steps0;
         last_distance[1] = SerialFeedback_front.steps1;
     }
     front_active = timeNow - SerialVar_front.lastUpdate < 1000;
-    if(Receive(&HoverSerial_rear, &SerialFeedback_rear, &SerialVar_rear, &NewFeedback_rear, timeNow)){
+    if(Receive(&HoverSerial_rear, &SerialFeedback_rear, &SerialVar_rear, timeNow)){
         feedback_update();
         last_distance[2] = SerialFeedback_rear.steps0;
         last_distance[3] = SerialFeedback_rear.steps1;
