@@ -201,10 +201,8 @@ void loop() {
     if (iTimeSend <= timeNow){
         iTimeSend = timeNow + TIME_SEND;
         if (get_input_src()==INPUT_ADC){
-            if(throttle <= 300)
-                calc_torque_per_wheel(throttle, steering,0 , torgue);
-            else
-                torgue[0] = torgue[1] = torgue[2] = torgue[3] = throttle;
+            float tmp_steering = (throttle < 300) ? steering : ((throttle < 500) ? steering * (500 - throttle ) / 200: 0.0);
+            calc_torque_per_wheel(throttle, tmp_steering,0 , torgue);
         }
         else{
             pid_update();
