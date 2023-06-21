@@ -180,7 +180,7 @@ void loop() {
     int throttle = get_throttle();
     float steering =  get_steering();
     float des_steering = get_des_steering();
-    if(!(isNear(last_throttle,throttle,100) && isNear(last_steering,steering,deg2rad(0.5)) && isNear(last_des_steering,des_steering, deg2rad(0.5)))){
+    if(!(isNear(last_throttle,throttle,100) && isNear(last_steering,steering,deg2rad(0.5)) && isNear(last_des_steering,des_steering, deg2rad(0.5)))){  // only for disableing the display
         last_time = timeNow;
         last_throttle = throttle;
         last_steering = steering;
@@ -226,6 +226,6 @@ void loop() {
             }
         }
     }
-    digitalWrite(LED_BUILTIN, (timeNow % 2000) < 1000);
+    digitalWrite(LED_BUILTIN, (timeNow % 2000) < 1000);  //heartbeat on esp for quickcheck if the program is running
     vTaskDelay(1);
 }
