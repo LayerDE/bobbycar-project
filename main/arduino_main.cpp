@@ -174,13 +174,14 @@ bool isNear(float a,float b, float range){
 
 
 void loop() {
-
     unsigned long timeNow = millis();
     int torgue_regulated = 0;
     int throttle = get_throttle();
     float steering =  get_steering();
     float des_steering = get_des_steering();
-    if(!(isNear(last_throttle,throttle,100) && isNear(last_steering,steering,deg2rad(0.5)) && isNear(last_des_steering,des_steering, deg2rad(0.5)))){  // only for disableing the display
+    if(!(isNear(last_throttle,throttle,100)
+            && isNear(last_steering,steering,deg2rad(0.5))
+            && isNear(last_des_steering,des_steering, deg2rad(0.5)))){  // only for disableing the display
         last_time = timeNow;
         last_throttle = throttle;
         last_steering = steering;
@@ -201,8 +202,8 @@ void loop() {
     if (iTimeSend <= timeNow){
         iTimeSend = timeNow + TIME_SEND;
         if (get_input_src()==INPUT_ADC){
-            float tmp_steering = (throttle < 300) ? steering : ((throttle < 500) ? steering * (500 - throttle ) / 200: 0.0);
-            calc_torque_per_wheel(throttle, tmp_steering,0 , torgue);
+            float tmpSteering = (throttle < 300) ? steering : ((throttle < 500) ? steering * (500 - throttle ) / 200: 0.0);
+            calc_torque_per_wheel(throttle, tmpSteering,0 , torgue);
         }
         else{
             pid_update();
