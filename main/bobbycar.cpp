@@ -38,8 +38,9 @@ bool Receive(EspSoftwareSerial::UART* board, SerialFeedback* out, SerialVariable
             // Copy received data
         if (bufStartFrame == START_FRAME) {  // Initialize if new data is detected
             SerialFeedback NewFeedback;
-            memcpy(&NewFeedback, &vars->buffer[vars->idx],sizeof(SerialFeedback)-vars->idx);
-            memcpy(&(((uint8_t*)&NewFeedback)[sizeof(SerialFeedback)-vars->idx]), vars->buffer,vars->idx);
+            int pack_start = (vars->idx + 1) % sizeof(SerialFeedback);
+            memcpy(&NewFeedback, &(vars->buffer[pack_start]),sizeof(SerialFeedback)-pack_start);
+            memcpy(&(((uint8_t*)&NewFeedback)[sizeof(SerialFeedback)-pack_start]), vars->buffer,pack_start);
             uint32_t checksum = calc_crc32((uint8_t*)&NewFeedback,sizeof(SerialFeedback)-sizeof(uint16_t)*2);
             uint32_t checksum_package = (uint32_t)NewFeedback.checksumL | ((uint32_t)NewFeedback.checksumH << 16);
             // printf("%x == %x\n",checksum_package,checksum);
