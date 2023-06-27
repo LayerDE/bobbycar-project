@@ -66,6 +66,38 @@ static bool echo(const char* argv, c_data* out){
     c_data_extend_raw(out, &newl4ptr, sizeof(newl4ptr));
     return true;
 }
+
+
+
+bool front_connected_static();
+bool rear_connected_static();
+
+bool front_connected_valid_static();
+bool rear_connected_valid_static();
+
+static bool cmd_get_board_status(const char* argv, c_data* out){
+    bool front = front_connected_static(), rear = rear_connected_static();
+    if(!(front || rear))
+        return false;
+    const char* f_message = "front connected\n";
+    const char* fv_message = "front valid connected\n";
+    if(front){
+        if(front_connected_valid_static())
+            c_data_extend_raw(out,fv_message,strlen(fv_message));
+        else
+            c_data_extend_raw(out,f_message,strlen(f_message));
+    }
+    const char* r_message = "rear connected\n";
+    const char* rv_message = "rear valid connected\n";
+    if(rear){
+        if(rear_connected_valid_static())
+            c_data_extend_raw(out,rv_message,strlen(rv_message));
+        else
+            c_data_extend_raw(out,r_message,strlen(r_message));
+    }
+    return true;
+}
+
 static bool print_help_of(const char* argv, c_data* out);
 
 static bool cmd_set_steering(const char* argv, c_data* out){
@@ -284,6 +316,7 @@ static const command commands[] = {
     {"getkp",cmd_get_pid_kp},
     {"getki",cmd_get_pid_ki},
     {"getkd",cmd_get_pid_kd},
+    {"getb", cmd_get_board_status},
     {"setkp",cmd_set_pid_kp},
     {"setki",cmd_set_pid_ki},
     {"setkd",cmd_set_pid_kd},

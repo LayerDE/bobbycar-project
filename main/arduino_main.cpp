@@ -62,14 +62,12 @@ EspSoftwareSerial::UART HoverSerial_rear(RX1, TX1);   // RX, TX
 bool dsp_connected;
 
 display *lcd;
-SerialFeedback NewFeedback_front;
-SerialFeedback NewFeedback_rear;
 
-SerialFeedback SerialFeedback_front;
-SerialFeedback SerialFeedback_rear;
+static SerialFeedback SerialFeedback_front;
+static SerialFeedback SerialFeedback_rear;
 
-SerialVariables SerialVar_front;
-SerialVariables SerialVar_rear;
+static SerialVariables SerialVar_front;
+static SerialVariables SerialVar_rear;
 
 volatile int speed_per_wheel[4];
 volatile int64_t distance_per_wheel[4];
@@ -79,6 +77,36 @@ volatile long last_time;
 volatile int voltage =0;
 
 bool front_active = false, rear_active = false;
+
+static bool board_connected(SerialVariables *vars, unsigned long time){
+    return (time - vars->lastUpdate) < 1000;
+}
+
+static bool board_connected_valid(SerialVariables *vars, unsigned long time){
+    return (time - vars->lastValidPack) < 5000;
+}
+
+bool front_connected(unsigned long time){
+    return board_connected(&SerialVar_front,time);
+}
+
+bool rear_connected(unsigned long time){
+    return board_connected(&SerialVar_rear,time);
+}
+
+extern "C" bool front_connected_static(){
+    return front_connected(millis());
+}
+extern "C" bool rear_connected_static(){
+    return rear_connected(millis());
+}
+
+extern "C" bool front_connected_valid_static(){
+    return board_connected_valid(&SerialVar_front, millis());
+}
+extern "C" bool rear_connected_valid_static(){
+    return board_connected_valid(&SerialVar_rear, millis());
+}
 
 static inline void feedback_update(){
     last_time = MAX(SerialVar_front.lastUpdate, SerialVar_rear.lastUpdate);
@@ -90,11 +118,11 @@ static inline void feedback_update(){
     distance_per_wheel[1] += (SerialFeedback_front.steps1 - last_distance[1]) * sign(speed_per_wheel[1]);
     distance_per_wheel[2] += (SerialFeedback_rear.steps0 - last_distance[2]) * sign(speed_per_wheel[2]);
     distance_per_wheel[3] += (SerialFeedback_rear.steps1 - last_distance[3]) * sign(speed_per_wheel[3]);
-    if(last_time - SerialVar_front.lastUpdate > 1000){
+    if(!front_connected(last_time)){
         speed = calc_average((const int*)&(speed_per_wheel[2]),2);
         voltage = SerialFeedback_rear.batVoltage;
     }
-    else if(last_time - SerialVar_rear.lastUpdate > 1000){
+    else if(!rear_connected(last_time)){
         speed = calc_average((const int*)&(speed_per_wheel[0]),2);
         voltage = SerialFeedback_front.batVoltage;
     }
@@ -103,6 +131,7 @@ static inline void feedback_update(){
         voltage = SerialFeedback_front.batVoltage + SerialFeedback_rear.batVoltage / 2;
     }
 }
+
 
 // Arduino setup function. Runs in CPU 1
 void setup() {
@@ -186,23 +215,22 @@ void loop() {
         last_throttle = throttle;
         last_steering = steering;
         last_des_steering = des_steering;
-    }
-    if(Receive(&HoverSerial_front, &SerialFeedback_front, &SerialVar_front, timeNow)){
+    }    if(Receive(&HoverSerial_front, &SerialFeedback_front, &SerialVar_front, timeNow)){
         feedback_update();
         last_distance[0] = SerialFeedback_front.steps0;
         last_distance[1] = SerialFeedback_front.steps1;
     }
-    front_active = timeNow - SerialVar_front.lastUpdate < 1000;
-    if(Receive(&HoverSerial_rear, &SerialFeedback_rear, &SerialVar_rear, timeNow)){
+    front_active = front_connected(timeNow);
+        if(Receive(&HoverSerial_rear, &SerialFeedback_rear, &SerialVar_rear, timeNow)){
         feedback_update();
         last_distance[2] = SerialFeedback_rear.steps0;
         last_distance[3] = SerialFeedback_rear.steps1;
     }
-    rear_active = timeNow - SerialVar_front.lastUpdate < 1000;
+    rear_active = rear_connected(timeNow);
     if (iTimeSend <= timeNow){
         iTimeSend = timeNow + TIME_SEND;
         if (get_input_src()==INPUT_ADC){
-            float tmpSteering = (throttle < 300) ? steering : ((throttle < 500) ? steering * (500 - throttle ) / 200: 0.0);
+            float tmpSteering = (throttle < 300) ? steering : ((throttle < 450) ? steering * (450.0 - throttle ) / 150.0: 0.0);
             calc_torque_per_wheel(throttle, tmpSteering,0 , torgue);
         }
         else{
@@ -213,10 +241,14 @@ void loop() {
                 tmp_out += SIGN(tmp_out)* CLAMP((0.05-(double)speed/100.0),0,0.05);  
             calc_torque_per_wheel(throttle, des_steering,torgue_regulated = -round(tmp_out * (float)THROTTLE_MAX) , torgue);
         }
-        //if(front_active)
+        if(front_active){
             Send(&HoverSerial_front, torgue[0], torgue[1]);
-        //if(rear_active)
+            last_time = timeNow;
+        }
+        if(rear_active){
             Send(&HoverSerial_rear, torgue[2], torgue[3]);
+            last_time = timeNow;
+        }
         if (!((send_cnt++) % 7)) {
             if( last_time + 20000 < timeNow){
                 lcd->set_power(0);
