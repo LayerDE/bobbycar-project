@@ -241,14 +241,10 @@ void loop() {
                 tmp_out += SIGN(tmp_out)* CLAMP((0.05-(double)speed/100.0),0,0.05);  
             calc_torque_per_wheel(throttle, des_steering,torgue_regulated = -round(tmp_out * (float)THROTTLE_MAX) , torgue);
         }
-        if(front_active){
+        if(front_active)
             Send(&HoverSerial_front, torgue[0], torgue[1]);
-            last_time = timeNow;
-        }
-        if(rear_active){
+        if(rear_active)
             Send(&HoverSerial_rear, torgue[2], torgue[3]);
-            last_time = timeNow;
-        }
         if (!((send_cnt++) % 7)) {
             if( last_time + 20000 < timeNow){
                 lcd->set_power(0);
