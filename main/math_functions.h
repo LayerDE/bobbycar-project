@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,6 +23,7 @@ extern "C" {
     int calc_median(const int *x, int cnt);
     int calc_average(const int *x, int cnt);
     float calc_trailer_clean_10k100k(float y);
+    bool isNear(float a,float b, float range);
 #ifdef __cplusplus
 }
 #endif

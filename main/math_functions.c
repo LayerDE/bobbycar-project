@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <c_data.h>
 #include "defines.h"
 #include "config.h"
@@ -181,4 +182,11 @@ int calc_median(const int x[], int cnt)
     median = (x[cnt / 2] + x[cnt / 2 + 1]) / 2;
   c_data_delete_ptr(data);
   return median;
+}
+
+bool isNear(float a,float b, float range){
+    if(ABS(a-b)<range)
+        return true;
+    else
+        return false;
 }

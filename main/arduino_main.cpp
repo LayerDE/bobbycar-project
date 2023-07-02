@@ -194,14 +194,6 @@ int last_throttle;
 float last_steering;
 float last_des_steering;
 
-bool isNear(float a,float b, float range){
-    if(ABS(a-b)<range)
-        return true;
-    else
-        return false;
-}
-
-
 void loop() {
     unsigned long timeNow = millis();
     int torgue_regulated = 0;
