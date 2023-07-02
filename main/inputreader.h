@@ -17,6 +17,8 @@ void set_pid_steer(float in);
 void set_des_steering(float steering, unsigned int src);
 void set_ext_throttle(int throttle, unsigned int src);
 
+bool get_steering_pid_active();
+
 bool get_trailer_connected();
 float get_trailer();
 

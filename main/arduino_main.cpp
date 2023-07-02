@@ -229,7 +229,7 @@ void loop() {
     rear_active = rear_connected(timeNow);
     if (iTimeSend <= timeNow){
         iTimeSend = timeNow + TIME_SEND;
-        if (get_input_src()==INPUT_ADC){
+        if (!get_steering_pid_active()){
             float tmpSteering = (throttle < 300) ? steering : ((throttle < 450) ? steering * (450.0 - throttle ) / 150.0: 0.0);
             calc_torque_per_wheel(throttle, tmpSteering,0 , torgue);
         }

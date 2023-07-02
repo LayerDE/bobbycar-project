@@ -33,6 +33,16 @@ unsigned int get_input_src(){
 float get_steering(){
     return calc_angle(adc_steering)* 19.0f / 13.0f;
 }
+bool get_steering_pid_active(){
+    if(input_src == INPUT_ADC)
+        return false;
+    else if(input_src == INPUT_RC)
+        return rc_get_steering_pid_active();
+    else if(input_src == INPUT_GAMEPAD)
+        return true;
+    else
+        return true;
+}
 
 bool get_trailer_connected(){
     return trailer_connected;
@@ -69,7 +79,7 @@ void set_input_src(unsigned int src){
 }
 
 int get_throttle(){
-    if(input_src == 0)
+    if(input_src == INPUT_ADC)
         return throttle_calc(adc_throttle);
     else
         return external_throttle[input_src-1];
