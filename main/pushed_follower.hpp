@@ -14,9 +14,12 @@ class pushed_follower{
             double ki, double kp, double kd);
         ~pushed_follower();
         double calculate(int des_speed, float des_steering);
+        float get_des_steering(float real_beta, float des_beta);
+        float get_stable_steering(float des_beta);
     private:
         PID *alpha_calc;
         simulator simulation;
+        float lenght;
         double setPoint;
         double isPoint;
         double output;
