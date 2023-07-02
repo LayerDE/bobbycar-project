@@ -16,6 +16,8 @@ class pushed_follower{
         double calculate(int des_speed, float des_steering);
         float get_des_steering(float real_beta, float des_beta);
         float get_stable_steering(float des_beta);
+        float calc_alpha_const(float beta);
+        float calc_beta_const(float alpha_steer);
     private:
         PID *alpha_calc;
         simulator simulation;
