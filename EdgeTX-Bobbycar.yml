@@ -1,0 +1,341 @@
+semver: 2.8.4
+header:
+  name: Bobbycar
+  bitmap: ""
+  labels: ""
+  modelId:
+    0:
+      val: 1
+noGlobalFunctions: 0
+thrTrim: 0
+trimInc: 0
+displayTrims: 0
+ignoreSensorIds: 0
+disableThrottleWarning: 0
+enableCustomThrottleWarning: 0
+customThrottleWarningPosition: 0
+beepANACenter: 0
+extendedLimits: 0
+extendedTrims: 0
+throttleReversed: 0
+flightModeData:
+  0:
+    trim:
+      3:
+        value: 2
+        mode: 0
+    name: ""
+    fadeIn: 0
+    fadeOut: 0
+mixData:
+  - destCh: 0
+    srcRaw: I0
+    weight: 100
+    swtch: NONE
+    curve:
+      type: 0
+      value: 0
+    delayUp: 0
+    delayDown: 0
+    speedUp: 0
+    speedDown: 0
+    carryTrim: 0
+    mltpx: ADD
+    mixWarn: 0
+    flightModes: 000000000
+    offset: 0
+    name: ""
+  - destCh: 1
+    srcRaw: I1
+    weight: 100
+    swtch: NONE
+    curve:
+      type: 0
+      value: 0
+    delayUp: 0
+    delayDown: 0
+    speedUp: 0
+    speedDown: 0
+    carryTrim: 0
+    mltpx: ADD
+    mixWarn: 0
+    flightModes: 000000000
+    offset: 0
+    name: ""
+  - destCh: 2
+    srcRaw: I2
+    weight: 100
+    swtch: NONE
+    curve:
+      type: 0
+      value: 0
+    delayUp: 0
+    delayDown: 0
+    speedUp: 0
+    speedDown: 0
+    carryTrim: 0
+    mltpx: ADD
+    mixWarn: 0
+    flightModes: 000000000
+    offset: 0
+    name: ""
+  - destCh: 3
+    srcRaw: I3
+    weight: 100
+    swtch: NONE
+    curve:
+      type: 0
+      value: 0
+    delayUp: 0
+    delayDown: 0
+    speedUp: 0
+    speedDown: 0
+    carryTrim: 0
+    mltpx: ADD
+    mixWarn: 0
+    flightModes: 000000000
+    offset: 0
+    name: ""
+  - destCh: 4
+    srcRaw: SB
+    weight: 100
+    swtch: NONE
+    curve:
+      type: 0
+      value: 0
+    delayUp: 0
+    delayDown: 0
+    speedUp: 0
+    speedDown: 0
+    carryTrim: 0
+    mltpx: ADD
+    mixWarn: 0
+    flightModes: 000000000
+    offset: 0
+    name: ARM
+  - destCh: 5
+    srcRaw: SA
+    weight: 100
+    swtch: NONE
+    curve:
+      type: 0
+      value: 0
+    delayUp: 0
+    delayDown: 0
+    speedUp: 0
+    speedDown: 0
+    carryTrim: 0
+    mltpx: ADD
+    mixWarn: 0
+    flightModes: 000000000
+    offset: 0
+    name: Mode
+  - destCh: 6
+    srcRaw: SE
+    weight: 100
+    swtch: NONE
+    curve:
+      type: 0
+      value: 0
+    delayUp: 0
+    delayDown: 0
+    speedUp: 0
+    speedDown: 0
+    carryTrim: 0
+    mltpx: ADD
+    mixWarn: 0
+    flightModes: 000000000
+    offset: 0
+    name: ""
+limitData:
+  0:
+    min: 0
+    max: 0
+    revert: 0
+    offset: 0
+    ppmCenter: 0
+    symetrical: 0
+    name: lenk
+    curve: 0
+  2:
+    min: 0
+    max: 0
+    revert: 0
+    offset: 0
+    ppmCenter: 0
+    symetrical: 0
+    name: gas
+    curve: 0
+  4:
+    min: 0
+    max: 0
+    revert: 0
+    offset: 0
+    ppmCenter: 0
+    symetrical: 0
+    name: inMo
+    curve: 0
+  5:
+    min: 0
+    max: 0
+    revert: 0
+    offset: 0
+    ppmCenter: 0
+    symetrical: 0
+    name: rvMo
+    curve: 0
+  6:
+    min: 0
+    max: 0
+    revert: 0
+    offset: 0
+    ppmCenter: 0
+    symetrical: 0
+    name: foMo
+    curve: 0
+expoData:
+  - srcRaw: Ail
+    scale: 0
+    mode: 3
+    chn: 0
+    swtch: NONE
+    flightModes: 000000000
+    weight: 100
+    offset: 0
+    curve:
+      type: 1
+      value: 0
+    trimSource: 0
+    name: ""
+  - srcRaw: Ele
+    scale: 0
+    mode: 3
+    chn: 1
+    swtch: NONE
+    flightModes: 000000000
+    weight: 100
+    offset: 0
+    curve:
+      type: 1
+      value: 0
+    trimSource: 0
+    name: ""
+  - srcRaw: Thr
+    scale: 0
+    mode: 3
+    chn: 2
+    swtch: NONE
+    flightModes: 000000000
+    weight: 100
+    offset: 0
+    curve:
+      type: 1
+      value: 0
+    trimSource: 0
+    name: ""
+  - srcRaw: Rud
+    scale: 0
+    mode: 3
+    chn: 3
+    swtch: NONE
+    flightModes: 000000000
+    weight: 100
+    offset: 0
+    curve:
+      type: 1
+      value: 0
+    trimSource: 0
+    name: ""
+inputNames:
+  0:
+    val: Ail
+  1:
+    val: Ele
+  2:
+    val: Thr
+  3:
+    val: Rud
+logicalSw:
+  0:
+    func: FUNC_EDGE
+    def: SB0,1,<
+    delay: 0
+    duration: 0
+    andsw: SC2
+  1:
+    func: FUNC_VNEG
+    def: I2,-99
+    delay: 0
+    duration: 0
+    andsw: NONE
+  2:
+    func: FUNC_AND
+    def: L1,L2
+    delay: 0
+    duration: 0
+    andsw: NONE
+  3:
+    func: FUNC_STICKY
+    def: L3,SB2
+    delay: 0
+    duration: 0
+    andsw: NONE
+swashR:
+  type: TYPE_NONE
+  value: 0
+  collectiveSource: NONE
+  aileronSource: NONE
+  elevatorSource: NONE
+  collectiveWeight: 0
+  aileronWeight: 0
+  elevatorWeight: 0
+thrTraceSrc: Thr
+switchWarningState: ""
+thrTrimSw: 0
+potsWarnMode: WARN_OFF
+jitterFilter: GLOBAL
+potsWarnEnabled: 0
+displayChecklist: 0
+telemetryProtocol: 0
+varioData:
+  source: none
+  centerSilent: 0
+  centerMax: 0
+  centerMin: 0
+  min: 0
+  max: 0
+rssiSource: none
+rfAlarms:
+  warning: 45
+  critical: 42
+disableTelemetryWarning: 0
+moduleData:
+  0:
+    type: TYPE_CROSSFIRE
+    channelsStart: 0
+    channelsCount: 16
+    failsafeMode: NOT_SET
+    mod:
+      crsf:
+        telemetryBaudrate: 0
+trainerData:
+  mode: OFF
+  channelsStart: 0
+  channelsCount: -8
+  frameLength: 0
+  delay: 0
+  pulsePol: 0
+modelRegistrationID: "\n\x100\x02511 "
+functionSwitchConfig: 2730
+functionSwitchGroup: 85
+functionSwitchStartConfig: 1364
+functionSwitchLogicalState: 1
+switchNames:
+  0:
+    val: rc
+  1:
+    val: tp
+  2:
+    val: tc
+  3:
+    val: kid

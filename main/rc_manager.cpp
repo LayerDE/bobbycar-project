@@ -95,7 +95,7 @@ extern "C" void crsf_task()
         trailer_connected = false;
         trailer_control = false;
     }
-    if(crsf.channels[5]>1500 && get_input_src() != INPUT_RC)
+    if(crsf.channels[4]>1500 && get_input_src() != INPUT_RC)
         set_input_src(INPUT_RC);
     else if(get_input_src() == INPUT_RC && crsf.channels[5]<500)
         set_input_src(INPUT_ADC);
