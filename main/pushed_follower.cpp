@@ -3,8 +3,9 @@
 #include <cmath>
 
 
-typedef struct {float beta_start; float beta_end; float steering_angle; float distance;} lookup_steering;
-typedef struct {float beta_start; float beta_end; lookup_steering* possibilies; int possibilies_len;} looup_possible;
+typedef struct {float beta_start; float beta_end; float steering_angle;} lookup_steering;
+
+float table[40][40];
 
 static inline float pow2(float x){
   return x*x;
@@ -27,9 +28,12 @@ static bool isNear_points(point x0, point x1, float range){
         return false;
 }
 
-pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle,
+pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle,
             get_float steering_ptr, get_float hitch_angle_ptr, get_int speed_ptr,
-            double ki, double kp, double kd) : simulation(this, 0, 0, (float)c_wheelbase/100.0,(float)hitch2car_axle/100.0,0,steering_ptr(),(float)rc_axle2hitch/100.0, hitch_angle_ptr(),0.01){
+            double ki, double kp, double kd) : simulation(this, 0, 0, (float)c_wheelbase/100.0,(float)rc_axle2hitch/100.0,0,steering_ptr(),(float)hitch2trail_axle/100.0, hitch_angle_ptr(),0.01){
+    hitch2axle = hitch2trail_axle;
+    car2hitch = rc_axle2hitch;
+    car_wheelbase = c_wheelbase;
     simulation.set_output(car_point_out,trail_point_out, false);
     alpha_calc = new PID(&isPoint, &output, &setPoint, ki, kp, kd, 0);
 }
@@ -52,18 +56,18 @@ double pushed_follower::calculate(int des_speed, float des_steering){ // simple 
 float pushed_follower::calc_alpha_const(float beta){ // todo
     if(beta == 0.0)
         return 0.0;
-    float V_fbw = rc_axle2hitch/
-    float V_bw = hitch2car_axle/tan(beta);
-    return atan(c_wheelbase/V_bw);
+    float V_fbw = car2hitch/tan(beta);
+    float V_bw = hitch2axle/tan(beta);
+    return atan(car_wheelbase/V_bw);
 }
 
 float pushed_follower::calc_beta_const(float alpha_steer){ // todo
     if(alpha_steer == 0.0)
         return 0.0;
-    float V_bw = c_wheelbase/tan(alpha_steer);
+    float V_bw = car_wheelbase/tan(alpha_steer);
     float V_fbw = sqrt(pow2(V_bw)+pow2(car2hitch));
     
-    return atan(hitch2car_axle/V_bw);
+    return atan(hitch2axle/V_bw);
     //float delta_2 = sin(hitch2axle/sqrt(pow2(V_bw)+pow2(car2hitch)));
     //return delta_1;
 }
