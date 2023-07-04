@@ -78,6 +78,16 @@ float pushed_follower::calc_beta_const(float alpha_steer){ // todo
     //return delta_1;
 }
 
+float pushed_follower::calc_alpha(float beta_old, float beta_new){
+    uint indexA = beta_old;
+    uint indexB = beta_new;
+    return alpha__sim_lookup[indexA][indexB];
+}
+
+void pushed_follower::create_alpha_sim_lookup(){
+    
+}
+
 void pushed_follower::create_alpha_lookup(){
     // get max
     float result;

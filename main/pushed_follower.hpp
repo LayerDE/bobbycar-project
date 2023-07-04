@@ -17,11 +17,13 @@ class pushed_follower{
         float get_stable_steering(float des_beta);
         float calc_alpha_const(float beta);
         float calc_beta_const(float alpha_steer);
+        float calc_alpha(float beta_old, float beta_new);
     private:
         float beta_max;
         unsigned int alpha_lookup_size;
         float alpha_max;
         float* alpha_lookup;
+        float** alpha_sim_lookup;
         PID *alpha_calc;
         simulator simulation;
         float lenght;
@@ -35,4 +37,5 @@ class pushed_follower{
         int car2hitch;
         int car_wheelbase;
         void create_alpha_lookup();
+        void create_alpha_sim_lookup();
 };
