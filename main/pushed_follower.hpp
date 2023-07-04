@@ -6,10 +6,9 @@
 typedef float (*get_float)();
 typedef int (*get_int)();
 
-
 class pushed_follower{
     public:
-        pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle,
+        pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle, float beta_protect, unsigned int lookup_alpha_size,
             get_float steering_ptr, get_float hitch_angle_ptr, get_int speed_ptr,
             double ki, double kp, double kd);
         ~pushed_follower();
@@ -19,6 +18,10 @@ class pushed_follower{
         float calc_alpha_const(float beta);
         float calc_beta_const(float alpha_steer);
     private:
+        float beta_max;
+        unsigned int alpha_lookup_size;
+        float alpha_max;
+        float* alpha_lookup;
         PID *alpha_calc;
         simulator simulation;
         float lenght;
@@ -31,4 +34,5 @@ class pushed_follower{
         int hitch2axle;
         int car2hitch;
         int car_wheelbase;
+        void create_alpha_lookup();
 };
