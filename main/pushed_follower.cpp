@@ -27,7 +27,7 @@ static bool isNear_points(point x0, point x1, float range){
         return false;
 }
 
-pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle, float beta_protect, unsigned int lookup_alpha_size,
+pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle, float beta_protect, unsigned int lookup_alpha_size, float sim_distance,
             get_float steering_ptr, get_float hitch_angle_ptr, get_int speed_ptr, double ki, double kp, double kd)
             : simulation(this, 0, 0, (float)c_wheelbase/100.0,(float)rc_axle2hitch/100.0,0,steering_ptr(),(float)hitch2trail_axle/100.0, hitch_angle_ptr(),0.01){
     hitch2axle = hitch2trail_axle;
@@ -36,6 +36,7 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
     alpha_lookup_size = lookup_alpha_size;
     alpha_lookup = new float[alpha_lookup_size];
     beta_max = beta_protect;
+    simulator_distance = sim_distance;
     create_alpha_lookup();
     simulation.set_output(car_point_out,trail_point_out, false);
     alpha_calc = new PID(&isPoint, &output, &setPoint, ki, kp, kd, 0);
@@ -84,8 +85,15 @@ float pushed_follower::calc_alpha(float beta_old, float beta_new){
     return alpha__sim_lookup[indexA][indexB];
 }
 
-void pushed_follower::create_alpha_sim_lookup(){
-    
+void pushed_follower::calc_beta(float alpha, float beta_old, float distance){
+    // so simple but so complex
+    simulation.set_values(0,0,0,alpha,beta_old);
+    simulation.simulate(distance);
+    return simulation.output();
+}
+
+void pushed_follower::create_alpha_sim_lookup(float distance){
+    // todo
 }
 
 void pushed_follower::create_alpha_lookup(){
@@ -101,6 +109,7 @@ void pushed_follower::create_alpha_lookup(){
             testval += step;
         step /= 2;
     } while(isNear(result,beta_max,0.25));
+    // generate lookup
     for(int i = 0; i < alpha_lookup_size; i++)
         alpha_lookup[i] = calc_beta_const(alpha_max * (i+1) / alpha_lookup_size);
 }
