@@ -34,10 +34,18 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
     car2hitch = rc_axle2hitch;
     car_wheelbase = c_wheelbase;
     alpha_lookup_size = lookup_alpha_size;
+
+    // allocating alpha lookup
     alpha_lookup = new float[alpha_lookup_size];
+
+    // allocating alpha sim lookup
+    alpha_sim_lookup = new float*[alpha_lookup_size/2];
+    for(int i = 0; i < alpha_lookup_size/2; i++)
+        alpha_sim_lookup[i] = new float[alpha_lookup_size];
     beta_max = beta_protect;
     simulator_distance = sim_distance;
     create_alpha_lookup();
+    create_alpha_sim_lookup(simulator_distance);
     simulation.set_output(car_point_out,trail_point_out, false);
     alpha_calc = new PID(&isPoint, &output, &setPoint, ki, kp, kd, 0);
 }
@@ -63,8 +71,8 @@ float pushed_follower::calc_alpha_const(float beta){ // todo
     if(fabs(beta)> beta_max){
         return 1/0 * SIGN(beta);
     }
-    else
-        return alpha_lookup[(int)round(fabs(beta) / (alpha_max/(float)alpha_lookup_size))] * SIGN(beta);
+    unsigned int index = round(fabs(beta) / (alpha_max/(float)alpha_lookup_size));
+    return alpha_lookup[index] * SIGN(beta);
 }
 
 float pushed_follower::calc_beta_const(float alpha_steer){ // todo
@@ -80,8 +88,8 @@ float pushed_follower::calc_beta_const(float alpha_steer){ // todo
 }
 
 float pushed_follower::calc_alpha(float beta_old, float beta_new){
-    unsigned int indexA = beta_old;
-    unsigned int indexB = beta_new;
+    unsigned int indexA = round(fabs(beta_old) / (beta_max/(float)(alpha_lookup_size/2)));
+    unsigned int indexB = round(beta_new / (beta_max/(float)(alpha_lookup_size/2))) + alpha_lookup_size/2;
     return alpha_sim_lookup[indexA][indexB];
 }
 
