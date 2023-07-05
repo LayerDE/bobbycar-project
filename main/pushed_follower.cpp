@@ -42,6 +42,7 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
     alpha_sim_lookup = new float*[alpha_lookup_size/2];
     for(int i = 0; i < alpha_lookup_size/2; i++)
         alpha_sim_lookup[i] = new float[alpha_lookup_size];
+
     beta_max = beta_protect;
     simulator_distance = sim_distance;
     create_alpha_lookup();
@@ -52,7 +53,10 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
 
 pushed_follower::~pushed_follower(){
     delete alpha_calc;
-    delete alpha_lookup;
+    delete [] alpha_lookup;
+    for(int i = 0; i < alpha_lookup_size/2; i++)
+        delete [] alpha_sim_lookup[i];
+    delete [] alpha_sim_lookup;
 }
 
         float get_des_steering(float real_beta, float des_beta);

@@ -45,6 +45,8 @@ limitations under the License.
 #include "display_2004.hpp"
 #include "bobbycar.hpp"
 
+#include "pushed_follower.hpp"
+
 #include <Wire.h>
 #include "logging.h"
 
@@ -132,6 +134,7 @@ static inline void feedback_update(){
     }
 }
 
+pushed_follower *trailer;
 
 // Arduino setup function. Runs in CPU 1
 void setup() {
@@ -144,6 +147,9 @@ void setup() {
     xTaskCreate(&init_rc_in, "rc_in_init", 2048 * 2, NULL, 5, &tasks[2]);
     for(int y = task_count; y > 0;){
         y = task_count;
+        trailer = new pushed_follower(L_WHEELBASE, L_REAR_TO_HITCH, L_HITCH_TO_FOLLOWER_AXLE, 20, 24, 50,
+            get_steering, get_trailer, get_throttle,
+            0, 0, 0);
         for(int x = 0; x < task_count; x++)
             if(eTaskGetState(tasks[x]))
                 y--;
@@ -193,6 +199,11 @@ char sprint_buffer[256];
 int last_throttle;
 float last_steering;
 float last_des_steering;
+
+void program_end(){
+    delete lcd;
+    delete trailer;
+}
 
 void loop() {
     unsigned long timeNow = millis();
