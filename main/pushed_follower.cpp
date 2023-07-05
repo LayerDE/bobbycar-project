@@ -80,12 +80,12 @@ float pushed_follower::calc_beta_const(float alpha_steer){ // todo
 }
 
 float pushed_follower::calc_alpha(float beta_old, float beta_new){
-    uint indexA = beta_old;
-    uint indexB = beta_new;
-    return alpha__sim_lookup[indexA][indexB];
+    unsigned int indexA = beta_old;
+    unsigned int indexB = beta_new;
+    return alpha_sim_lookup[indexA][indexB];
 }
 
-void pushed_follower::calc_beta(float alpha, float beta_old, float distance){
+float pushed_follower::calc_beta(float alpha, float beta_old, float distance){
     // so simple but so complex
     simulation.set_values(0,0,0,alpha,beta_old);
     simulation.simulate(distance);
