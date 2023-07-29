@@ -172,7 +172,7 @@ void pushed_follower::export_lookuptalbe(){
 
 //linear
 float pushed_follower::create_beta_const(float alpha){
-    float V_bw = car_wheelbase / tan(alpha_steer);
+    float V_bw = car_wheelbase / tan(alpha);
     float V_fbw = sqrt(pow2(V_bw) + pow2(car2hitch));
     float delta_2 = asin(car2hitch / V_fbw);
     float delta_1 = asin(hitch2axle / V_fbw);
