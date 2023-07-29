@@ -21,6 +21,7 @@ class pushed_follower{
         float calc_beta(float alpha, float beta_old, float distance);
         float create_alpha_sim(float beta_old, float beta_new, float precicion, float distance);
         float create_beta_const(float alpha);
+        bool protection();
     private:
         float c_alpha_beta_factor;
         float simulator_distance;

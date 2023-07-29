@@ -183,3 +183,33 @@ void pushed_follower::create_alpha_lookup(){
     c_alpha_beta_factor = create_beta_const(alpha_steer)/alpha_steer;
     alpha_max = calc_alpha_const(beta_max);
 }
+
+bool pushed_follower::protection(){
+    float alpha = get_steering();
+    float beta = get_hitch_angle();
+    int speed = get_speed();
+    float stable_beta = get_stable_steering(alpha);
+    if(beta<beta_max)
+        return true;
+    switch (sign(speed))
+    {
+    case 1: // forward
+        if(fabs(stable_beta)<beta_max)
+            return true;
+        else if(sign(beta) != sign(stable_beta))
+            return true;
+        else
+            return false;
+    case -1: // reverse
+        if(sign(stable_beta) == 0)
+            return false;
+        else if(sign(beta) != sign(stable_beta))
+            return false;
+        else if(fabs(stable_beta)>fabs(beta))
+            return true;
+        else
+            return false;
+    default:
+        return true;
+    }
+}
