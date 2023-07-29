@@ -147,7 +147,7 @@ void setup() {
     xTaskCreate(&init_rc_in, "rc_in_init", 2048 * 2, NULL, 5, &tasks[2]);
     for(int y = task_count; y > 0;){
         y = task_count;
-        trailer = new pushed_follower(L_WHEELBASE, L_REAR_TO_HITCH, L_HITCH_TO_FOLLOWER_AXLE, 20, 24, 50,
+        trailer = new pushed_follower(L_WHEELBASE, L_REAR_TO_HITCH, L_HITCH_TO_FOLLOWER_AXLE, deg2rad(35),deg2rad(20), 24, 50,
             get_steering, get_trailer, get_throttle,
             0, 0, 0);
         for(int x = 0; x < task_count; x++)
