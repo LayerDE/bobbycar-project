@@ -13,7 +13,6 @@
 volatile static int adc_throttle;
 volatile static int adc_steering;
 volatile static int adc_follower;
-volatile static bool trailer_connected;
 volatile static int external_throttle[INPUT_COUNT-1];
 volatile static float desired_steering[INPUT_COUNT-1];
 volatile static int input_src = DEFAULT_INPUT;
@@ -21,10 +20,10 @@ volatile static float regulated_steering_factor = 0;
 
 
 //modes
-static bool active_steering;
-static bool trailer_connected;
-static bool trailer_control;
-static int last_mode;
+volatile static bool active_steering;
+volatile static bool trailer_connected;
+volatile static bool trailer_control;
+volatile static int last_mode;
 
 int get_mode(){
     return last_mode;
@@ -69,6 +68,22 @@ bool get_steering_pid_active(){
     return active_steering;
 }
 
+bool get_trailer_connected(){
+    return trailer_connected;
+}
+
+bool get_trailer_control(){
+    return trailer_control;
+}
+
+float get_trailer(){
+    if(trailer_connected)
+        return calc_angle(adc_follower);
+    else
+        return 1.0f/0.0f;
+}
+
+
 float get_pid_steer(){
     return regulated_steering_factor;
 }
@@ -93,18 +108,6 @@ bool get_steering_pid_active(){
     else
         return true;
 }
-
-bool get_trailer_connected(){
-    return trailer_connected;
-}
-
-float get_trailer(){
-    if(trailer_connected)
-        return calc_angle(adc_follower);
-    else
-        return 1.0f/0.0f;
-}
-
 
 float get_des_steering(){
     if(input_src == INPUT_ADC)

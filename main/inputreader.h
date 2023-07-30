@@ -3,10 +3,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-//extern volatile float adc_steering;
-//extern volatile float desired_steering;
 
 bool get_steering_pid_active();
+bool get_trailer_connected();
+bool get_trailer_control();
+float get_trailer();
 
 unsigned int get_input_src();
 void set_input_src(unsigned int src);
@@ -18,12 +19,6 @@ float get_pid_steer();
 void set_pid_steer(float in);
 void set_des_steering(float steering, unsigned int src);
 void set_ext_throttle(int throttle, unsigned int src);
-
-bool get_steering_pid_active();
-
-bool get_trailer_connected();
-float get_trailer();
-
 
 void init_gamepad(void* ignore);
 void init_adc_task(void* ignore);

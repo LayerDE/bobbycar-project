@@ -4,7 +4,7 @@
 extern "C"
 {
 #endif
-void pid_update();
+void pid_update(float des_steering);
 void init_pid();
 void set_pid_kp(double kp);
 void set_pid_ki(double ki);

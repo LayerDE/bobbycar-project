@@ -2,6 +2,7 @@
 #include <PID_v1.h>
 #include <PID_AutoTune_v0.h>
 #include "inputreader.h"
+#include "config.h"
 
 PID* steering_controls = nullptr;
 PID_ATune* pid_tuner = nullptr;
@@ -39,7 +40,7 @@ static void changeAutoTune()
   }
 }
 
-extern "C" void pid_update(){
+extern "C" void pid_update(float des_steering){
   if(tuning)
   {
     byte val = (pid_tuner->Runtime());
@@ -61,11 +62,11 @@ extern "C" void pid_update(){
 
 
 
-    if(get_input_src() == 0)
+    if(get_input_src() == INPUT_ADC)
         return;
     unsigned long time = millis();
     setPoint = get_des_steering();
-    isPoint = get_steering();
+    isPoint = des_steering;
     steering_controls->Compute();
     set_pid_steer(output);
 }

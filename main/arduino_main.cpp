@@ -236,12 +236,17 @@ void loop() {
     rear_active = rear_connected(timeNow);
     if (iTimeSend <= timeNow){
         iTimeSend = timeNow + TIME_SEND;
+        float tmpSteering;
+        if(get_trailer_control()){
+            if(sign(throttle) == -1)
+                tmpSteering = trailer->calc_alpha(get_trailer(), steering*20.0/35.0);
+        }
         if (!get_steering_pid_active()){
-            float tmpSteering = (throttle < 300) ? steering : ((throttle < 450) ? steering * (450.0 - throttle ) / 150.0: 0.0);
-            calc_torque_per_wheel(throttle, tmpSteering,0 , torgue);
+            tmpSteering = (throttle < 300) ? steering : ((throttle < 450) ? steering * (450.0 - throttle ) / 150.0: 0.0);
+            calc_torque_per_wheel(throttle, tmpSteering, 0, torgue);
         }
         else{
-            pid_update();
+            pid_update(tmpSteering);
             double tmp_out = get_pid_steer();
             add_log(tmp_out, timeNow,rad2deg(steering),rad2deg(des_steering));
             if(ABS(tmp_out) > 0.01)
