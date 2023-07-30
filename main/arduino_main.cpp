@@ -24,6 +24,8 @@ limitations under the License.
 #include <freertos/task.h>
 #include <freertos/portmacro.h>
 
+#include "soc/rtc_wdt.h"
+
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -138,6 +140,8 @@ pushed_follower *trailer;
 
 // Arduino setup function. Runs in CPU 1
 void setup() {
+    rtc_wdt_protect_off();
+    rtc_wdt_disable();
     const int task_count = INPUT_COUNT;
     printf("Hoverboard Serial v1.1\n");
     TaskHandle_t tasks[task_count] = {NULL, NULL, NULL, NULL};
@@ -145,11 +149,11 @@ void setup() {
     xTaskCreate(&init_adc_task, "init_adc_task", 2048 * 2, NULL, 5, &tasks[0]);
     xTaskCreate(&usb_console_init, "usb_console_init", 2048 * 2, NULL, 5, &tasks[1]);
     xTaskCreate(&init_rc_in, "rc_in_init", 2048 * 2, NULL, 5, &tasks[2]);
-    for(int y = task_count; y > 0;){
-        y = task_count;
-        trailer = new pushed_follower(L_WHEELBASE, L_REAR_TO_HITCH, L_HITCH_TO_FOLLOWER_AXLE, deg2rad(35),deg2rad(20), 24, 50,
+    trailer = new pushed_follower(L_WHEELBASE, L_REAR_TO_HITCH, L_HITCH_TO_FOLLOWER_AXLE, deg2rad(35),deg2rad(20), 24, 50,
             get_steering, get_trailer, get_throttle,
             0, 0, 0);
+    for(int y = task_count; y > 0;){
+        y = task_count;
         for(int x = 0; x < task_count; x++)
             if(eTaskGetState(tasks[x]))
                 y--;
