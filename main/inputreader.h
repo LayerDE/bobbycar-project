@@ -6,6 +6,8 @@ extern "C" {
 //extern volatile float adc_steering;
 //extern volatile float desired_steering;
 
+bool get_steering_pid_active();
+
 unsigned int get_input_src();
 void set_input_src(unsigned int src);
 

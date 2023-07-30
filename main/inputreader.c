@@ -19,6 +19,56 @@ volatile static float desired_steering[INPUT_COUNT-1];
 volatile static int input_src = DEFAULT_INPUT;
 volatile static float regulated_steering_factor = 0;
 
+
+//modes
+static bool active_steering;
+static bool trailer_connected;
+static bool trailer_control;
+static int last_mode;
+
+int get_mode(){
+    return last_mode;
+}
+
+void set_mode(int mode){
+    if(last_mode != mode)
+        switch(last_mode = mode){
+            case -1:
+                active_steering = false;
+                trailer_connected = false;
+                trailer_control = false;
+            case 0: // rc no trailer
+                active_steering = true;
+                trailer_connected = false;
+                trailer_control = false;
+                break;
+            case 1: // rc trailer protection
+                active_steering = true;
+                trailer_connected = true;
+                trailer_control = false;
+                break;
+            case 2: //rc trailer control and protection
+                active_steering = true;
+                trailer_connected = true;
+                trailer_control = true;
+                break;
+            case 3: //rc kids mode (no steering)
+                active_steering = false;
+                trailer_connected = false;
+                trailer_control = false;
+                break;
+            case 4: //rc trailprotect mode
+                active_steering = false;
+                trailer_connected = true;
+                trailer_control = false;
+                break;
+        }
+}
+
+bool get_steering_pid_active(){
+    return active_steering;
+}
+
 float get_pid_steer(){
     return regulated_steering_factor;
 }
