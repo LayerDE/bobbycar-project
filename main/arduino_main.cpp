@@ -236,7 +236,7 @@ void loop() {
     rear_active = rear_connected(timeNow);
     if (iTimeSend <= timeNow){
         iTimeSend = timeNow + TIME_SEND;
-        float tmpSteering;
+        float tmpSteering = steering;
         if(get_trailer_control()){
             if(sign(throttle) == -1)
                 tmpSteering = trailer->calc_alpha(get_trailer(), steering*20.0/35.0);
