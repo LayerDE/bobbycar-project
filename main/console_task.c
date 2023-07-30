@@ -19,7 +19,6 @@ void usb_console_init(void *ignore){
 }
 
 void tast_bt_console(void *ignore){
-
     vTaskDelete(NULL);
 }
 
