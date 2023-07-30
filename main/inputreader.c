@@ -64,7 +64,7 @@ void set_mode(int mode){
         }
 }
 
-bool get_steering_pid_active(){
+static bool rc_get_steering_pid_active(){
     return active_steering;
 }
 
@@ -98,6 +98,7 @@ unsigned int get_input_src(){
 float get_steering(){
     return calc_angle(adc_steering)* 19.0f / 13.0f;
 }
+
 bool get_steering_pid_active(){
     if(input_src == INPUT_ADC)
         return false;

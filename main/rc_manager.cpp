@@ -50,15 +50,10 @@ extern "C" void crsf_task()
         int mode = decode_mode(crsf.channels[6],mode_count_main);
         int throttle = typecast_throttle(crsf.channels[2],reverse);
         float rc_steer = typecast_steering(crsf.channels[0]);
-        float real_steer = get_steering();
-        set_mode(mode);
-        set_des_steering(typecast_steering(crsf.channels[0]),INPUT_RC);
-        if(trailer_connected)
-            if()
-            set_ext_throttle(0,INPUT_RC);
-        else
-            set_ext_throttle(throttle,INPUT_RC);
-        //printf("T: %i,%i; S: %i,%f; Switch: %i\n",crsf.channels[2],get_throttle(),crsf.channels[0],rad2deg(get_des_steering()), crsf.channels[5]);
+        if(get_mode()!= mode)
+            set_mode(mode);
+        set_des_steering(throttle,INPUT_RC);
+        set_ext_throttle(rc_steer,INPUT_RC);//printf("T: %i,%i; S: %i,%f; Switch: %i\n",crsf.channels[2],get_throttle(),crsf.channels[0],rad2deg(get_des_steering()), crsf.channels[5]);
     }
     else{
         set_des_steering(0,INPUT_RC);

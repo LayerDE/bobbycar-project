@@ -9,6 +9,9 @@ bool get_trailer_connected();
 bool get_trailer_control();
 float get_trailer();
 
+int get_mode();
+void set_mode(int mode);
+
 unsigned int get_input_src();
 void set_input_src(unsigned int src);
 
