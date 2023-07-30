@@ -237,11 +237,15 @@ void loop() {
     if (iTimeSend <= timeNow){
         iTimeSend = timeNow + TIME_SEND;
         float tmpSteering = steering;
-        if(get_trailer_control()){
+        if(get_trailer_control()){ // trailer beta control
             if(sign(throttle) == -1)
                 tmpSteering = trailer->calc_alpha(get_trailer(), steering*20.0/35.0);
         }
-        if (!get_steering_pid_active()){
+        if(get_trailer_connected()){ // trailer collision protection
+            if(!trailer->protection())
+                throttle = 0;
+        }
+        if (!get_steering_pid_active()){ // disable torgue vectoring at higher speeds for more savety
             tmpSteering = (throttle < 300) ? steering : ((throttle < 450) ? steering * (450.0 - throttle ) / 150.0: 0.0);
             calc_torque_per_wheel(throttle, tmpSteering, 0, torgue);
         }
