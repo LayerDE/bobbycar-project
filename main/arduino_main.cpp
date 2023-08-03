@@ -24,7 +24,7 @@ limitations under the License.
 #include <freertos/task.h>
 #include <freertos/portmacro.h>
 
-#include "soc/rtc_wdt.h"
+#include <soc/rtc_wdt.h>
 
 #include <math.h>
 #include <stdbool.h>

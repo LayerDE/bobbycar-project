@@ -48,8 +48,8 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
     beta_max = beta_protect;
     simulator_distance = sim_distance;
     create_alpha_lookup();
-    create_alpha_sim_lookup(simulator_distance);
-    export_lookuptalbe();
+    //create_alpha_sim_lookup(simulator_distance);
+    //export_lookuptalbe();
     simulation.set_output(car_point_out,trail_point_out, false);
     alpha_calc = new PID(&isPoint, &output, &setPoint, ki, kp, kd, 0);
 }
@@ -188,7 +188,7 @@ bool pushed_follower::protection(){
     float alpha = get_steering();
     float beta = get_hitch_angle();
     int speed = get_speed();
-    float stable_beta = get_stable_steering(alpha);
+    float stable_beta = calc_beta_const(alpha);
     if(beta<beta_max)
         return true;
     switch (sign(speed))

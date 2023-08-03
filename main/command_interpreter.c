@@ -12,6 +12,8 @@
 #include "logging.h"
 #include "config.h"
 
+#include "syscommands.h"
+
 const char endl4ptr = '\0';
 const char newl4ptr = '\n';
 static bool log_active = false;
@@ -325,7 +327,8 @@ static const command commands[] = {
     {"setlog",cmd_set_log},
     {"startlog",cmd_start_log},
     {"autolvl",cmd_autolevel},
-    {"exec",exec}
+    {"exec",exec},
+    {"reset", reset_cmd}
 };
 
 static bool print_help_of(const char* argv, c_data* out){

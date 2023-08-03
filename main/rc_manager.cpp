@@ -63,7 +63,7 @@ extern "C" void crsf_task()
         set_input_src(INPUT_RC);
     else if(get_input_src() == INPUT_RC && crsf.channels[5]<500){
         set_mode(-1);
-        set_input_src(INPUT_ADC);
+        set_input_src(DEFAULT_INPUT);
     }
         // Must call CrsfSerial.loop() in loop() to process data
         //crsf->loop();
