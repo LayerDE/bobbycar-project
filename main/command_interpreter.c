@@ -343,7 +343,7 @@ static bool print_help_of(const char* argv, c_data* out){
     return true;
 }
 
-void exec(const char* exec, c_data* out){
+bool exec(const char* exec, c_data* out){
     char* tmp = malloc(strlen(exec));
     strcpy(tmp,exec);
     char* argv = &tmp[strlen(exec)];
@@ -369,4 +369,5 @@ void exec(const char* exec, c_data* out){
     if(!valid_command)
         printf("%s %i is unknown\n", tmp, strlen(tmp));
     free(tmp);
+    return valid_command;
 }
