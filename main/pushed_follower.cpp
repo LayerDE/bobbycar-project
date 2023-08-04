@@ -3,6 +3,7 @@
 #include <cmath>
 #include "math_functions.h"
 
+#include "lookup-tables.h"
 
 #include <stdio.h>
 
@@ -184,10 +185,7 @@ void pushed_follower::create_alpha_lookup(){
     alpha_max = calc_alpha_const(beta_max);
 }
 
-bool pushed_follower::protection(){
-    float alpha = get_steering();
-    float beta = get_hitch_angle();
-    int speed = get_speed();
+bool pushed_follower::protection(float alpha, float beta, int speed){
     float stable_beta = calc_beta_const(alpha);
     if(beta<beta_max)
         return true;

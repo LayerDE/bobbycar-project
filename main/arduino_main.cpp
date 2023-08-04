@@ -210,7 +210,6 @@ void program_end(){
 }
 
 void loop() {
-    int i = 0;
     unsigned long timeNow = millis();
     int torgue_regulated = 0;
     int throttle = get_throttle();
@@ -243,7 +242,7 @@ void loop() {
                 tmpSteering = trailer->calc_alpha(get_trailer(), steering*20.0/35.0);
         }
         if(get_trailer_connected()){ // trailer collision protection
-            //if(!trailer->protection()) // todo
+            if(!trailer->protection(steering,get_trailer(),throttle)) // todo
                 throttle = 0;
         }
         if (!get_steering_pid_active()){ // disable torgue vectoring at higher speeds for more savety
