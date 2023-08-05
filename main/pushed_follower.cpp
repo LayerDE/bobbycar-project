@@ -33,9 +33,8 @@ static bool isNear_points(point x0, point x1, float range) {
         return false;
 }
 
-pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle,float alpha_max, float beta_protect, unsigned int lookup_alpha_size, float sim_distance,
-            get_float steering_ptr, get_float hitch_angle_ptr, get_int speed_ptr, double ki, double kp, double kd)
-            : simulation(this, 0, 0, (float)c_wheelbase/100.0,(float)rc_axle2hitch/100.0,0,steering_ptr(),(float)hitch2trail_axle/100.0, hitch_angle_ptr(),0.00001){
+pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle,float alpha_max, float beta_protect, unsigned int lookup_alpha_size, float sim_distance)
+            : simulation(this, 0, 0, (float)c_wheelbase/100.0,(float)rc_axle2hitch/100.0,0,0,(float)hitch2trail_axle/100.0, 0,0.001){
     hitch2axle = hitch2trail_axle;
     car2hitch = rc_axle2hitch;
     car_wheelbase = c_wheelbase;
@@ -52,22 +51,12 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
     //create_alpha_sim_lookup(simulator_distance);
     //export_lookuptalbe();
     simulation.set_output(car_point_out,trail_point_out, false);
-    alpha_calc = new PID(&isPoint, &output, &setPoint, ki, kp, kd, 0);
 }
 
 pushed_follower::~pushed_follower(){
-    delete alpha_calc;
     for(int i = 0; i < alpha_lookup_size/2; i++)
         delete [] alpha_sim_lookup[i];
     delete [] alpha_sim_lookup;
-}
-
-double pushed_follower::calculate(int des_speed, float des_steering){ // simple pid
-    isPoint = get_hitch_angle();
-    setPoint = des_steering;
-    output = get_steering();
-    alpha_calc->Compute();
-    return output;
 }
 
 float pushed_follower::calc_alpha_const(float beta){ // todo
@@ -98,6 +87,10 @@ float pushed_follower::calc_beta(float alpha, float beta_old, float distance){
     simulation.set_values(0,0,0,alpha,beta_old);
     simulation.simulate(distance);
     return simulation.output();
+}
+
+float pushed_follower::calc_alpha_linear(float beta_old, float beta_new){
+    return 0;
 }
 
 float pushed_follower::create_alpha_sim(float beta_old, float beta_new, float precicion, float distance){

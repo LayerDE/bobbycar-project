@@ -304,6 +304,29 @@ static bool cmd_get_pid_out(const char* argv, c_data* out){
     return true;
 }
 
+static bool cmd_set_mode(const char* argv, c_data* out){
+    int tmp = 0;
+    if(!internal_set_int(argv,&tmp))
+        return false;
+    {
+        char buffer[20];
+        sprintf(buffer, "setT:%i\n",tmp);
+        c_data_extend_raw(out, buffer, strlen(buffer));
+    }
+    set_ext_throttle(tmp,INPUT_CONSOLE);
+    return true;
+}
+
+static bool cmd_get_mode(const char* argv, c_data* out){
+    char buffer[20];
+    sprintf(buffer, "PID_Out:%f\n",get_pid_steer());
+    c_data_extend_raw(out, buffer, strlen(buffer));
+    return true;
+}
+
+
+
+
 static const command commands[] = {
     {"help",print_help_of},
     {"echo", echo},
