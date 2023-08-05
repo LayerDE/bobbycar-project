@@ -10,6 +10,7 @@ typedef int (*get_int)();
 class pushed_follower{
     public:
         pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle, float alpha_max, unsigned int lookup_alpha_size, int sim_distance);
+        pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle);
         ~pushed_follower();
         float calc_alpha_const(float beta);
         float calc_beta_const(float alpha_steer);
