@@ -17,9 +17,9 @@ CRSF crsf;
 static int typecast_throttle(unsigned int us_in, bool reverse){
     int throttle = ((float)us_in-1000.0f)*1.23f;
     if(throttle < 0)
-        return CLAMP(throttle *3 / 10,-300,0);
+        return CLAMP(throttle *3 / 10,THROTTLE_REVERSE_MAX,0);
     else
-        return CLAMP(throttle,0,1000);
+        return CLAMP(throttle,0,THROTTLE_MAX);
 }
 
 static float typecast_steering(unsigned int us_in){

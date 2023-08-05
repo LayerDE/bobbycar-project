@@ -310,16 +310,16 @@ static bool cmd_set_mode(const char* argv, c_data* out){
         return false;
     {
         char buffer[20];
-        sprintf(buffer, "setT:%i\n",tmp);
+        sprintf(buffer, "setM:%i\n",tmp);
         c_data_extend_raw(out, buffer, strlen(buffer));
     }
-    set_ext_throttle(tmp,INPUT_CONSOLE);
+    set_mode(tmp);
     return true;
 }
 
 static bool cmd_get_mode(const char* argv, c_data* out){
     char buffer[20];
-    sprintf(buffer, "PID_Out:%f\n",get_pid_steer());
+    sprintf(buffer, "getM:%i\n",get_mode());
     c_data_extend_raw(out, buffer, strlen(buffer));
     return true;
 }
@@ -333,11 +333,13 @@ static const command commands[] = {
     {"sets",cmd_set_steering},
     {"sett",cmd_set_throttle},
     {"seti",cmd_set_input},
+    {"setm", cmd_set_mode},
     {"gets",cmd_get_steering},
     {"getds",cmd_get_des_steering},
     {"gett",cmd_get_throttle},
     {"getf",cmd_get_follower},
     {"geti",cmd_get_input},
+    {"getm",cmd_get_mode},
     {"getkp",cmd_get_pid_kp},
     {"getki",cmd_get_pid_ki},
     {"getkd",cmd_get_pid_kd},
