@@ -41,9 +41,8 @@ static float get_lookup_reverse(unsigned int in, float max, unsigned int size, b
 }
 
 
-pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle,float alpha_max, unsigned int lookup_alpha_size, float sim_distance,
-            get_float steering_ptr, get_float hitch_angle_ptr, get_int speed_ptr, double ki, double kp, double kd)
-            : simulation(this, 0, 0, (float)c_wheelbase/100.0,(float)rc_axle2hitch/100.0,0,steering_ptr(),(float)hitch2trail_axle/100.0, hitch_angle_ptr(),0.001){
+pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle,float alpha_max, unsigned int lookup_alpha_size, int sim_distance)
+            : simulation(this, 0, 0, (float)c_wheelbase/100.0,(float)rc_axle2hitch/100.0,0,0,(float)hitch2trail_axle/100.0, 0,0.001){
     hitch2axle = hitch2trail_axle;
     car2hitch = rc_axle2hitch;
     printf("lookup: %f full: %i %f\n",rad2deg(get_lookup_reverse(get_lookup(deg2rad(20.0), alpha_max, 60, false), alpha_max, 60, false)), get_lookup(deg2rad(-1), alpha_max, 60, true), rad2deg(get_lookup_reverse(get_lookup(deg2rad(-1.0), alpha_max, 60, true), alpha_max, 60, true)));
@@ -51,14 +50,13 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
     car_wheelbase = c_wheelbase;
     alpha_lookup_size = lookup_alpha_size;
     alpha_max_steer = alpha_max;
-    simulator_distance = sim_distance;
+    simulator_distance = sim_distance/100.0;
     data_table.beta_max = deg2rad(20);
     allocate_lookup_table(lookup_alpha_size / 2, lookup_alpha_size);
     create_alpha_lookup();
     create_alpha_beta_sim_lookup(simulator_distance);
     export_lookuptalbe_c();
     simulation.set_output(car_point_out,trail_point_out, false);
-    alpha_calc = new PID(&isPoint, &output, &setPoint, ki, kp, kd, 0);
 }
 
 pushed_follower::~pushed_follower(){
@@ -81,19 +79,10 @@ void pushed_follower::allocate_lookup_table(int index0, int index1){
 
 void pushed_follower::deallocate_lookup_table() {
     if (!data_table.constant_table) {
-        delete alpha_calc;
         for (int i = 0; i < data_table.lookup_index0_max; i++)
             delete[] data_table.lookup_alpha_by_beta[i];
         delete[] data_table.lookup_alpha_by_beta;
     }
-}
-
-double pushed_follower::calculate(int des_speed, float des_steering){ // simple pid
-    isPoint = get_hitch_angle();
-    setPoint = des_steering;
-    output = get_steering();
-    alpha_calc->Compute();
-    return output;
 }
 
 float pushed_follower::calc_alpha_const(float beta){ // todo
@@ -253,12 +242,10 @@ void pushed_follower::create_alpha_lookup(){
     alpha_max = calc_alpha_const(data_table.beta_max);
 }
 
-bool pushed_follower::protection(){
-    float alpha = get_steering();
-    float beta = get_hitch_angle();
-    int speed = get_speed();
+
+bool pushed_follower::protection(float alpha, float beta, int speed){
     float stable_beta = calc_beta_const(alpha);
-    if(beta< data_table.beta_max)
+    if(beta<data_table.beta_max)
         return true;
     switch (sign(speed))
     {
@@ -279,6 +266,6 @@ bool pushed_follower::protection(){
         else
             return false;
     default:
-        return true; // not relevant because if speed is 0 the car doesn't move and the output will do nothing
+        return true;
     }
 }

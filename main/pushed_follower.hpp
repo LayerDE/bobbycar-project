@@ -9,19 +9,17 @@ typedef int (*get_int)();
 
 class pushed_follower{
     public:
-        pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle, float alpha_max, unsigned int lookup_alpha_size, float sim_distance,
-            get_float steering_ptr, get_float hitch_angle_ptr, get_int speed_ptr,
-            double ki, double kp, double kd);
+        pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle, float alpha_max, unsigned int lookup_alpha_size, int sim_distance);
         ~pushed_follower();
-        double calculate(int des_speed, float des_steering);
         float calc_alpha_const(float beta);
         float calc_beta_const(float alpha_steer);
         float calc_alpha(float beta_old, float beta_new);
         float calc_beta(float alpha, float beta_old);
+        float calc_alpha_linear(float beta_old, float beta_new);
         float create_alpha_sim(float beta_old, float beta_new, float precicion, float distance);
         float create_beta_sim(float alpha, float beta_old, float distance);
         float create_beta_const(float alpha);
-        bool protection();
+        bool protection(float alpha, float beta, int speed);
         void load_lookup(lookup_loader function);
     private:
         lookup_table data_table;
@@ -29,15 +27,8 @@ class pushed_follower{
         unsigned int alpha_lookup_size;
         float alpha_max;
         float alpha_max_steer;
-        PID *alpha_calc;
         simulator simulation;
         float lenght;
-        double setPoint;
-        double isPoint;
-        double output;
-        get_float get_steering;
-        get_float get_hitch_angle;
-        get_int get_speed;
         int hitch2axle;
         int car2hitch;
         int car_wheelbase;

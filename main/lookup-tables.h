@@ -20,7 +20,7 @@ typedef void (*lookup_loader)(lookup_table* inval);
 extern "C" {
 #endif
 	void export_lookup(lookup_table* inval);
-	extern const float UNREACHABLE;
+	extern const unsigned int UNREACHABLE;
 #ifdef __cplusplus
 }
 #endif
