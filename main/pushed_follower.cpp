@@ -42,7 +42,7 @@ static float get_lookup_reverse(unsigned int in, float max, unsigned int size, b
 
 
 pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle,float alpha_max, unsigned int lookup_alpha_size, int sim_distance)
-            : simulation(this, 0, 0, (float)c_wheelbase/100.0,(float)rc_axle2hitch/100.0,0,0,(float)hitch2trail_axle/100.0, 0,0.001){
+            : simulation(this, 0, 0, (float)c_wheelbase/100.0,(float)rc_axle2hitch/100.0,0,0,(float)hitch2trail_axle/100.0, 0,0.0001){
     hitch2axle = hitch2trail_axle;
     car2hitch = rc_axle2hitch;
     printf("lookup: %f full: %i %f\n",rad2deg(get_lookup_reverse(get_lookup(deg2rad(20.0), alpha_max, 60, false), alpha_max, 60, false)), get_lookup(deg2rad(-1), alpha_max, 60, true), rad2deg(get_lookup_reverse(get_lookup(deg2rad(-1.0), alpha_max, 60, true), alpha_max, 60, true)));
@@ -50,12 +50,12 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
     car_wheelbase = c_wheelbase;
     alpha_lookup_size = lookup_alpha_size;
     alpha_max_steer = alpha_max;
-    simulator_distance = sim_distance/100.0;
+    simulator_distance = -(float)sim_distance/100.0f;
     data_table.beta_max = deg2rad(20);
     allocate_lookup_table(lookup_alpha_size / 2, lookup_alpha_size);
     create_alpha_lookup();
-    //create_alpha_beta_sim_lookup(simulator_distance);
-    //export_lookuptalbe_c();
+    create_alpha_beta_sim_lookup(simulator_distance);
+    export_lookuptalbe_c();
     export_lookup(&data_table);
     simulation.set_output(car_point_out,trail_point_out, false);
 }
