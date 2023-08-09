@@ -32,10 +32,6 @@ int get_mode(){
 void set_mode(int mode){
     if(last_mode != mode)
         switch(last_mode = mode){
-            case -1:
-                active_steering = false;
-                trailer_connected = false;
-                trailer_control = false;
             case 0: // rc no trailer
                 active_steering = true;
                 trailer_connected = false;
@@ -56,9 +52,14 @@ void set_mode(int mode){
                 trailer_connected = false;
                 trailer_control = false;
                 break;
-            case 4: //rc trailprotect mode
+            case 4: //rc kids trailprotect mode
                 active_steering = false;
                 trailer_connected = true;
+                trailer_control = false;
+                break;
+            default:
+                active_steering = false;
+                trailer_connected = false;
                 trailer_control = false;
                 break;
         }

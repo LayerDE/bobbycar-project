@@ -163,6 +163,8 @@ void setup() {
     // ESP_BT.begin("ESP32_BobbyCon"); //Name of your Bluetooth Signal
     // lcd.init(); //Im Setup wird der LCD gestartet
     // lcd.backlight(); //Hintergrundbeleuchtung einschalten (0 schaltet die Beleuchtung aus).
+    set_input_src(DEFAULT_INPUT);
+    set_mode(DEFAULT_MODE);
     xTaskCreate(&adc_task, "adc", 2048 * 2, NULL, 4, NULL);
     xTaskCreate(&tast_usb_console, "tast_usb_console", 2048 * 2, NULL, 2, NULL);
     // xTaskCreate(&tast_bt_console, "tast_bt_console", 2048 * 2, NULL, 2, NULL);
