@@ -52,10 +52,10 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
     alpha_max_steer = alpha_max;
     simulator_distance = -(float)sim_distance/100.0f;
     data_table.beta_max = deg2rad(20);
-    allocate_lookup_table(lookup_alpha_size / 2, lookup_alpha_size);
+    //allocate_lookup_table(lookup_alpha_size / 2, lookup_alpha_size);
     create_alpha_lookup();
-    create_alpha_beta_sim_lookup(simulator_distance);
-    export_lookuptalbe_c();
+    //create_alpha_beta_sim_lookup(simulator_distance);
+    //export_lookuptalbe_c();
     export_lookup(&data_table);
     simulation.set_output(car_point_out,trail_point_out, false);
 }
