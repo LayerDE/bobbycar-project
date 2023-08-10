@@ -252,7 +252,7 @@ void loop() {
         else{
             pid_update(tmpSteering);
             double tmp_out = get_pid_steer();
-            add_log(tmp_out, timeNow,rad2deg(steering),rad2deg(des_steering));
+            add_log(tmp_out, timeNow,rad2deg(steering),rad2deg(des_steering),get_trailer_connected() ? rad2deg(get_trailer()) : 0);
             if(ABS(tmp_out) > 0.01)
                 tmp_out += SIGN(tmp_out)* CLAMP((0.05-(double)speed/100.0),0,0.05);  
             calc_torque_per_wheel(throttle, des_steering,torgue_regulated = -round(tmp_out * (float)THROTTLE_MAX) , torgue);
