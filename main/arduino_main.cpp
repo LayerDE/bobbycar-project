@@ -239,7 +239,7 @@ void loop() {
         float tmpSteering = steering;
         if(get_trailer_control()){ // trailer beta control
             if(sign(throttle) == -1)
-                tmpSteering = trailer->calc_alpha(get_trailer(), steering*20.0/35.0);
+                tmpSteering = trailer->calc_alpha_linear(get_trailer(), steering*20.0/35.0);
         }
         if(get_trailer_connected()){ // trailer collision protection
             if(!trailer->protection(steering,get_trailer(),throttle)) // todo
