@@ -86,11 +86,11 @@ void pushed_follower::deallocate_lookup_table() {
     }
 }
 
-float pushed_follower::calc_alpha_const(float beta){ // todo
+float pushed_follower::calc_alpha_const(float beta){
     return -beta/data_table.linear_alpha_beta_faktor;
 }
 
-float pushed_follower::calc_beta_const(float alpha_steer){ // todo
+float pushed_follower::calc_beta_const(float alpha_steer){
     return -alpha_steer * data_table.linear_alpha_beta_faktor;
 }
 
@@ -269,4 +269,12 @@ bool pushed_follower::protection(float alpha, float beta, int speed){
     default:
         return true;
     }
+}
+
+const float c_p_beta = 1;
+
+float pushed_follower::calc_alpha_linear(float beta_old, float beta_new){
+    float stabe_alpha = calc_alpha_const(beta_old);
+    float delta_beta = beta_old - beta_new;
+    return CLAMP(stabe_alpha + delta_beta * c_p_beta / data_table.linear_alpha_beta_faktor,-alpha_max,alpha_max);
 }
