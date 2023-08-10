@@ -18,6 +18,7 @@ extern "C" {
     unsigned int clean_adc_half(uint32_t inval);
     int throttle_calc(int cleaned_adc);
     int calc_torque(int throttle, int breaks);
+    float calc_angle_trailer(int inval);
     float calc_angle(int inval);
     void calc_torque_per_wheel(int throttle, float steering_eagle,int torque_regulated, int *torque);
     int calc_median(const int *x, int cnt);
