@@ -51,12 +51,14 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
     alpha_lookup_size = lookup_alpha_size;
     alpha_max_steer = alpha_max;
     simulator_distance = -(float)sim_distance/100.0f;
-    data_table.beta_max = deg2rad(20);
+    data_table.beta_max = deg2rad(15);
     //allocate_lookup_table(lookup_alpha_size / 2, lookup_alpha_size);
     create_alpha_lookup();
     //create_alpha_beta_sim_lookup(simulator_distance);
     //export_lookuptalbe_c();
     export_lookup(&data_table);
+    data_table.beta_max = deg2rad(15);
+    data_table.alpha_max = alpha_max;
     simulation.set_output(car_point_out,trail_point_out, false);
 }
 
@@ -276,5 +278,8 @@ const float c_p_beta = 1;
 float pushed_follower::calc_alpha_linear(float beta_old, float beta_new){
     float stabe_alpha = calc_alpha_const(beta_old);
     float delta_beta = beta_old - beta_new;
-    return CLAMP(stabe_alpha + delta_beta * c_p_beta / data_table.linear_alpha_beta_faktor,-alpha_max,alpha_max);
+    float regulation_correction = delta_beta * c_p_beta / data_table.linear_alpha_beta_faktor;
+    float output = stabe_alpha - regulation_correction;
+    //printf("reg sum: %f;%f:%f=%f\n",rad2deg(output),rad2deg(beta_old),rad2deg(beta_new),rad2deg(regulation_correction));
+    return CLAMP(output,-alpha_max,alpha_max);
 }

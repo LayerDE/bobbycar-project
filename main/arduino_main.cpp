@@ -149,7 +149,7 @@ void setup() {
     xTaskCreate(&init_adc_task, "init_adc_task", 2048 * 2, NULL, 5, &tasks[0]);
     xTaskCreate(&usb_console_init, "usb_console_init", 2048 * 2, NULL, 5, &tasks[1]);
     xTaskCreate(&init_rc_in, "rc_in_init", 2048 * 2, NULL, 5, &tasks[2]);
-    trailer = new pushed_follower(L_WHEELBASE, L_REAR_TO_HITCH, L_HITCH_TO_FOLLOWER_AXLE, deg2rad(35), 60, 50);
+    trailer = new pushed_follower(L_WHEELBASE, L_REAR_TO_HITCH, L_HITCH_TO_FOLLOWER_AXLE, deg2rad(27.5), 60, 50);
     for(int y = task_count; y > 0;){
         y = task_count;
         for(int x = 0; x < task_count; x++)
@@ -215,6 +215,7 @@ void loop() {
     int throttle = get_throttle();
     float steering =  get_steering();
     float des_steering = get_des_steering();
+    float trailer_angle = get_trailer();
     if(!(isNear(last_throttle,throttle,100)
             && isNear(last_steering,steering,deg2rad(0.5))
             && isNear(last_des_steering,des_steering, deg2rad(0.5)))){  // only for disableing the display
@@ -239,10 +240,10 @@ void loop() {
         float tmpSteering = steering;
         if(get_trailer_control()){ // trailer beta control
             if(sign(throttle) == -1)
-                tmpSteering = trailer->calc_alpha_linear(get_trailer(), steering*20.0/35.0);
+                tmpSteering = trailer->calc_alpha_linear(trailer_angle, trailer->calc_beta_const(des_steering));
         }
         if(get_trailer_connected()){ // trailer collision protection
-            if(!trailer->protection(steering,get_trailer(),throttle)) // todo
+            if(!trailer->protection(steering,trailer_angle,throttle)) // todo
                 throttle = 0;
         }
         if (!get_steering_pid_active()){ // disable torgue vectoring at higher speeds for more savety
@@ -252,7 +253,7 @@ void loop() {
         else{
             pid_update(tmpSteering);
             double tmp_out = get_pid_steer();
-            add_log(tmp_out, timeNow,rad2deg(steering),rad2deg(des_steering),get_trailer_connected() ? rad2deg(get_trailer()) : 0);
+            add_log(tmp_out, timeNow,rad2deg(steering),rad2deg(des_steering),get_trailer_connected() ? rad2deg(trailer_angle) : 0);
             if(ABS(tmp_out) > 0.01)
                 tmp_out += SIGN(tmp_out)* CLAMP((0.05-(double)speed/100.0),0,0.05);  
             calc_torque_per_wheel(throttle, des_steering,torgue_regulated = -round(tmp_out * (float)THROTTLE_MAX) , torgue);
@@ -265,7 +266,7 @@ void loop() {
             if( last_time + 20000 < timeNow){
                 lcd->set_power(0);
             }else{
-                lcd->draw_screen(throttle, steering, des_steering, get_trailer_connected(), get_trailer(), torgue, torgue_regulated,front_active,rear_active, speed, voltage, get_input_src());
+                lcd->draw_screen(throttle, steering, tmpSteering, get_trailer_connected(), get_trailer(), torgue, torgue_regulated,front_active,rear_active, speed, voltage, get_input_src());
             }
         }
     }
