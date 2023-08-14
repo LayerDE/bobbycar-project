@@ -14,6 +14,7 @@ typedef struct {
 pid_log pid_logging[1024];
 static int pid_logging_ptr;
 static bool log_running;
+static bool dumping = false;
 extern "C" void set_log_active(bool in){
     if(in == log_running)
         return;
@@ -30,10 +31,12 @@ extern "C" int dump_log(){
     bool tmp = log_running;
     int ret = pid_logging_ptr;
     log_running = false;
+    dumping = true;
     printf("\n\n");
         for(int i = 0; i < ret;i++)
             printf("%lu,%f,%f,%f,%f\n",pid_logging[i].time,pid_logging[i].pout_value,pid_logging[i].steer_real,pid_logging[i].steer_des, pid_logging[i].trailer);
     printf("\n\n");
+    dumping = false;
     pid_logging_ptr = 0;
     log_running = true;
     return ret;
@@ -51,4 +54,8 @@ extern "C" void add_log(double po, unsigned long time, float steer_real, float d
             pid_logging[pid_logging_ptr-1].steer_des != desired_steering ||
             pid_logging[pid_logging_ptr-1].steer_real != steer_real)
         pid_logging[pid_logging_ptr++] = pid_log {.time = time, .pout_value = po, .steer_real = steer_real, .steer_des = desired_steering, .trailer = trailer};
+}
+
+extern "C" bool is_dumping(){
+    return dumping;
 }

@@ -210,6 +210,8 @@ void program_end(){
 }
 
 void loop() {
+    if(is_dumping())
+     return;
     unsigned long timeNow = millis();
     int torgue_regulated = 0;
     int throttle = get_throttle();
