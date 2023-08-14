@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include "timecritical_function.h"
 
 typedef struct {
     unsigned long time;
@@ -11,11 +12,18 @@ typedef struct {
 
 
 pid_log pid_logging[1024];
-int pid_logging_ptr;
-bool log_running;
-extern "C" void start_log(){
-    pid_logging_ptr = 0;
-    log_running = true;
+static int pid_logging_ptr;
+static bool log_running;
+extern "C" void set_log_active(bool in){
+    if(in == log_running)
+        return;
+    if(in){
+        pid_logging_ptr = 0;
+        log_running = true;
+    }
+    else{
+        log_running = false;
+    }
 }
 
 extern "C" int dump_log(){
@@ -23,8 +31,8 @@ extern "C" int dump_log(){
     int ret = pid_logging_ptr;
     log_running = false;
     printf("\n\n");
-    for(int i = 0; i < ret;i++)
-        printf("%lu,%f,%f,%f,%f\n",pid_logging[i].time,pid_logging[i].pout_value,pid_logging[i].steer_real,pid_logging[i].steer_des, pid_logging[i].trailer);
+        for(int i = 0; i < ret;i++)
+            printf("%lu,%f,%f,%f,%f\n",pid_logging[i].time,pid_logging[i].pout_value,pid_logging[i].steer_real,pid_logging[i].steer_des, pid_logging[i].trailer);
     printf("\n\n");
     pid_logging_ptr = 0;
     log_running = true;

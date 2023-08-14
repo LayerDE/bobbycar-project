@@ -1,11 +1,8 @@
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include <freertos/portmacro.h>
-
 #include <crc32.h>
 #include "config.h"
 #include "bobbycar.hpp"
 
+#include "timecritical_function.h"
 
 //#include <stdio.h>
 
@@ -20,10 +17,7 @@ void Send(EspSoftwareSerial::UART* board, int16_t speed0, int16_t speed1) {
     Command.checksumH = checksum >> 16;
     //printf("%x ? %x\n",Command.checksumL,Command.checksumH);
     // Write to Serial
-    portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
-    taskENTER_CRITICAL(&myMutex);
-    board->write((uint8_t*)&Command, sizeof(SerialCommand));
-    taskEXIT_CRITICAL(&myMutex);
+    timecritical(board->write((uint8_t*)&Command, sizeof(SerialCommand)););
 }
 
 // ########################## RECEIVE ##########################

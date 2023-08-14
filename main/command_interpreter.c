@@ -16,7 +16,6 @@
 
 const char endl4ptr = '\0';
 const char newl4ptr = '\n';
-static bool log_active = false;
 typedef bool (*func_ptr)(const char*, c_data*);
 typedef struct 
 {
@@ -111,10 +110,8 @@ static bool cmd_set_steering(const char* argv, c_data* out){
         sprintf(buffer, "setS:%f\n",deg2rad(tmp));
         c_data_extend_raw(out, buffer, strlen(buffer));
     }
-    if(ABS(tmp)<=35)
+    if(ABS(tmp)<=28)
         set_des_steering(deg2rad(tmp),INPUT_CONSOLE);
-    if(log_active)
-        start_log();
     return true;
 }
 
@@ -142,7 +139,7 @@ static bool cmd_set_log(const char* argv, c_data* out){
         sprintf(buffer, "setLog:%i\n",tmp);
         c_data_extend_raw(out, buffer, strlen(buffer));
     }
-    log_active = tmp;
+    set_log_active(tmp);
     return true;
 }
 
@@ -176,7 +173,7 @@ static bool cmd_get_log(const char* argv, c_data* out){
 }
 
 static bool cmd_start_log(const char* argv, c_data* out){
-    start_log();
+    set_log_active(1);
     char buffer[20];
     sprintf(buffer, "log started\n");
     c_data_extend_raw(out, buffer, strlen(buffer));
@@ -200,8 +197,6 @@ static bool cmd_set_pid_kp(const char* argv, c_data* out){
         c_data_extend_raw(out, buffer, strlen(buffer));
     }
     set_pid_kp(tmp);
-    if(log_active)
-        start_log();
     return true;
 }
 static bool cmd_set_pid_ki(const char* argv, c_data* out){
@@ -214,8 +209,6 @@ static bool cmd_set_pid_ki(const char* argv, c_data* out){
         c_data_extend_raw(out, buffer, strlen(buffer));
     }
     set_pid_ki(tmp);
-    if(log_active)
-        start_log();
     return true;
 }
 static bool cmd_set_pid_kd(const char* argv, c_data* out){
@@ -228,8 +221,6 @@ static bool cmd_set_pid_kd(const char* argv, c_data* out){
         c_data_extend_raw(out, buffer, strlen(buffer));
     }
     set_pid_kd(tmp);
-    if(log_active)
-        start_log();
     return true;
 }
 
