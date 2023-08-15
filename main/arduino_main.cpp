@@ -240,6 +240,7 @@ void loop() {
     if (iTimeSend <= timeNow){
         iTimeSend = timeNow + TIME_SEND;
         float tmpSteering = steering;
+        double tmp_out = 0;
         if(get_trailer_control()){ // trailer beta control
             if(sign(throttle) == -1)
                 tmpSteering = trailer->calc_alpha_linear(trailer_angle, trailer->calc_beta_const(des_steering));
@@ -254,12 +255,17 @@ void loop() {
         }
         else{
             pid_update(tmpSteering);
-            double tmp_out = get_pid_steer();
-            add_log(tmp_out, timeNow,rad2deg(steering),rad2deg(des_steering),get_trailer_connected() ? rad2deg(trailer_angle) : 0);
+            tmp_out = get_pid_steer();
             if(ABS(tmp_out) > 0.01)
                 tmp_out += SIGN(tmp_out)* CLAMP((0.05-(double)speed/100.0),0,0.05);  
             calc_torque_per_wheel(throttle, des_steering,torgue_regulated = -round(tmp_out * (float)THROTTLE_MAX) , torgue);
         }
+        add_log(
+            tmp_out, // PID Out
+            timeNow, // Time
+            rad2deg(steering), // Real Steering
+            rad2deg(tmpSteering), // Steeing to control
+            get_trailer_connected() ? rad2deg(trailer_angle) : 0);// tailerangle
         if(front_active)
             Send(&HoverSerial_front, torgue[0], torgue[1]);
         if(rear_active)

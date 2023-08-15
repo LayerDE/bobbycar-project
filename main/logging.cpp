@@ -33,6 +33,7 @@ extern "C" int dump_log(){
     log_running = false;
     dumping = true;
     printf("\n\n");
+    printf("time,steering_pid_out,real_steering,target_steering,trailer_value\n");
         for(int i = 0; i < ret;i++)
             printf("%lu,%f,%f,%f,%f\n",pid_logging[i].time,pid_logging[i].pout_value,pid_logging[i].steer_real,pid_logging[i].steer_des, pid_logging[i].trailer);
     printf("\n\n");
