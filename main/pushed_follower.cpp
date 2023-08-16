@@ -273,10 +273,12 @@ bool pushed_follower::protection(float alpha, float beta, int speed){
     }
 }
 
-const float c_p_beta = 1;
+const float c_p_beta = 1.75;
 
 float pushed_follower::calc_alpha_linear(float beta_old, float beta_new){
-    float stabe_alpha = calc_alpha_const(beta_old);
+    float stabe_alpha = calc_alpha_const(beta_old)*1.5;
+    if(abs(beta_old)>data_table.beta_max)
+        return 0;
     float delta_beta = beta_old - beta_new;
     float regulation_correction = delta_beta * c_p_beta / data_table.linear_alpha_beta_faktor;
     float output = stabe_alpha - regulation_correction;
