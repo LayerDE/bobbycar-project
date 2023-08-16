@@ -21,20 +21,19 @@ int main(void)
         lines++;
         int count = 0;
         int i = 0;
-        while(buffer[i] != ':' && buffer[i] != '\n' && buffer[i]);
+        while(buffer[i] != ':' && buffer[i] != '\n' && buffer[i])
+            i++;
         if(buffer[i] == ':')
             buffer[i++] = 0;
         else
             continue;
-        if(strlen(buffer)==atoi(&buffer[i])){
+        if(strlen(buffer)==atoi(&buffer[i]))
             fprintf(write, "%s\n", buffer);
-        }else{
+        else
             error++;
-        }
-        printf("Error rate: %i/%i = %f\n", error,lines,(float)error/(float)lines);
         memset(buffer,'\0',bufferLength);
     }
-
+    printf("Error rate: %i/%i = %f\n", error,lines,(float)error/(float)lines);
     fclose(read);
     fclose(write);
     exit(EXIT_SUCCESS);
