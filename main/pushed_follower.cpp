@@ -279,7 +279,7 @@ float pushed_follower::calc_alpha_linear(float beta_old, float beta_new){
     float stabe_alpha = calc_alpha_const(beta_old);
     float delta_beta = beta_old - beta_new;
     float regulation_correction = delta_beta * c_p_beta / data_table.linear_alpha_beta_faktor;
-    float output = stabe_alpha - regulation_correction;
+    float output = stabe_alpha //- regulation_correction;
     //printf("reg sum: %f;%f:%f=%f\n",rad2deg(output),rad2deg(beta_old),rad2deg(beta_new),rad2deg(regulation_correction));
     return CLAMP(output,-alpha_max,alpha_max);
 }
