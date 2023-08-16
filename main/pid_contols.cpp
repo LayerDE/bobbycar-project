@@ -57,18 +57,15 @@ extern "C" void pid_update(float des_steering){
       AutoTuneHelper(false);
     }
   }
-  else steering_controls->Compute();
-  
-
-
-
+  else{
     if(get_input_src() == INPUT_ADC)
         return;
     unsigned long time = millis();
-    setPoint = get_des_steering();
-    isPoint = des_steering;
+    setPoint = des_steering;
+    isPoint = get_steering();
     steering_controls->Compute();
     set_pid_steer(output);
+  }
 }
 
 extern "C" void init_pid(){

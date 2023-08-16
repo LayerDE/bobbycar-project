@@ -239,11 +239,13 @@ void loop() {
     rear_active = rear_connected(timeNow);
     if (iTimeSend <= timeNow){
         iTimeSend = timeNow + TIME_SEND;
-        float tmpSteering = steering;
+        float tmpSteering = des_steering;
         double tmp_out = 0;
         if(get_trailer_control()){ // trailer beta control
             if(sign(throttle) == -1)
-                tmpSteering = trailer->calc_alpha_linear(trailer_angle, trailer->calc_beta_const(des_steering));
+                //printf("%f\n",rad2deg(
+                    tmpSteering = trailer->calc_alpha_linear(trailer_angle, trailer->calc_beta_const(des_steering));
+                //));
         }
         if(get_trailer_connected()){ // trailer collision protection
             if(!trailer->protection(steering,trailer_angle,throttle)) // todo
