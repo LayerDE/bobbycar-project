@@ -35,8 +35,10 @@ extern "C" int dump_log(){
     dumping = true;
     printf("\n-:\n");
     count += printf("time,steering_pid_out,real_steering,target_steering,trailer_value\n");
-        for(int i = 0; i < ret;i++)
-            count += printf("%lu,%f,%f,%f,%f\n",pid_logging[i].time,pid_logging[i].pout_value,pid_logging[i].steer_real,pid_logging[i].steer_des, pid_logging[i].trailer);
+        for(int i = 0, temp; i < ret;i++){
+            count += temp = printf("%lu,%f,%f,%f,%f",pid_logging[i].time,pid_logging[i].pout_value,pid_logging[i].steer_real,pid_logging[i].steer_des, pid_logging[i].trailer);
+            count += printf(":%i\n",temp);
+        }
     printf(":-\n\n");
     printf("%i characters printed\n", count);
     dumping = false;
