@@ -360,7 +360,7 @@ static bool print_help_of(const char* argv, c_data* out){
 }
 
 bool exec(const char* exec, c_data* out){
-    char* tmp = malloc(strlen(exec));
+    char* tmp = malloc(strlen(exec)+1);
     strcpy(tmp,exec);
     char* argv = &tmp[strlen(exec)];
     for (int i=0; tmp[i]; i++)

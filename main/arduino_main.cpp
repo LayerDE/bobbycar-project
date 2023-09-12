@@ -24,7 +24,7 @@ limitations under the License.
 #include <freertos/task.h>
 #include <freertos/portmacro.h>
 
-#include <soc/rtc_wdt.h>
+//#include <soc/rtc_wdt.h>
 
 #include <math.h>
 #include <stdbool.h>
@@ -140,8 +140,8 @@ pushed_follower *trailer;
 
 // Arduino setup function. Runs in CPU 1
 void setup() {
-    rtc_wdt_protect_off();
-    rtc_wdt_disable();
+    //rtc_wdt_protect_off();
+    //rtc_wdt_disable();
     const int task_count = INPUT_COUNT;
     printf("Hoverboard Serial v1.1\n");
     TaskHandle_t tasks[task_count] = {NULL, NULL, NULL, NULL};

@@ -124,15 +124,15 @@ extern "C" void gpm_read(int *throttle,int *steering, int *active){
                 "idx=%d, dpad: 0x%02x, buttons: 0x%04x, axis L: %4d, %4d, axis R: %4d, "
                 "%4d, brake: %4d, throttle: %4d, misc: 0x%02x\n",
                 i,                        // Gamepad Index
-                myGamepad->dpad(),        // DPAD
-                myGamepad->buttons(),     // bitmask of pressed buttons
-                myGamepad->axisX(),       // (-511 - 512) left X Axis
-                myGamepad->axisY(),       // (-511 - 512) left Y axis
-                myGamepad->axisRX(),      // (-511 - 512) right X axis
-                myGamepad->axisRY(),      // (-511 - 512) right Y axis
-                myGamepad->brake(),       // (0 - 1023): brake button
-                myGamepad->throttle(),    // (0 - 1023): throttle (AKA gas) button
-                myGamepad->miscButtons()  // bitmak of pressed "misc" buttons
+                (int)myGamepad->dpad(),        // DPAD
+                (int)myGamepad->buttons(),     // bitmask of pressed buttons
+                (int)myGamepad->axisX(),       // (-511 - 512) left X Axis
+                (int)myGamepad->axisY(),       // (-511 - 512) left Y axis
+                (int)myGamepad->axisRX(),      // (-511 - 512) right X axis
+                (int)myGamepad->axisRY(),      // (-511 - 512) right Y axis
+                (int)myGamepad->brake(),       // (0 - 1023): brake button
+                (int)myGamepad->throttle(),    // (0 - 1023): throttle (AKA gas) button
+                (int)myGamepad->miscButtons()  // bitmak of pressed "misc" buttons
             );
 
             // You can query the axis and other properties as well. See Gamepad.h
