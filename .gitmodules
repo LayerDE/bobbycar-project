@@ -37,3 +37,6 @@
 [submodule "components/simulator"]
 	path = components/simulator
 	url = https://github.com/LayerDE/simulator.git
+[submodule "components/mdns"]
+	path = components/mdns
+	url = https://github.com/LayerDE/mdns.git
