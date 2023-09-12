@@ -30,6 +30,8 @@ typedef enum {
 
 // Bluepad32-global properties
 // Keep them sorted
+extern const char* UNI_PROPERTY_KEY_ALLOWLIST_ENABLED;
+extern const char* UNI_PROPERTY_KEY_ALLOWLIST_LIST;
 extern const char* UNI_PROPERTY_KEY_BLE_ENABLED;
 extern const char* UNI_PROPERTY_KEY_GAP_INQ_LEN;
 extern const char* UNI_PROPERTY_KEY_GAP_LEVEL;
@@ -41,11 +43,13 @@ extern const char* UNI_PROPERTY_KEY_MOUSE_SCALE;
 // TODO: Move them to unijoysticle file
 // Keep them sorted
 extern const char* UNI_PROPERTY_KEY_UNI_AUTOFIRE_CPS;
+extern const char* UNI_PROPERTY_KEY_UNI_BB_FIRE_THRESHOLD;
+extern const char* UNI_PROPERTY_KEY_UNI_BB_MOVE_THRESHOLD;
+extern const char* UNI_PROPERTY_KEY_UNI_C64_POT_MODE;
 extern const char* UNI_PROPERTY_KEY_UNI_MODEL;
 extern const char* UNI_PROPERTY_KEY_UNI_MOUSE_EMULATION;
 extern const char* UNI_PROPERTY_KEY_UNI_SERIAL_NUMBER;
 extern const char* UNI_PROPERTY_KEY_UNI_VENDOR;
-extern const char* UNI_PROPERTY_KEY_UNI_C64_POT_MODE;
 
 typedef union {
     uint8_t u8;

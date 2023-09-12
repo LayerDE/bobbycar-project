@@ -20,10 +20,6 @@ limitations under the License.
 // http://wiibrew.org/wiki/Wiimote
 // https://github.com/dvdhrm/xwiimote/blob/master/doc/PROTOCOL
 
-// When accelerometer mode is enabled, it will use it as if it were
-// in the Nintendo Wii Wheel.
-#define ENABLE_ACCEL_WHEEL_MODE 1
-
 #include <assert.h>
 
 #define ENABLE_EEPROM_DUMP 0
@@ -393,18 +389,29 @@ static void process_req_data_read_calibration_data2(uni_hid_device_t* d, const u
         ins->balance_board_calibration.kg34.bl = (cal[6] << 8) + cal[7];  // Bottom Left 34kg
     }
 
+    logi("Wii: Balance Board calibration: kg0=%d,%d,%d,%d kg17=%d,%d,%d,%d kg35=%d,%d,%d,%d\n",
+         ins->balance_board_calibration.kg0.tr, ins->balance_board_calibration.kg0.br,
+         ins->balance_board_calibration.kg0.tl, ins->balance_board_calibration.kg0.bl,
+         ins->balance_board_calibration.kg17.tr, ins->balance_board_calibration.kg17.br,
+         ins->balance_board_calibration.kg17.tl, ins->balance_board_calibration.kg17.bl,
+         ins->balance_board_calibration.kg34.tr, ins->balance_board_calibration.kg34.br,
+         ins->balance_board_calibration.kg34.tl, ins->balance_board_calibration.kg34.bl);
+
     ins->state = WII_FSM_DEV_GUESSED;
     wii_process_fsm(d);
 }
 
+// Returns the calibrated weight in grams.
 static int32_t balance_interpolate(uint16_t val, uint16_t kg0, uint16_t kg17, uint16_t kg34) {
     float weight = 0;
 
-    if (val < kg0) {  // 0kg
+    // Each sensor can read up to 34kg, at least in theory.
+    // It seems that it supports a bit more that's why we don't cap it to 34.
+    if (val < kg0) {
         weight = 0;
-    } else if (val < kg17) {  // 17kg
+    } else if (val < kg17) {
         weight = 17 * (float)(val - kg0) / (float)(kg17 - kg0);
-    } else /* if (values[pos] > cal[pos+5])*/ {  // 34kg
+    } else /* if (val < kg34) */ {
         weight = 17 + 17 * (float)(val - kg17) / (float)(kg34 - kg17);
     }
 
@@ -556,7 +563,6 @@ static void process_drm_k_vertical(uni_controller_t* ctl, const uint8_t* data) {
 // http://wiibrew.org/wiki/Wiimote#0x31:_Core_Buttons_and_Accelerometer
 static void process_drm_ka(uni_hid_device_t* d, const uint8_t* report, uint16_t len) {
     // Process Wiimote in "accelerator mode".
-    const int16_t accel_threshold = 26;
     /* DRM_KA: BB*2 AA*3*/
     // Expecting something like:
     // 31 20 60 82 7F 99
@@ -567,61 +573,31 @@ static void process_drm_ka(uni_hid_device_t* d, const uint8_t* report, uint16_t 
 
     uint16_t x = (report[3] << 2) | ((report[1] >> 5) & 0x3);
     uint16_t y = (report[4] << 2) | ((report[2] >> 4) & 0x2);
-    // uint16_t z = (report[5] << 2) | ((report[2] >> 5) & 0x2);
+    uint16_t z = (report[5] << 2) | ((report[2] >> 5) & 0x2);
 
     int16_t sx = x - 0x200;
     int16_t sy = y - 0x200;
-    // int16_t sz = z - 0x200;
+    int16_t sz = z - 0x200;
 
     // printf_hexdump(report, len);
     // logi("Wii: x=%d, y=%d, z=%d\n", sx, sy, sz);
 
     uni_controller_t* ctl = &d->controller;
-#ifdef ENABLE_ACCEL_WHEEL_MODE
 
-    // Is the wheel in resting position, don't read accelerometer
-    if (sx > -accel_threshold && sx < accel_threshold) {
-        // Accelerometer reading disabled.
-        // logd("Wii: Wheel in resting position, do nothing");
-    } else {
-        // Dpad works as dpad, useful to navigate menus.
-        ctl->gamepad.dpad |= (report[1] & 0x01) ? DPAD_DOWN : 0;
-        ctl->gamepad.dpad |= (report[1] & 0x02) ? DPAD_UP : 0;
-        ctl->gamepad.dpad |= (report[1] & 0x04) ? DPAD_RIGHT : 0;
-        ctl->gamepad.dpad |= (report[1] & 0x08) ? DPAD_LEFT : 0;
+    ctl->gamepad.accel[0] = sx;
+    ctl->gamepad.accel[1] = sy;
+    ctl->gamepad.accel[2] = sz;
 
-        // Button "1" is Brake (down), and button "2" is Throttle (up)
-        // Buttons "1" and "2" can override values from Dpad.
-        ctl->gamepad.dpad |= (report[2] & 0x02) ? DPAD_DOWN : 0;  // Button "1"
-        ctl->gamepad.dpad |= (report[2] & 0x01) ? DPAD_UP : 0;    // Button "2"
+    // Dpad works as dpad, useful to navigate menus.
+    ctl->gamepad.dpad |= (report[1] & 0x01) ? DPAD_DOWN : 0;
+    ctl->gamepad.dpad |= (report[1] & 0x02) ? DPAD_UP : 0;
+    ctl->gamepad.dpad |= (report[1] & 0x04) ? DPAD_RIGHT : 0;
+    ctl->gamepad.dpad |= (report[1] & 0x08) ? DPAD_LEFT : 0;
 
-        // Accelerometer overrides Dpad values.
-        if (sy > accel_threshold) {
-            ctl->gamepad.dpad |= DPAD_LEFT;
-            ctl->gamepad.dpad &= ~DPAD_RIGHT;
-        } else if (sy < -accel_threshold) {
-            ctl->gamepad.dpad |= DPAD_RIGHT;
-            ctl->gamepad.dpad &= ~DPAD_LEFT;
-        }
-    }
-
-#else   // !ENABLE_ACCEL_WHEEL_MODE
-    if (sx < -accel_threshold) {
-        ctl->gamepad.dpad |= DPAD_LEFT;
-    } else if (sx > accel_threshold) {
-        ctl->gamepad.dpad |= DPAD_RIGHT;
-    }
-    if (sy < -accel_threshold) {
-        ctl->gamepad.dpad |= DPAD_UP;
-    } else if (sy > (accel_threshold / 2)) {
-        // Threshold for down is 50% because it is not as easy to tilt the
-        // device down as it is it to tilt it up.
-        ctl->gamepad.dpad |= DPAD_DOWN;
-    }
-#endif  // ! ENABLE_ACCEL_WHEEL_MODE
-
-    ctl->gamepad.buttons |= (report[2] & 0x08) ? BUTTON_A : 0;  // Big button "A"
-    ctl->gamepad.buttons |= (report[2] & 0x04) ? BUTTON_B : 0;  // Button Shoulder
+    ctl->gamepad.buttons |= (report[2] & 0x02) ? BUTTON_A : 0;  // Button "1"
+    ctl->gamepad.buttons |= (report[2] & 0x01) ? BUTTON_B : 0;  // Button "2"
+    ctl->gamepad.buttons |= (report[2] & 0x08) ? BUTTON_X : 0;  // Big button "A"
+    ctl->gamepad.buttons |= (report[2] & 0x04) ? BUTTON_Y : 0;  // Button Shoulder
 
     ctl->gamepad.misc_buttons |= (report[2] & 0x80) ? MISC_BUTTON_SYSTEM : 0;  // Button "home"
     ctl->gamepad.misc_buttons |= (report[2] & 0x10) ? MISC_BUTTON_BACK : 0;    // Button "-"
@@ -745,7 +721,19 @@ static balance_board_t process_balance_board(uni_hid_device_t* d, const uint8_t*
     b.tl = (e[4] << 8) + e[5];
     b.bl = (e[6] << 8) + e[7];
     b.temperature = e[8];
-    b.battery = e[10];
+    // Values go from 0x69 (empty) to 0x82 (full)
+    uint8_t batt = e[10];
+    if (batt >= 0x82)
+        batt = 255;
+    else if (batt >= 0x7d)
+        batt = 192;
+    else if (batt >= 0x78)
+        batt = 128;
+    else if (batt >= 0x6a)
+        batt = 64;
+    else
+        batt = 0;
+    b.battery = batt;
 
     // Interpolate:
     b2 = b;

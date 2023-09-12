@@ -81,7 +81,7 @@ uni_hid_device_t* uni_hid_device_create(bd_addr_t address) {
             logi("Creating device: %s (idx=%d)\n", bd_addr_to_str(address), i);
 
             memset(&g_devices[i], 0, sizeof(g_devices[i]));
-            memcpy(g_devices[i].conn.btaddr, address, 6);
+            bd_addr_copy(g_devices[i].conn.btaddr, address);
 
             // Delete device if it doesn't have a connection
             start_connection_timeout(&g_devices[i]);
@@ -452,6 +452,12 @@ void uni_hid_device_dump_device(uni_hid_device_t* d) {
          d->conn.handle, conn_type, d->conn.control_cid, d->conn.interrupt_cid, d->cod, d->flags, d->conn.incoming);
     logi("\tmodel: vid=0x%04x, pid=0x%04x, model='%s', name='%s'\n", d->vendor_id, d->product_id,
          uni_gamepad_get_model_name(d->controller_type), d->name);
+    logi("\tbattery: %d / 255, type=%s\n", d->controller.battery,
+         (d->controller.klass == UNI_CONTROLLER_CLASS_GAMEPAD)         ? "gamepad"
+         : (d->controller.klass == UNI_CONTROLLER_CLASS_MOUSE)         ? "mouse"
+         : (d->controller.klass == UNI_CONTROLLER_CLASS_BALANCE_BOARD) ? "balance board"
+         : (d->controller.klass == UNI_CONTROLLER_CLASS_KEYBOARD)      ? "keyboard"
+                                                                       : "unknown");
     if (uni_get_platform()->device_dump)
         uni_get_platform()->device_dump(d);
     if (d->report_parser.device_dump)
@@ -474,8 +480,11 @@ bool uni_hid_device_guess_controller_type_from_name(uni_hid_device_t* d, const c
         return false;
 
     // Try with the different matchers.
+    // But don't include Xbox here yet, since we should try to get the HID descriptor first.
+    // This is because there Xbox Wireless has 3 different types of HID descriptors.
     bool ret = uni_hid_parser_ds3_does_name_match(d, name);
     ret = ret || uni_hid_parser_switch_does_name_match(d, name);
+
     if (ret) {
         uni_hid_device_guess_controller_type_from_pid_vid(d);
     }
@@ -497,8 +506,11 @@ void uni_hid_device_guess_controller_type_from_pid_vid(uni_hid_device_t* d) {
             type = CONTROLLER_TYPE_GenericMouse;
         } else if (uni_hid_device_is_keyboard(d)) {
             type = CONTROLLER_TYPE_GenericKeyboard;
+        } else if (uni_hid_parser_xboxone_does_name_match(d, d->name)) {
+            // Needed for some Xbox Controllers clones, like the GameSir T3s, that returns empty
+            // answers for SDP queries.
+            type = CONTROLLER_TYPE_XBoxOneController;
         } else {
-            // FIXME: Default should be the most popular gamepad device.
             loge("Failed to find gamepad profile for device. Fallback: using Android profile.\n");
             type = CONTROLLER_TYPE_AndroidController;
         }
@@ -789,7 +801,7 @@ static void misc_button_enable_callback(btstack_timer_source_t* ts) {
     d->misc_button_wait_delay &= ~MISC_BUTTON_SYSTEM;
 }
 
-// process_mic_button_system swaps joystick port A and B only if there is one device attached.
+// process_mic_button_system
 static void process_misc_button_system(uni_hid_device_t* d) {
     if ((d->controller.gamepad.misc_buttons & MISC_BUTTON_SYSTEM) == 0) {
         // System button released ?

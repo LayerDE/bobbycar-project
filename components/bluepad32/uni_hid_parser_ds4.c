@@ -84,6 +84,21 @@ typedef struct __attribute((packed)) {
 } ds4_output_report_t;
 _Static_assert(sizeof(ds4_output_report_t) == 79, "Invalid DS4 output report size");
 
+// Used by gamepads that don't support 0x11 report, like 8BitDo Zero 2 in "macOS" mode.
+// Notice that report 0x01 is a subset of 0x11.
+typedef struct __attribute((packed)) {
+    // Axis
+    uint8_t x, y;
+    uint8_t rx, ry;
+
+    // Hat + buttons
+    uint8_t buttons[3];
+
+    // Brake & throttle
+    uint8_t brake;
+    uint8_t throttle;
+} ds4_input_report_01_t;
+
 typedef struct __attribute((packed)) {
     // Axis
     uint8_t x, y;
@@ -105,7 +120,7 @@ typedef struct __attribute((packed)) {
     uint8_t status[2];
 
     // Add missing data
-} ds4_input_report_t;
+} ds4_input_report_11_t;
 
 typedef struct __attribute((packed)) {
     uint8_t report_id;  // Must be DS4_FEATURE_REPORT_FIRMWARE_VERSION
@@ -296,21 +311,58 @@ void uni_hid_parser_ds4_parse_feature_report(uni_hid_device_t* d, const uint8_t*
     }
 }
 
-void uni_hid_parser_ds4_parse_input_report(uni_hid_device_t* d, const uint8_t* report, uint16_t len) {
-    ds4_instance_t* ins = get_ds4_instance(d);
-
-    if (report[0] != 0x11) {
-        loge("DS4: Unexpected report type: got 0x%02x, want: 0x11\n", report[0]);
-        // printf_hexdump(report, len);
-        return;
-    }
-    if (len != 78) {
-        loge("DS4: Unexpected report len: got %d, want: 78\n", len);
-        return;
-    }
-
+static void ds4_parse_input_report_01(uni_hid_device_t* d, const ds4_input_report_01_t* r) {
     uni_controller_t* ctl = &d->controller;
-    const ds4_input_report_t* r = (ds4_input_report_t*)&report[3];
+
+    // Axis
+    ctl->gamepad.axis_x = (r->x - 127) * 4;
+    ctl->gamepad.axis_y = (r->y - 127) * 4;
+    ctl->gamepad.axis_rx = (r->rx - 127) * 4;
+    ctl->gamepad.axis_ry = (r->ry - 127) * 4;
+
+    // Hat
+    uint8_t value = r->buttons[0] & 0xf;
+    if (value > 7)
+        value = 0xff; /* Center 0, 0 */
+    ctl->gamepad.dpad = uni_hid_parser_hat_to_dpad(value);
+
+    // Buttons
+    // TODO: ds4, ds5 have these buttons in common. Refactor.
+    if (r->buttons[0] & 0x10)
+        ctl->gamepad.buttons |= BUTTON_X;  // West
+    if (r->buttons[0] & 0x20)
+        ctl->gamepad.buttons |= BUTTON_A;  // South
+    if (r->buttons[0] & 0x40)
+        ctl->gamepad.buttons |= BUTTON_B;  // East
+    if (r->buttons[0] & 0x80)
+        ctl->gamepad.buttons |= BUTTON_Y;  // North
+    if (r->buttons[1] & 0x01)
+        ctl->gamepad.buttons |= BUTTON_SHOULDER_L;  // L1
+    if (r->buttons[1] & 0x02)
+        ctl->gamepad.buttons |= BUTTON_SHOULDER_R;  // R1
+    if (r->buttons[1] & 0x04)
+        ctl->gamepad.buttons |= BUTTON_TRIGGER_L;  // L2
+    if (r->buttons[1] & 0x08)
+        ctl->gamepad.buttons |= BUTTON_TRIGGER_R;  // R2
+    if (r->buttons[1] & 0x10)
+        ctl->gamepad.misc_buttons |= MISC_BUTTON_BACK;  // Share
+    if (r->buttons[1] & 0x20)
+        ctl->gamepad.misc_buttons |= MISC_BUTTON_HOME;  // Options
+    if (r->buttons[1] & 0x40)
+        ctl->gamepad.buttons |= BUTTON_THUMB_L;  // Thumb L
+    if (r->buttons[1] & 0x80)
+        ctl->gamepad.buttons |= BUTTON_THUMB_R;  // Thumb R
+    if (r->buttons[2] & 0x01)
+        ctl->gamepad.misc_buttons |= MISC_BUTTON_SYSTEM;  // PS
+
+    // Brake & throttle
+    ctl->gamepad.brake = r->brake * 4;
+    ctl->gamepad.throttle = r->throttle * 4;
+}
+
+static void ds4_parse_input_report_11(uni_hid_device_t* d, const ds4_input_report_11_t* r) {
+    ds4_instance_t* ins = get_ds4_instance(d);
+    uni_controller_t* ctl = &d->controller;
 
     // Axis
     ctl->gamepad.axis_x = (r->x - 127) * 4;
@@ -376,6 +428,19 @@ void uni_hid_parser_ds4_parse_input_report(uni_hid_device_t* d, const uint8_t* r
     // Value goes from 0 to 10. Make it from 0 to 250.
     // The +1 is to avoid having a value of 0, which means "battery unavailable".
     ctl->battery = (r->status[0] & DS4_STATUS_BATTERY_CAPACITY) * 25 + 1;
+}
+
+void uni_hid_parser_ds4_parse_input_report(uni_hid_device_t* d, const uint8_t* report, uint16_t len) {
+    if (report[0] == 0x11 && len == 78) {
+        const ds4_input_report_11_t* r = (ds4_input_report_11_t*)&report[3];
+        ds4_parse_input_report_11(d, r);
+    } else if (report[0] == 0x01 && len == 10) {
+        const ds4_input_report_01_t* r = (ds4_input_report_01_t*)&report[1];
+        ds4_parse_input_report_01(d, r);
+    } else {
+        loge("DS4: Unexpected report type and len: report id=0x%02x, len=%d\n", report[0], len);
+    }
+    return;
 }
 
 // uni_hid_parser_ds4_parse_usage() was removed since "stream" mode is the only

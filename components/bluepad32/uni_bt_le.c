@@ -60,6 +60,7 @@
 #include <stdlib.h>
 
 #include "sdkconfig.h"
+#include "uni_bt_allowlist.h"
 #include "uni_bt_conn.h"
 #include "uni_bt_defines.h"
 #include "uni_common.h"
@@ -168,9 +169,11 @@ static void get_advertisement_data(const uint8_t* adv_data, uint8_t adv_size, ui
             case BLUETOOTH_DATA_TYPE_DEVICE_ID:
                 logi("device id: %#x\n", little_endian_read_16(data, 0));
                 break;
+            case BLUETOOTH_DATA_TYPE_LE_BLUETOOTH_DEVICE_ADDRESS:
+                break;
             case BLUETOOTH_DATA_TYPE_SECURITY_MANAGER_OUT_OF_BAND_FLAGS:
             default:
-                printf("Advertising Data Type 0x%2x not handled yet", data_type);
+                printf("Advertising Data Type 0x%2x not handled yet\n", data_type);
                 break;
         }
     }
@@ -727,6 +730,11 @@ void uni_bt_le_on_gap_event_advertising_report(const uint8_t* packet, uint16_t s
 
     logi("Found, connect to device with %s address %s ...\n", addr_type == 0 ? "public" : "random",
          bd_addr_to_str(addr));
+
+    if (!uni_bt_allowlist_allow_addr(addr)) {
+        logi("Ignoring device, not in allow-list: %s\n", bd_addr_to_str(addr));
+        return;
+    }
 
     uni_hid_device_t* d = uni_hid_device_create(addr);
     if (!d) {

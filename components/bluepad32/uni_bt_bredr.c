@@ -25,6 +25,7 @@ limitations under the License.
 
 #include "sdkconfig.h"
 #include "uni_bt.h"
+#include "uni_bt_allowlist.h"
 #include "uni_bt_defines.h"
 #include "uni_bt_sdp.h"
 #include "uni_common.h"
@@ -355,7 +356,12 @@ void uni_bt_bredr_on_l2cap_incoming_connection(uint16_t channel, const uint8_t* 
         "channel=0x%04x, addr=%s\n",
         psm, local_cid, remote_cid, handle, channel, bd_addr_to_str(event_addr));
 
-    l2cap_event_incoming_connection_get_address(packet, event_addr);
+    if (!uni_bt_allowlist_allow_addr(event_addr)) {
+        loge("Declining incoming connection: Device not in allow-list: %s\n", bd_addr_to_str(event_addr));
+        l2cap_decline_connection(channel);
+        return;
+    }
+
     device = uni_hid_device_get_instance_for_address(event_addr);
 
     if (device && device->conn.state == UNI_BT_CONN_STATE_DEVICE_READY) {
@@ -560,6 +566,12 @@ void uni_bt_bredr_on_gap_inquiry_result(uint16_t channel, const uint8_t* packet,
         logi(", name '%s'", name_buffer);
     }
     logi("\n");
+
+    if (!uni_bt_allowlist_allow_addr(addr)) {
+        loge("Ignoring device, not in allow-list: %s\n", bd_addr_to_str(addr));
+        return;
+    }
+
     // As returned by BTStack, the bigger the RSSI number, the better, being 255 the closest possible (?).
     if (rssi < (255 - 100))
         logi("Device %s too far away, try moving it closer to Bluepad32 device\n", bd_addr_to_str(addr));
@@ -665,6 +677,9 @@ void uni_bt_bredr_on_hci_diconnection_complete(uint16_t channel, const uint8_t* 
     uint16_t handle;
     uni_hid_device_t* d;
 
+    ARG_UNUSED(channel);
+    ARG_UNUSED(size);
+
     logi("--> HCI_EVENT_DISCONNECTION_COMPLETE\n");
     handle = hci_event_disconnection_complete_get_connection_handle(packet);
     // Xbox Wireless Controller starts an incoming connection when told to
@@ -690,6 +705,9 @@ void uni_bt_bredr_on_hci_pin_code_request(uint16_t channel, const uint8_t* packe
     uni_hid_device_t* d;
     bd_addr_t event_addr;
 
+    ARG_UNUSED(channel);
+    ARG_UNUSED(size);
+
     // TODO: Move to uni_bt_bredr.c
     bool is_mouse = false;
 
@@ -704,7 +722,7 @@ void uni_bt_bredr_on_hci_pin_code_request(uint16_t channel, const uint8_t* packe
     }
 
     if (is_mouse) {
-        // For mice, use "0000" as pins, which seems to be the exected one.
+        // For mice, use "0000" as pins, which seems to be the expected one.
         logi("Using PIN code: '0000'\n");
         gap_pin_code_response_binary(event_addr, (uint8_t*)"0000", 4);
     } else {
@@ -727,6 +745,9 @@ void uni_bt_bredr_on_hci_remote_name_request_complete(uint16_t channel, const ui
     uni_hid_device_t* d;
     uint8_t status;
     bd_addr_t event_addr;
+
+    ARG_UNUSED(channel);
+    ARG_UNUSED(size);
 
     logi("--> HCI_EVENT_REMOTE_NAME_REQUEST_COMPLETE\n");
     hci_event_remote_name_request_complete_get_bd_addr(packet, event_addr);
