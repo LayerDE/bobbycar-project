@@ -1,4 +1,4 @@
-name: Build with ESP-IDF v4.4
+name: Build with ESP-IDF v5.1
 
 on:
   push:
@@ -20,6 +20,6 @@ jobs:
     - name: Arduino build
       uses: espressif/esp-idf-ci-action@main
       with:
-        esp_idf_version: v4.4
+        esp_idf_version: v5.1
         target: esp32
 
