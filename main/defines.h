@@ -1,6 +1,6 @@
 #pragma once
 
-#define _CLAMP(x, low, high) (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
+#define CLAMP(x, low, high) (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
 
 #define ABS(a) (((a) < 0.0) ? -(a) : (a))
@@ -13,7 +13,7 @@
 #define SIGN(a) (((a) < 0.0) ? (-1.0) : (((a) > 0.0) ? (1.0) : (0.0)))
 #define SIGN_INT(a) (((a) < 0) ? (-1) : (((a) > 0) ? (1) : (0)))
 //#define sign SIGN
-#define CLAMP(x, low, high) (low > high ? _CLAMP(x, high, low): _CLAMP(x,low,high))
+//#define CLAMP(x, low, high) (low > high ? _CLAMP(x, high, low): _CLAMP(x,low,high))
 #define SCALE(value, high, max) MIN(MAX(((max) - (value)) / ((max) - (high)), 0.0), 1.0)
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))

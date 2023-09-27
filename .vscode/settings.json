@@ -8,6 +8,6 @@
         "streambuf": "cpp",
         "*.tcc": "cpp"
     },
-    "idf.portWin": "COM10",
+    "idf.portWin": "COM7",
     "cmake.configureOnOpen": false
 }
