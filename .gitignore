@@ -1,4 +1,4 @@
 build/
 sdkconfig.old
-sdkconfig
+#sdkconfig
 *.o
