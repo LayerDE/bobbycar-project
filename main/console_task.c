@@ -22,15 +22,17 @@ void tast_bt_console(void *ignore){
     vTaskDelete(NULL);
 }
 
+#define BUFFER_SIZE_CONSOLE 128
+
 void tast_usb_console(void *ignore){
-    char buffer[128];
+    char buffer[BUFFER_SIZE_CONSOLE];
     c_data string_buffer;
     c_data buffer2;
     c_data_spawn_ptr(&buffer2);
     c_data_spawn_ptr(&string_buffer);
-    memset(buffer,'\0',128);
+    memset(buffer,'\0',BUFFER_SIZE_CONSOLE);
     while(true){
-        fgets(buffer, 128, stdin);
+        fgets(buffer, BUFFER_SIZE_CONSOLE, stdin);
         if(strlen(buffer)>0){
             c_data_extend_raw(&string_buffer,buffer,strlen(buffer));
             printf("%s",buffer);
@@ -44,7 +46,7 @@ void tast_usb_console(void *ignore){
                 c_data_set_size(&string_buffer, 0);
                 c_data_set_size(&buffer2, 0);
             }
-            memset(buffer,'\0',128);
+            memset(buffer,'\0',BUFFER_SIZE_CONSOLE);
         }
         vTaskDelay(1);
     }

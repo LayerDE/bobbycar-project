@@ -205,8 +205,6 @@ int torgue[4];
 
 int send_cnt = 0;
 // Arduino loop function. Runs in CPU 1
-char sprint_buffer[256];
-
 int last_throttle;
 float last_steering;
 float last_des_steering;
