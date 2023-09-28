@@ -27,18 +27,21 @@ const char* inputs[] = {"ADC","CONSOLE", "GAMEPAD", "RC"};
 
 
 void clean_argv_cdata(c_data* argv){
-    for (int i=0; ((char*)argv->content)[i] && i < argv->size; i++)
-        if(((char*)argv->content)[i]==' ' || ((char*)argv->content)[i]=='\n' || ((char*)argv->content)[i]=='\t'){
-            ((char*)argv->content)[i] = '\0';
-            break;
+    if(argv->size)
+        for (int i=0; ((char*)argv->content)[i] && i < argv->size; i++){
+            if(((char*)argv->content)[i]==' ' || ((char*)argv->content)[i]=='\n' || ((char*)argv->content)[i]=='\t'){
+                ((char*)argv->content)[i] = '\0';
+                break;
+            }
+            else
+                ((char*)argv->content)[i] = toupper((unsigned char)((char*)argv->content)[i]);
         }
-        else
-            ((char*)argv->content)[i] = toupper((unsigned char)((char*)argv->content)[i]);
 }
 
 static bool internal_set_int(const char* argv, int *out){
     c_data parameter = c_data_spawn();
     c_data_set(&parameter,argv,strlen(argv));
+    c_data_extend_raw(&parameter, "\0", 1);
     clean_argv_cdata(&parameter);
     int tmp = (1<<31)-1;
     sscanf(((char*)parameter.content),"%i",&tmp);
@@ -52,6 +55,7 @@ static bool internal_set_int(const char* argv, int *out){
 static bool internal_set_float(const char* argv, float *out){
     c_data parameter = c_data_spawn();
     c_data_set(&parameter,argv,strlen(argv));
+    c_data_extend_raw(&parameter, "\0", 1);
     clean_argv_cdata(&parameter);
     float tmp = 180.0;
     sscanf(((char*)parameter.content),"%f",&tmp);
