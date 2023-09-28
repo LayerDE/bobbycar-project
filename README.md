@@ -8,7 +8,7 @@ This is a template application to be used with [Espressif IoT Development Framew
 
 Please check [ESP-IDF docs](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html) for getting started instructions.
 
-Requires ESP-IDF **v4.4** or newer.
+Requires ESP-IDF **v5.1**.
 
 Includes the following ESP-IDF components, with a pre-configured `sdkconfig` file:
 
@@ -20,13 +20,13 @@ Includes the following ESP-IDF components, with a pre-configured `sdkconfig` fil
 
 ### For Windows
 
-1. Install [ESP-IDF v4.4][esp-idf-windows-installer]. For further info, read: [ESP-IDF Getting Started for Windows][esp-idf-windows-setup]
+1. Install [ESP-IDF v5.1][esp-idf-windows-installer]. For further info, read: [ESP-IDF Getting Started for Windows][esp-idf-windows-setup]
 
    * Either the Online or Offline version should work
    * When asked which components to install, don't change anything. Default options are Ok.
    * When asked whether ESP can modify the system, answer "Yes"
 
-2. Launch the "ESP-IDF v4.4 CMD" (type that in the Windows search box)
+2. Launch the "ESP-IDF v5.1 CMD" (type that in the Windows search box)
 
 3. From the ESP-IDF cmd, clone the template
 
@@ -46,7 +46,7 @@ Includes the following ESP-IDF components, with a pre-configured `sdkconfig` fil
     ```
 
 [esp-idf-windows-setup]: https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/windows-setup.html
-[esp-idf-windows-installer]: https://dl.espressif.com/dl/esp-idf/?idf=4.4
+[esp-idf-windows-installer]: https://dl.espressif.com/dl/esp-idf/?idf=5.1
 
 ### For Linux / macOS
 
@@ -73,7 +73,7 @@ Includes the following ESP-IDF components, with a pre-configured `sdkconfig` fil
     # Needs to be done just once
     # Clone the ESP-IDF git repo
     mkdir ~/esp && cd ~/esp
-    git clone -b release/v4.4 --recursive https://github.com/espressif/esp-idf.git
+    git clone -b release/v5.1 --recursive https://github.com/espressif/esp-idf.git
 
     # Then install the toolchain
     cd ~/esp/esp-idf
