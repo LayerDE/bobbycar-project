@@ -6,7 +6,7 @@
 #include <LiquidCrystal_I2C.h>
 #include <inttypes.h>
 
-class display_2004 : display{
+class display_2004 : public display{
     private:
         LiquidCrystal_I2C *lcd;
         char** buffer;

@@ -190,14 +190,14 @@ void setup() {
         uint8_t addr;
         if(empty.size!=0){
             if(!dsp_init_fin)
-                for(int i = 0; i < empty.size, i++)
+                for(int i = 0; i < empty.size; i++)
                     if(display_address_check(addr = ((uint8_t*)empty.content)[i]) == DSP_OLED_INDEX){
-                        lcd = new display_oled(&Wire, addr, SCREEN_WIDTH, SCREEN_HEIGHT);
+                        lcd = new display_oled(&Wire, addr, OLED_SCREEN_WIDTH, OLED_SCREEN_HEIGHT);
                         dsp_init_fin = true;
                         printf("oled\n");
                     }
             if(!dsp_init_fin)
-                for(int i = 0; i < empty.size, i++)
+                for(int i = 0; i < empty.size; i++)
                     if(display_address_check(addr = ((uint8_t*)empty.content)[i]) == DSP_OLED_INDEX){
                         lcd = new display_2004(&Wire, addr);
                         dsp_init_fin = true;
