@@ -180,7 +180,7 @@ void setup() {
     {
         c_data invalid = c_data_spawn();
         int devices = scan_i2c(&empty, &invalid, &Wire);
-        printf("%i I2C device%s found\n", devices, devices > 1 ? "s" : "");
+        printf("%i I2C device%s found\n", devices, devices != 1 ? "s" : "");
         for(int x = 0; x < empty.size; x++)
             printf("Device at 0x%02hhX\n", ((char*)empty.content)[x]);
         c_data_delete(invalid);
