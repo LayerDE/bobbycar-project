@@ -28,6 +28,7 @@ void tast_usb_console(void *ignore){
     c_data buffer2;
     c_data_spawn_ptr(&buffer2);
     c_data_spawn_ptr(&string_buffer);
+    memset(buffer,'\0',128);
     while(true){
         fgets(buffer, 128, stdin);
         if(strlen(buffer)>0){
