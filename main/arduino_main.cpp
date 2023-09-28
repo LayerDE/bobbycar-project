@@ -185,7 +185,6 @@ void setup() {
             printf("Device at 0x%02hhX\n", ((char*)empty.content)[x]);
         c_data_delete(invalid);
     }
-    printf("create led\n");
     bool dsp_init_fin = false;
         uint8_t addr;
         if(empty.size!=0){
@@ -194,14 +193,14 @@ void setup() {
                     if(display_address_check(addr = ((uint8_t*)empty.content)[i]) == DSP_OLED_INDEX){
                         lcd = new display_oled(&Wire, addr, OLED_SCREEN_WIDTH, OLED_SCREEN_HEIGHT);
                         dsp_init_fin = true;
-                        printf("oled\n");
+                        printf("display: oled\n");
                     }
             if(!dsp_init_fin)
                 for(int i = 0; i < empty.size; i++)
                     if(display_address_check(addr = ((uint8_t*)empty.content)[i]) == DSP_2004_INDEX){
                         lcd = new display_2004(&Wire, addr);
                         dsp_init_fin = true;
-                        printf("2004\n");
+                        printf("display: 2004\n");
                     }
         }
         if(!dsp_init_fin)
