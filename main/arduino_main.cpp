@@ -182,7 +182,9 @@ void setup() {
         int devices = scan_i2c(&empty, &invalid, &Wire);
         printf("%i I2C device%s found\n", devices, devices != 1 ? "s" : "");
         for(int x = 0; x < empty.size; x++)
-            printf("Device at 0x%02hhX\n", ((char*)empty.content)[x]);
+            printf("Device found at 0x%02hhX\n", ((char*)empty.content)[x]);
+        for(int x = 0; x < invalid.size; x++)
+            printf("Device invalid at 0x%02hhX\n", ((char*)invalid.content)[x]);
         c_data_delete(invalid);
     }
     bool dsp_init_fin = false;
