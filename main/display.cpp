@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "config.h"
 #include "display.hpp"
 
 display::display(TwoWire *bus, char adr){
