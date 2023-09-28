@@ -1,4 +1,5 @@
 #include <LiquidCrystal_I2C.h>
+#include <stdio.h>
 #include <Wire.h>
 #include <stdlib.h>
 #include <math.h>
@@ -16,6 +17,11 @@ display_2004::display_2004(TwoWire *bus, char adr) : display(bus,adr){
     lcd->noCursor();
     lcd->backlight();
     clear();
+    {
+        char buffer[20];
+        sprintf(buffer,"address: %c", address);
+        _draw_line(buffer,0);
+    }
 }
 
 void display_2004::_draw_line(const char* in, int y) {

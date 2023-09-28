@@ -6,7 +6,9 @@
         "iosfwd": "cpp",
         "limits": "cpp",
         "streambuf": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "chrono": "cpp",
+        "ostream": "cpp"
     },
     "idf.portWin": "COM7",
     "cmake.configureOnOpen": false
