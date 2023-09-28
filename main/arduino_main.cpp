@@ -198,7 +198,7 @@ void setup() {
                     }
             if(!dsp_init_fin)
                 for(int i = 0; i < empty.size; i++)
-                    if(display_address_check(addr = ((uint8_t*)empty.content)[i]) == DSP_OLED_INDEX){
+                    if(display_address_check(addr = ((uint8_t*)empty.content)[i]) == DSP_2004_INDEX){
                         lcd = new display_2004(&Wire, addr);
                         dsp_init_fin = true;
                         printf("2004\n");
