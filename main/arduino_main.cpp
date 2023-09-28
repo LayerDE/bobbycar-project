@@ -43,10 +43,10 @@ limitations under the License.
 
 #include "pid_controls.h"
 #include "display.hpp"
+#include "display_none.hpp"
 #include "display_oled.hpp"
 #include "display_2004.hpp"
 #include "bobbycar.hpp"
-
 #include "pushed_follower.hpp"
 
 #include <Wire.h>
@@ -179,15 +179,25 @@ void setup() {
     // init_debug_screen();
     init_pid();
     init_buffer();
+    c_data empty = c_data_spawn();
     {
-        c_data empty = c_data_spawn();
-        int devices = scan_i2c(&empty, &Wire);
+        c_data invalid = c_data_spawn();
+        int devices = scan_i2c(&empty, &invalid, &Wire);
         printf("%i I2C device%s found\n", devices, devices > 1 ? "s" : "");
         for(int x = 0; x < empty.size; x++)
             printf("Device at 0x%02hhX\n", ((char*)empty.content)[x]);
-        c_data_delete(empty);
+        c_data_delete(invalid);
     }
-    lcd = new display_oled(&Wire, SCREEN_ADDRESS, SCREEN_WIDTH, SCREEN_HEIGHT);
+    printf("create led\n");
+    if(empty.size==0){
+        printf("display none\n");
+        lcd = new display_none(&Wire);
+    }
+    else{
+        printf("oled\n");
+        lcd = new display_oled(&Wire, SCREEN_ADDRESS, SCREEN_WIDTH, SCREEN_HEIGHT);
+    }
+    c_data_delete(empty);
     // Setup the Bluepad32 callbacks
     // addr:9C:AA:1B:E6:7D:13
 }
