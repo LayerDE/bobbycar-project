@@ -42,20 +42,21 @@ bool display::set_state(STATES_OF_DISPLAY hstate){
     }
 }
 
-int scan_i2c(c_data *valid, TwoWire *i2c_bus) {
+int scan_i2c(c_data *valid, c_data *invalid, TwoWire *i2c_bus) {
     uint8_t error, address;
-    int nDevices;
     c_data_set_size(valid, 0);
-    nDevices = 0;
+    if(invalid != NULL)
+        c_data_set_size(invalid, 0);
     for (address = 1; address < 127; address++) {
         Wire.beginTransmission(address);
         error = Wire.endTransmission();
         if (error == 0) {
             c_data_extend_raw(valid,&address,sizeof(address));
-            nDevices++;
         } else if (error == 4) {
-            printf("Unknow error at address 0x%02hhX\n", address);
+            if(invalid != NULL)
+                c_data_extend_raw(invalid,&address,sizeof(address));
+            //printf("Unknow error at address 0x%02hhX\n", address);
         }
     }
-    return nDevices;
+    return valid->size/sizeof(address);
 }

@@ -5,7 +5,7 @@
 #include <c_data.h>
 typedef enum{IDLE, OFF, USERINTERFACE, CONSOLE} STATES_OF_DISPLAY;
 
-int scan_i2c(c_data *valid, TwoWire *i2c_bus);
+int scan_i2c(c_data *valid, c_data *invalid, TwoWire *i2c_bus);
 
 class display{
     private:
