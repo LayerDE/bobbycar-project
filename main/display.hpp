@@ -6,7 +6,7 @@
 typedef enum{IDLE, OFF, USERINTERFACE, CONSOLE} STATES_OF_DISPLAY;
 
 int scan_i2c(c_data *valid, c_data *invalid, TwoWire *i2c_bus);
-
+int display_address_check(uint8_t address);
 class display{
     private:
         STATES_OF_DISPLAY state;

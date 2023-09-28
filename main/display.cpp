@@ -42,6 +42,19 @@ bool display::set_state(STATES_OF_DISPLAY hstate){
     }
 }
 
+int display_address_check(uint8_t address){
+    switch(address){
+        case 0x3D:
+        case 0x3C:
+            return DSP_OLED_INDEX;
+        case 0x27:
+        case 0x3F:
+            return DSP_2004_INDEX;
+        default:
+            return DSP_NONE_INDEX;
+    }
+}
+
 int scan_i2c(c_data *valid, c_data *invalid, TwoWire *i2c_bus) {
     uint8_t error, address;
     c_data_set_size(valid, 0);

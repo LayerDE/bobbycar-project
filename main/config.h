@@ -44,9 +44,13 @@
 #define TIME_SEND 20             // [ms] Sending time interval
 // #define DEBUG_RX                        // [-] Debug received data. Prints all bytes to serial (comment-out to disable)
 
-#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+#define DSP_OLED_INDEX 0
+#define DSP_2004_INDEX 1
+#define DSP_NONE_INDEX -1
+
+#define SCREEN_ADDRESS  ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+#define OLED_SCREEN_WIDTH 128 // OLED display width, in pixels
+#define OLED_SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 #define BUFFERSIZE 128
 
