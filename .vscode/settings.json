@@ -10,6 +10,6 @@
         "chrono": "cpp",
         "ostream": "cpp"
     },
-    "idf.portWin": "COM7",
+    "idf.portWin": "COM8",
     "cmake.configureOnOpen": false
 }

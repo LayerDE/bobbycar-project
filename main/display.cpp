@@ -44,6 +44,7 @@ bool display::set_state(STATES_OF_DISPLAY hstate){
 }
 
 int display_address_check(uint8_t address){
+    return DSP_NONE_INDEX; // remove after display fix
     switch(address){
         case 0x3D:
         case 0x3C:

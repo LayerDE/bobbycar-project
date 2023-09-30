@@ -49,6 +49,8 @@ limitations under the License.
 #include "bobbycar.hpp"
 #include "pushed_follower.hpp"
 
+#include "syscommands.hpp"
+
 #include <Wire.h>
 #include "logging.h"
 
@@ -62,10 +64,6 @@ EspSoftwareSerial::UART HoverSerial_rear(RX1, TX1);   // RX, TX
 // On an arduino UNO:       A4(SDA), A5(SCL)
 // On an arduino MEGA 2560: 20(SDA), 21(SCL)
 // On an arduino LEONARDO:   2(SDA),  3(SCL), ...
-
-bool dsp_connected;
-
-display *lcd;
 
 static SerialFeedback SerialFeedback_front;
 static SerialFeedback SerialFeedback_rear;
