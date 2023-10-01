@@ -12,10 +12,10 @@ class display{
         STATES_OF_DISPLAY state;
         char* buffer;
     protected:
-        virtual bool set_state(STATES_OF_DISPLAY hstate);
         TwoWire *i2c_bus;
         char address;
     public:
+        virtual bool set_state(STATES_OF_DISPLAY hstate);
         virtual void set_power(bool on);
         virtual STATES_OF_DISPLAY get_state();
         virtual void draw_console_line(char* line) = 0;

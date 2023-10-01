@@ -206,6 +206,7 @@ void setup() {
         if(!dsp_init_fin)
             lcd = new display_none(&Wire);
     c_data_delete(empty);
+    //lcd->set_state(CONSOLE);
     // Setup the Bluepad32 callbacks
     // addr:9C:AA:1B:E6:7D:13
 }
@@ -259,9 +260,9 @@ void loop() {
         double tmp_out = 0;
         if(get_trailer_control()){ // trailer beta control
             if(sign(throttle) == -1)
-                //printf("%f\n",rad2deg(
-                    tmpSteering = trailer->calc_alpha_linear(trailer_angle, trailer->calc_beta_const(des_steering));
-                //));
+                DISPLAY_LOG("%f\n",rad2deg(
+                    tmpSteering = trailer->calc_alpha_linear(trailer_angle, trailer->calc_beta_const(des_steering))
+                ));
         }
         if(get_trailer_connected()){ // trailer collision protection
             if(!trailer->protection(steering,trailer_angle,throttle)) // todo
@@ -288,7 +289,7 @@ void loop() {
             Send(&HoverSerial_front, torgue[0], torgue[1]);
         if(rear_active)
             Send(&HoverSerial_rear, torgue[2], torgue[3]);
-        if (!((send_cnt++) % 7)) {
+        if (!((send_cnt++) % 7) && (lcd->get_state() != CONSOLE)) {
             if( last_time + 20000 < timeNow){
                 lcd->set_power(0);
             }else{

@@ -1,5 +1,5 @@
 #pragma once
 #include "display.hpp"
+#include "syscommands.h"
 
-extern bool dsp_connected;
 extern display *lcd;

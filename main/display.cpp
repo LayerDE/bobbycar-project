@@ -35,7 +35,11 @@ STATES_OF_DISPLAY display::get_state(){
 bool display::set_state(STATES_OF_DISPLAY hstate){
     if(state != hstate){
         clear();
-        state = hstate;
+        if(CONSOLE == (state = hstate)){
+            char buffer[20];
+            sprintf(buffer,"address: %c", address);
+            draw_console_line(buffer);
+        }
         return true;
     }
     else{

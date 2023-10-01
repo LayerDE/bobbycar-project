@@ -13,9 +13,6 @@ display_oled::display_oled(TwoWire *bus, char adr, uint8_t width, uint8_t height
     else
     {
         oled->display();
-        char buffer[20];
-        sprintf(buffer,"address: %c", address);
-        draw_line(buffer,0);
     }
 }
 
