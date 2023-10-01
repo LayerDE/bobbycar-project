@@ -41,8 +41,7 @@
 // ########################## DEFINES ##########################
 #define HOVER_SERIAL_BAUD 57600 // [-] Baud rate for HoverSerial (used to communicate with the hoverboard)
 #define START_FRAME 0x7A7A      // [-] Start frame definition for reliable serial communication
-#define TIME_SEND 20             // [ms] Sending time interval
-// #define DEBUG_RX                        // [-] Debug received data. Prints all bytes to serial (comment-out to disable)
+#define TIME_SEND 20             // [ms] Sending time interval                     // [-] Debug received data. Prints all bytes to serial (comment-out to disable)
 
 #define DSP_OLED_INDEX 0
 #define DSP_2004_INDEX 1
@@ -61,10 +60,12 @@
 #define VAL_CNT 3
 #endif
 
+// #define BT_CONSOLE
+
 #define INPUT_ADC 0
 #define INPUT_CONSOLE (INPUT_ADC+1)
-#define INPUT_GAMEPAD (INPUT_CONSOLE+1)
-#define INPUT_RC (INPUT_GAMEPAD+1)
+#define INPUT_BLUETOOTH (INPUT_CONSOLE+1)
+#define INPUT_RC (INPUT_BLUETOOTH+1)
 #define DEFAULT_INPUT INPUT_CONSOLE
 #define INPUT_COUNT 4
 #define DEFAULT_MODE 0

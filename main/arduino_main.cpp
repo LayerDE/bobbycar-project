@@ -138,12 +138,16 @@ pushed_follower *trailer;
 
 // Arduino setup function. Runs in CPU 1
 void setup() {
-    //rtc_wdt_protect_off();
-    //rtc_wdt_disable();
+    lcd = new display_none(&Wire);
+    init_buffer(); //ADC buffer
     const int task_count = INPUT_COUNT;
     printf("Hoverboard Serial v1.1\n");
     TaskHandle_t tasks[task_count] = {NULL, NULL, NULL, NULL};
+    #ifdef BT_CONSOLE
+    xTaskCreate(&bt_console_init, "bt_console_init", 2048 * 3, NULL, 5, &tasks[3]);
+    #else
     xTaskCreate(&init_gamepad, "init_gamepad", 2048 * 3, NULL, 5, &tasks[3]);
+    #endif
     xTaskCreate(&init_adc_task, "init_adc_task", 2048 * 2, NULL, 5, &tasks[0]);
     xTaskCreate(&usb_console_init, "usb_console_init", 2048 * 2, NULL, 5, &tasks[1]);
     xTaskCreate(&init_rc_in, "rc_in_init", 2048 * 2, NULL, 5, &tasks[2]);
@@ -158,22 +162,18 @@ void setup() {
     }
     Wire.begin(I2C_SDA,I2C_SCL);
     // ESP_BT.begin("ESP32_BobbyCon"); //Name of your Bluetooth Signal
-    // lcd.init(); //Im Setup wird der LCD gestartet
-    // lcd.backlight(); //Hintergrundbeleuchtung einschalten (0 schaltet die Beleuchtung aus).
     set_input_src(DEFAULT_INPUT);
     set_mode(DEFAULT_MODE);
     xTaskCreate(&adc_task, "adc", 2048 * 2, NULL, 4, NULL);
     xTaskCreate(&tast_usb_console, "tast_usb_console", 2048 * 2, NULL, 2, NULL);
-    // xTaskCreate(&tast_bt_console, "tast_bt_console", 2048 * 2, NULL, 2, NULL);
+    //xTaskCreate(&tast_bt_console, "tast_bt_console", 2048 * 2, NULL, 2, NULL);
     xTaskCreate(&gamepad_task, "tast_bt_gamepad", 2048 * 2, NULL, 3, NULL);
     xTaskCreate(&rc_in_task, "tast_rc_in", 2048 * 2, NULL, 3, NULL);
     SerialFeedback_front.speedL_meas = SerialFeedback_front.speedR_meas = SerialFeedback_rear.speedL_meas = SerialFeedback_rear.speedR_meas = 0;
     HoverSerial_front.begin(HOVER_SERIAL_BAUD);
     HoverSerial_rear.begin(HOVER_SERIAL_BAUD);
     pinMode(LED_BUILTIN, OUTPUT);
-    // init_debug_screen();
-    init_pid();
-    init_buffer();
+    init_pid(); //Steering controller
     c_data empty = c_data_spawn();
     {
         c_data invalid = c_data_spawn();
@@ -191,6 +191,7 @@ void setup() {
             if(!dsp_init_fin)
                 for(int i = 0; i < empty.size; i++)
                     if(display_address_check(addr = ((uint8_t*)empty.content)[i]) == DSP_OLED_INDEX){
+                        delete lcd;
                         lcd = new display_oled(&Wire, addr, OLED_SCREEN_WIDTH, OLED_SCREEN_HEIGHT);
                         dsp_init_fin = true;
                         printf("display: oled\n");
@@ -198,13 +199,12 @@ void setup() {
             if(!dsp_init_fin)
                 for(int i = 0; i < empty.size; i++)
                     if(display_address_check(addr = ((uint8_t*)empty.content)[i]) == DSP_2004_INDEX){
+                        delete lcd;
                         lcd = new display_2004(&Wire, addr);
                         dsp_init_fin = true;
                         printf("display: 2004\n");
                     }
         }
-        if(!dsp_init_fin)
-            lcd = new display_none(&Wire);
     c_data_delete(empty);
     //lcd->set_state(CONSOLE);
     // Setup the Bluepad32 callbacks

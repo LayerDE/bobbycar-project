@@ -10,6 +10,8 @@
 #include <Arduino.h>
 #include <stddef.h>
 
+#include "syscommands.h"
+
 volatile static int adc_throttle;
 volatile static int adc_steering;
 volatile static int adc_follower;
@@ -105,7 +107,7 @@ bool get_steering_pid_active(){
         return false;
     else if(input_src == INPUT_RC)
         return rc_get_steering_pid_active();
-    else if(input_src == INPUT_GAMEPAD)
+    else if(input_src == INPUT_BLUETOOTH)
         return true;
     else
         return true;
@@ -153,7 +155,7 @@ void set_ext_throttle(int throttle, unsigned int src){
 }
 
 bool get_contoller_active(){
-    return input_src == INPUT_GAMEPAD;
+    return input_src == INPUT_BLUETOOTH;
 }
 
 void init_gamepad(void* ignore){
@@ -180,8 +182,8 @@ void gamepad_task(void* ignore){
     while(true){
         tmp = input_src;
         gpm_read(&pad_data[0],&pad_data[1],&tmp);
-        set_ext_throttle(pad_data[0],INPUT_GAMEPAD);
-        set_des_steering(pad_data[1],INPUT_GAMEPAD);
+        set_ext_throttle(pad_data[0],INPUT_BLUETOOTH);
+        set_des_steering(pad_data[1],INPUT_BLUETOOTH);
         input_src = tmp;
         vTaskDelay(20);
     }
@@ -189,6 +191,7 @@ void gamepad_task(void* ignore){
 }
 
 void adc_task(void* ignore){
+    //int tmp;
     while(true){
         adc_steering = clean_adc_steering(value_buffer(analogRead(STEERING_PIN),0));
         uint buffered_trailer = value_buffer(analogRead(TRAILER_PIN),1);
@@ -204,6 +207,7 @@ void adc_task(void* ignore){
                 adc_throttle = clean_adc_half(value_buffer(analogRead(THROTTLE0_PIN),2)) - clean_adc_half(value_buffer(analogRead(THROTTLE1_PIN),3));
             #else
                 adc_throttle = clean_adc_full(value_buffer(analogRead(THROTTLE0_PIN),2));
+                //DISPLAY_LOG("throttle raw: %i\n",tmp);
             #endif
         //}
         vTaskDelay(1);
