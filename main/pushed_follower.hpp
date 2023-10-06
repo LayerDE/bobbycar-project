@@ -28,7 +28,7 @@ class pushed_follower{
         unsigned int alpha_lookup_size;
         float alpha_max;
         float alpha_max_steer;
-        simulator simulation;
+        simulator* simulation;
         float lenght;
         int hitch2axle;
         int car2hitch;
