@@ -49,6 +49,8 @@ limitations under the License.
 #include "bobbycar.hpp"
 #include "pushed_follower.hpp"
 
+#include "lookup-tables_30_5_60_100.h"
+
 #include "syscommands.hpp"
 
 #include <Wire.h>

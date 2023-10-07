@@ -41,9 +41,7 @@ static float get_lookup_reverse(unsigned int in, float max, unsigned int size, b
 }
 
 
-pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle){ // load lookup
-    hitch2axle = hitch2trail_axle;
-    car2hitch = rc_axle2hitch;
+pushed_follower::pushed_follower(lookup_loader function){ // load lookup
     {
         float test1 = deg2rad(20.0);
         int test1_1 = get_lookup(test1, alpha_max, 60, false);
@@ -55,9 +53,7 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
             test2_1, test2_2);
     }
     data_table.constant_table = true;
-    export_lookup(&data_table);
-    car_wheelbase = c_wheelbase;
-    alpha_lookup_size = lookup_alpha_size;
+    function(&data_table);
     alpha_max_steer = alpha_max;
     simulator_distance = -0;
     data_table.beta_max = deg2rad(15);
@@ -99,7 +95,7 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
     //export_lookup(&data_table);
 }
 
-pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle,float alpha_max, unsigned int lookup_alpha_size, int sim_distance){ // linear
+pushed_follower::pushed_follower(float linear_factor){ // linear
     hitch2axle = hitch2trail_axle;
     car2hitch = rc_axle2hitch;
     {
@@ -118,17 +114,10 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
     car_wheelbase = c_wheelbase;
     alpha_lookup_size = lookup_alpha_size;
     alpha_max_steer = alpha_max;
-    simulator_distance = -(float)sim_distance/100.0f;
-    data_table.beta_max = deg2rad(15);
-    data_table.alpha_max = alpha_max;
-    allocate_lookup_table(lookup_alpha_size / 2, lookup_alpha_size);
-    create_alpha_lookup();
-    create_alpha_beta_sim_lookup(simulator_distance);
-    export_lookuptalbe_c();
-    //export_lookup(&data_table);
+    simulator_distance = linear_factor; // sim distance reused
 }
 
-pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle,float alpha_max, unsigned int lookup_alpha_size, int sim_distance){ // live simulation
+pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle,float alpha_max, int sim_distance){ // live simulation
     hitch2axle = hitch2trail_axle;
     car2hitch = rc_axle2hitch;
     {
@@ -380,7 +369,7 @@ bool pushed_follower::protection(float alpha, float beta, int speed){
 const float c_p_beta = 1.75;
 
 float pushed_follower::calc_alpha_linear(float beta_old, float beta_new){
-    float stabe_alpha = calc_alpha_const(beta_old)*1.5;
+    float stabe_alpha = calc_alpha_const(beta_old)*simulator_distance; // sin distance is reused
     if(abs(beta_old)>data_table.beta_max)
         return 0;
     float delta_beta = beta_old - beta_new;

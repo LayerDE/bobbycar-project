@@ -9,8 +9,10 @@ typedef int (*get_int)();
 
 class pushed_follower{
     public:
-        pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle, float alpha_max, unsigned int lookup_alpha_size, int sim_distance);
-        pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle);
+        pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle, float alpha_max, unsigned int lookup_alpha_size, int sim_distance); // create lookup
+        pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle,float alpha_max, int sim_distance); // live simulation
+        pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle); // load lookup
+        pushed_follower(float linear_factor); // linear
         ~pushed_follower();
         float calc_alpha_const(float beta);
         float calc_beta_const(float alpha_steer);
@@ -29,10 +31,7 @@ class pushed_follower{
         float alpha_max;
         float alpha_max_steer;
         simulator* simulation;
-        float lenght;
         int hitch2axle;
-        int car2hitch;
-        int car_wheelbase;
         void export_lookuptalbe_c();
         void create_alpha_lookup();
         void create_alpha_beta_sim_lookup(float distance);
