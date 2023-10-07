@@ -1,15 +1,23 @@
-#include "lookup-tables.h"
+#include "lookup-tables_30_5_60_100.h"
 
-        const unsigned int UNREACHABLE = 0x7FBFFFFF;
+#include <stdint.h>
 
-        const float* unreachable = (float*)&UNREACHABLE;
+// trailer and car constants of the table
+static const float car_wheelbase;
+static const float car2hitch;
+static const float hitch2axle;
 
-const float lookup_alpha_max = 0.000000;
-const int lookup_index0_max = 30;
-const int lookup_index1_max = 60;
-const float beta_max = 0.349066;
-const float alpha_max = 0.610865;
-const float linear_alpha_beta_faktor = 2.045534;
+//linear trailer control
+static const float linear_factor;
+
+// control constants of the table
+static const float lookup_alpha_max = 0.000000;
+static const int lookup_index0_max = 30;
+static const int lookup_index1_max = 60;
+static const float beta_max = 0.349066;
+static const float alpha_max = 0.610865;
+static const float linear_alpha_beta_faktor = 2.045534;
+static const float distance;
 
 // Lookup Alpha by Beta
 static const float lookup_ab_0[] = {3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,-0.000000,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,};
@@ -42,7 +50,8 @@ static const float lookup_ab_26[] = {3.141593,3.141593,3.141593,3.141593,3.14159
 static const float lookup_ab_27[] = {3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,-0.153583,-3.141593,-3.141593,};
 static const float lookup_ab_28[] = {3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,-0.159271,-3.141593,};
 static const float lookup_ab_29[] = {3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,-0.164959,};
-const float* lookup_alpha_by_beta[] = {(const float*)&lookup_ab_0, (const float*)&lookup_ab_1, (const float*)&lookup_ab_2, (const float*)&lookup_ab_3, (const float*)&lookup_ab_4, (const float*)&lookup_ab_5, (const float*)&lookup_ab_6, (const float*)&lookup_ab_7, (const float*)&lookup_ab_8, (const float*)&lookup_ab_9, (const float*)&lookup_ab_10, (const float*)&lookup_ab_11, (const float*)&lookup_ab_12, (const float*)&lookup_ab_13, (const float*)&lookup_ab_14, (const float*)&lookup_ab_15, (const float*)&lookup_ab_16, (const float*)&lookup_ab_17, (const float*)&lookup_ab_18, (const float*)&lookup_ab_19, (const float*)&lookup_ab_20, (const float*)&lookup_ab_21, (const float*)&lookup_ab_22, (const float*)&lookup_ab_23, (const float*)&lookup_ab_24, (const float*)&lookup_ab_25, (const float*)&lookup_ab_26, (const float*)&lookup_ab_27, (const float*)&lookup_ab_28, (const float*)&lookup_ab_29, };
+static const float* lookup_alpha_by_beta[] = {(const float*)&lookup_ab_0, (const float*)&lookup_ab_1, (const float*)&lookup_ab_2, (const float*)&lookup_ab_3, (const float*)&lookup_ab_4, (const float*)&lookup_ab_5, (const float*)&lookup_ab_6, (const float*)&lookup_ab_7, (const float*)&lookup_ab_8, (const float*)&lookup_ab_9, (const float*)&lookup_ab_10, (const float*)&lookup_ab_11, (const float*)&lookup_ab_12, (const float*)&lookup_ab_13, (const float*)&lookup_ab_14, (const float*)&lookup_ab_15, (const float*)&lookup_ab_16, (const float*)&lookup_ab_17, (const float*)&lookup_ab_18, (const float*)&lookup_ab_19, (const float*)&lookup_ab_20, (const float*)&lookup_ab_21, (const float*)&lookup_ab_22, (const float*)&lookup_ab_23, (const float*)&lookup_ab_24, (const float*)&lookup_ab_25, (const float*)&lookup_ab_26, (const float*)&lookup_ab_27, (const float*)&lookup_ab_28, (const float*)&lookup_ab_29, };
+
 // Lookup Beta by Alpha
 static const float lookup_ba_0[] = {-0.152974,-0.147794,-0.142623,-0.137460,-0.132304,-0.127156,-0.122014,-0.116880,-0.111752,-0.106630,-0.101514,-0.096404,-0.091299,-0.086199,-0.081104,-0.076013,-0.070927,-0.065845,-0.060766,-0.055690,-0.050618,-0.045548,-0.040481,-0.035416,-0.030353,-0.025291,-0.020231,-0.015173,-0.010115,-0.005057,0.000000,0.005057,0.010115,0.015173,0.020231,0.025291,0.030353,0.035416,0.040481,0.045548,0.050618,0.055690,0.060766,0.065845,0.070927,0.076013,0.081104,0.086199,0.091299,0.096404,0.101514,0.106630,0.111752,0.116880,0.122014,0.127156,0.132304,0.137460,0.142623,0.147794,};
 static const float lookup_ba_1[] = {-0.152974,-0.147794,-0.142623,-0.137460,-0.132304,-0.127156,-0.122014,-0.116880,-0.111752,-0.106630,-0.101514,-0.096404,-0.091299,-0.086199,-0.081104,-0.076013,-0.070927,-0.065845,-0.060766,-0.055690,-0.050618,-0.045548,-0.040481,-0.035416,-0.030353,-0.025291,-0.020231,-0.015173,-0.010115,-0.005057,0.000000,0.005057,0.010115,0.015173,0.020231,0.025291,0.030353,0.035416,0.040481,0.045548,0.050618,0.055690,0.060766,0.065845,0.070927,0.076013,0.081104,0.086199,0.091299,0.096404,0.101514,0.106630,0.111752,0.116880,0.122014,0.127156,0.132304,0.137460,0.142623,0.147794,};
@@ -74,9 +83,26 @@ static const float lookup_ba_26[] = {-0.152974,-0.147794,-0.142623,-0.137460,-0.
 static const float lookup_ba_27[] = {-0.152974,-0.147794,-0.142623,-0.137460,-0.132304,-0.127156,-0.122014,-0.116880,-0.111752,-0.106630,-0.101514,-0.096404,-0.091299,-0.086199,-0.081104,-0.076013,-0.070927,-0.065845,-0.060766,-0.055690,-0.050618,-0.045548,-0.040481,-0.035416,-0.030353,-0.025291,-0.020231,-0.015173,-0.010115,-0.005057,0.000000,0.005057,0.010115,0.015173,0.020231,0.025291,0.030353,0.035416,0.040481,0.045548,0.050618,0.055690,0.060766,0.065845,0.070927,0.076013,0.081104,0.086199,0.091299,0.096404,0.101514,0.106630,0.111752,0.116880,0.122014,0.127156,0.132304,0.137460,0.142623,0.147794,};
 static const float lookup_ba_28[] = {-0.152974,-0.147794,-0.142623,-0.137460,-0.132304,-0.127156,-0.122014,-0.116880,-0.111752,-0.106630,-0.101514,-0.096404,-0.091299,-0.086199,-0.081104,-0.076013,-0.070927,-0.065845,-0.060766,-0.055690,-0.050618,-0.045548,-0.040481,-0.035416,-0.030353,-0.025291,-0.020231,-0.015173,-0.010115,-0.005057,0.000000,0.005057,0.010115,0.015173,0.020231,0.025291,0.030353,0.035416,0.040481,0.045548,0.050618,0.055690,0.060766,0.065845,0.070927,0.076013,0.081104,0.086199,0.091299,0.096404,0.101514,0.106630,0.111752,0.116880,0.122014,0.127156,0.132304,0.137460,0.142623,0.147794,};
 static const float lookup_ba_29[] = {-0.152974,-0.147794,-0.142623,-0.137460,-0.132304,-0.127156,-0.122014,-0.116880,-0.111752,-0.106630,-0.101514,-0.096404,-0.091299,-0.086199,-0.081104,-0.076013,-0.070927,-0.065845,-0.060766,-0.055690,-0.050618,-0.045548,-0.040481,-0.035416,-0.030353,-0.025291,-0.020231,-0.015173,-0.010115,-0.005057,0.000000,0.005057,0.010115,0.015173,0.020231,0.025291,0.030353,0.035416,0.040481,0.045548,0.050618,0.055690,0.060766,0.065845,0.070927,0.076013,0.081104,0.086199,0.091299,0.096404,0.101514,0.106630,0.111752,0.116880,0.122014,0.127156,0.132304,0.137460,0.142623,0.147794,};
-const float* lookup_beta_by_alpha[] = {(const float*)&lookup_ba_0, (const float*)&lookup_ba_1, (const float*)&lookup_ba_2, (const float*)&lookup_ba_3, (const float*)&lookup_ba_4, (const float*)&lookup_ba_5, (const float*)&lookup_ba_6, (const float*)&lookup_ba_7, (const float*)&lookup_ba_8, (const float*)&lookup_ba_9, (const float*)&lookup_ba_10, (const float*)&lookup_ba_11, (const float*)&lookup_ba_12, (const float*)&lookup_ba_13, (const float*)&lookup_ba_14, (const float*)&lookup_ba_15, (const float*)&lookup_ba_16, (const float*)&lookup_ba_17, (const float*)&lookup_ba_18, (const float*)&lookup_ba_19, (const float*)&lookup_ba_20, (const float*)&lookup_ba_21, (const float*)&lookup_ba_22, (const float*)&lookup_ba_23, (const float*)&lookup_ba_24, (const float*)&lookup_ba_25, (const float*)&lookup_ba_26, (const float*)&lookup_ba_27, (const float*)&lookup_ba_28, (const float*)&lookup_ba_29, };
-void export_lookup(lookup_table* inval) {
+static const float* lookup_beta_by_alpha[] = {(const float*)&lookup_ba_0, (const float*)&lookup_ba_1, (const float*)&lookup_ba_2, (const float*)&lookup_ba_3, (const float*)&lookup_ba_4, (const float*)&lookup_ba_5, (const float*)&lookup_ba_6, (const float*)&lookup_ba_7, (const float*)&lookup_ba_8, (const float*)&lookup_ba_9, (const float*)&lookup_ba_10, (const float*)&lookup_ba_11, (const float*)&lookup_ba_12, (const float*)&lookup_ba_13, (const float*)&lookup_ba_14, (const float*)&lookup_ba_15, (const float*)&lookup_ba_16, (const float*)&lookup_ba_17, (const float*)&lookup_ba_18, (const float*)&lookup_ba_19, (const float*)&lookup_ba_20, (const float*)&lookup_ba_21, (const float*)&lookup_ba_22, (const float*)&lookup_ba_23, (const float*)&lookup_ba_24, (const float*)&lookup_ba_25, (const float*)&lookup_ba_26, (const float*)&lookup_ba_27, (const float*)&lookup_ba_28, (const float*)&lookup_ba_29, };
+
+//export function
+float export_linear_control_30_5_60_100(){
+        return linear_factor;
+}
+
+void export_car_30_5_60_100(car_params* inval){
+        inval->alpha_max = alpha_max;
+        inval->car2hitch = 0;
+        inval->car_wheelbase = 0;
+}
+
+void export_lookup_30_5_60_100(sim_params* inval) {
+        export_car_30_5_60_100(&inval->connected_car);
+}
+
+void export_lookup_30_5_60_100(lookup_table* inval) {
         inval->constant_table = true;
+        export_car_30_5_60_100(&inval->connected_car);
         inval->alpha_max = alpha_max;
         inval->beta_max = beta_max;
         inval->lookup_alpha_by_beta = lookup_alpha_by_beta;
