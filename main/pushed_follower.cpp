@@ -274,10 +274,7 @@ void pushed_follower::create_alpha_beta_sim_lookup(float distance){
 }
 
 void pushed_follower::export_lookuptalbe_c(){
-    printf("lookup-tables.c\n\n\
-        #include \"lookup-tables.h\"\n\n\
-        const unsigned int UNREACHABLE = 0x%X;\n\n\
-        const float* unreachable = (float*)&UNREACHABLE;\n\n", 0x7FBFFFFF);
+    printf("lookup-tables_%i_%i_%i_%i.c\n\n",(int)(wb*100.0),(int)(r2h*100.0),(int)(h2a*100.0),(int)(distance*100.0));
     printf("const float lookup_alpha_max = %f;\n", data_table.alpha_max);
     printf("const int lookup_index0_max = %i;\n", data_table.lookup_index0_max);
     printf("const int lookup_index1_max = %i;\n", data_table.lookup_index1_max);

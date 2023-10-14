@@ -1,4 +1,4 @@
-#include "lookup-tables_30_5_60_100.h"
+#include "lookup-tables_30_10_60_100.h"
 
 #include <stdint.h>
 
@@ -11,7 +11,6 @@ static const float hitch2axle = 0.6;
 static const float linear_factor;
 
 // control constants of the table
-static const float lookup_alpha_max = 0.000000;
 static const int lookup_index0_max = 30;
 static const int lookup_index1_max = 60;
 static const float beta_max = 0.349066;
@@ -86,27 +85,27 @@ static const float lookup_ba_29[] = {-0.152974,-0.147794,-0.142623,-0.137460,-0.
 static const float* lookup_beta_by_alpha[] = {(const float*)&lookup_ba_0, (const float*)&lookup_ba_1, (const float*)&lookup_ba_2, (const float*)&lookup_ba_3, (const float*)&lookup_ba_4, (const float*)&lookup_ba_5, (const float*)&lookup_ba_6, (const float*)&lookup_ba_7, (const float*)&lookup_ba_8, (const float*)&lookup_ba_9, (const float*)&lookup_ba_10, (const float*)&lookup_ba_11, (const float*)&lookup_ba_12, (const float*)&lookup_ba_13, (const float*)&lookup_ba_14, (const float*)&lookup_ba_15, (const float*)&lookup_ba_16, (const float*)&lookup_ba_17, (const float*)&lookup_ba_18, (const float*)&lookup_ba_19, (const float*)&lookup_ba_20, (const float*)&lookup_ba_21, (const float*)&lookup_ba_22, (const float*)&lookup_ba_23, (const float*)&lookup_ba_24, (const float*)&lookup_ba_25, (const float*)&lookup_ba_26, (const float*)&lookup_ba_27, (const float*)&lookup_ba_28, (const float*)&lookup_ba_29, };
 
 //export function
-float export_linear_control_30_5_60_100(){
+float export_linear_control_30_10_60_100(){
         return linear_factor;
 }
 
-void export_car_30_5_60_100(car_params* inval){
+void export_car_30_10_60_100(car_params* inval){
         inval->alpha_max = alpha_max;
         inval->car2hitch = car2hitch;
         inval->car_wheelbase = car_wheelbase;
 }
 
-void export_sim_params_30_5_60_100(sim_params* inval) {
-        export_car_30_5_60_100(&inval->connected_car);
+void export_sim_params_30_10_60_100(sim_params* inval) {
+        export_car_30_10_60_100(&inval->connected_car);
         inval->alpha_max = alpha_max;
         inval->beta_max = beta_max;
         inval->distance = distance;
         inval->hitch2axle = hitch2axle;
 }
 
-void export_lookup_30_5_60_100(lookup_table* inval) {
+void export_lookup_30_10_60_100(lookup_table* inval) {
         inval->constant_table = true;
-        export_car_30_5_60_100(&inval->connected_car);
+        export_car_30_10_60_100(&inval->connected_car);
         inval->alpha_max = alpha_max;
         inval->beta_max = beta_max;
         inval->lookup_alpha_by_beta = lookup_alpha_by_beta;
