@@ -29,3 +29,4 @@ typedef struct {
 typedef void (*lookup_loader)(lookup_table* inval);
 
 extern const float* unreachable;
+extern const unsigned int UNREACHABLE;

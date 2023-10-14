@@ -7,8 +7,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-	void export_lookup(lookup_table* inval);
-	extern const unsigned int UNREACHABLE;
+	float export_linear_control_30_5_60_100();
+	void export_car_30_5_60_100(car_params* inval);
+	void export_sim_params_30_5_60_100(sim_params* inval);
+	void export_lookup_30_5_60_100(lookup_table* inval);
 #ifdef __cplusplus
 }
 #endif

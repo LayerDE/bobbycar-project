@@ -1,7 +1,7 @@
 #pragma once
 #include "PID_v1.h"
 #include "simulator.hpp"
-#include "lookup-tables_30_5_60_100.h"
+#include "lookup_table_types.h"
 
 
 typedef float (*get_float)();
@@ -11,7 +11,7 @@ class pushed_follower{
     public:
         pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle, float alpha_max, unsigned int lookup_alpha_size, int sim_distance); // create lookup
         pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle,float alpha_max, int sim_distance); // live simulation
-        pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2car_axle); // load lookup
+        pushed_follower(lookup_loader function); // load lookup
         pushed_follower(float linear_factor); // linear
         ~pushed_follower();
         float calc_alpha_const(float beta);

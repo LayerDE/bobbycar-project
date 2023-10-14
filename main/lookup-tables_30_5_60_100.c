@@ -92,12 +92,16 @@ float export_linear_control_30_5_60_100(){
 
 void export_car_30_5_60_100(car_params* inval){
         inval->alpha_max = alpha_max;
-        inval->car2hitch = 0;
-        inval->car_wheelbase = 0;
+        inval->car2hitch = car2hitch;
+        inval->car_wheelbase = car_wheelbase;
 }
 
-void export_lookup_30_5_60_100(sim_params* inval) {
+void export_sim_params_30_5_60_100(sim_params* inval) {
         export_car_30_5_60_100(&inval->connected_car);
+        inval->alpha_max = alpha_max;
+        inval->beta_max = beta_max;
+        inval->distance = distance;
+        inval->hitch2axle = hitch2axle;
 }
 
 void export_lookup_30_5_60_100(lookup_table* inval) {

@@ -68,7 +68,11 @@ pushed_follower::pushed_follower(lookup_loader function){ // load lookup
 
 pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle,float alpha_max, unsigned int lookup_alpha_size, int sim_distance){ // create lookup
     hitch2axle = hitch2trail_axle;
-    car2hitch = rc_axle2hitch;
+    data_table.connected_car.alpha_max = (float)alpha_max/100.0f;
+    data_table.connected_car.car2hitch = (float)rc_axle2hitch/100.0f;
+    data_table.connected_car.car_wheelbase = (float)c_wheelbase/100.0f;
+    sim_params sim_val;
+    sim_val.connected_car = data_table.connected_car;
     {
         float test1 = deg2rad(20.0);
         int test1_1 = get_lookup(test1, alpha_max, 60, false);
@@ -82,7 +86,6 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
     data_table.constant_table = false; // enable simulator
     simulation = new simulator(this, 0, 0, (float)c_wheelbase/100.0,(float)rc_axle2hitch/100.0,0,0,(float)hitch2trail_axle/100.0, 0,0.0001);
     simulation->set_output(car_point_out,trail_point_out, false);
-    car_wheelbase = c_wheelbase;
     alpha_lookup_size = lookup_alpha_size;
     alpha_max_steer = alpha_max;
     simulator_distance = -(float)sim_distance/100.0f;
@@ -118,8 +121,9 @@ pushed_follower::pushed_follower(float linear_factor){ // linear
 }
 
 pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle,float alpha_max, int sim_distance){ // live simulation
-    hitch2axle = hitch2trail_axle;
-    car2hitch = rc_axle2hitch;
+    data_table.connected_car.alpha_max = (float)alpha_max/100.0f;
+    data_table.connected_car.car2hitch = (float)rc_axle2hitch/100.0f;
+    data_table.connected_car.car_wheelbase = (float)c_wheelbase/100.0f;
     {
         float test1 = deg2rad(20.0);
         int test1_1 = get_lookup(test1, alpha_max, 60, false);
@@ -133,9 +137,6 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
     data_table.constant_table = false; // enable simulator
     simulation = nullptr;
     simulation->set_output(car_point_out,trail_point_out, false);
-    car_wheelbase = c_wheelbase;
-    alpha_lookup_size = lookup_alpha_size;
-    alpha_max_steer = alpha_max;
     simulator_distance = -(float)sim_distance/100.0f;
     data_table.beta_max = deg2rad(15);
     data_table.alpha_max = alpha_max;
