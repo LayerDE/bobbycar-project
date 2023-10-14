@@ -1,7 +1,7 @@
 #pragma once
 #include "PID_v1.h"
 #include "simulator.hpp"
-#include "lookup-tables.h"
+#include "lookup-tables_30_5_60_100.h"
 
 
 typedef float (*get_float)();

@@ -3,9 +3,9 @@
 #include <stdint.h>
 
 // trailer and car constants of the table
-static const float car_wheelbase;
-static const float car2hitch;
-static const float hitch2axle;
+static const float car_wheelbase = 0.35;
+static const float car2hitch = 0.1;
+static const float hitch2axle = 0.6;
 
 //linear trailer control
 static const float linear_factor;
@@ -17,7 +17,7 @@ static const int lookup_index1_max = 60;
 static const float beta_max = 0.349066;
 static const float alpha_max = 0.610865;
 static const float linear_alpha_beta_faktor = 2.045534;
-static const float distance;
+static const float distance = 1.0;
 
 // Lookup Alpha by Beta
 static const float lookup_ab_0[] = {3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,3.141593,-0.000000,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,-3.141593,};
