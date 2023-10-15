@@ -97,7 +97,6 @@ void export_car_30_10_60_100(car_params* inval){
 
 void export_sim_params_30_10_60_100(sim_params* inval) {
         export_car_30_10_60_100(&inval->connected_car);
-        inval->alpha_max = alpha_max;
         inval->beta_max = beta_max;
         inval->distance = distance;
         inval->hitch2axle = hitch2axle;

@@ -22,7 +22,6 @@ typedef struct {
 	car_params connected_car;
 	float hitch2axle;
 	float beta_max;
-	float alpha_max;
 	float distance;
 } sim_params;
 
