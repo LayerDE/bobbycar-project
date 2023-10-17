@@ -577,7 +577,7 @@ CONFIG_TWAI_ERRATA_FIX_LISTEN_ONLY_DOM=y
 #
 # UART Configuration
 #
-# CONFIG_UART_ISR_IN_IRAM is not set
+CONFIG_UART_ISR_IN_IRAM=y
 # end of UART Configuration
 
 #

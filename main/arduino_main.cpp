@@ -138,6 +138,7 @@ static inline void feedback_update(){
 
 pushed_follower *trailer;
 
+
 // Arduino setup function. Runs in CPU 1
 void setup() {
     lcd = new display_none(&Wire);
@@ -153,7 +154,7 @@ void setup() {
     xTaskCreate(&init_adc_task, "init_adc_task", 2048 * 2, NULL, 5, &tasks[0]);
     xTaskCreate(&usb_console_init, "usb_console_init", 2048 * 2, NULL, 5, &tasks[1]);
     xTaskCreate(&init_rc_in, "rc_in_init", 2048 * 2, NULL, 5, &tasks[2]);
-    trailer = new pushed_follower(L_WHEELBASE, L_REAR_TO_HITCH, L_HITCH_TO_FOLLOWER_AXLE, deg2rad(27.5), 60, 50);
+    trailer = new pushed_follower(L_WHEELBASE,L_REAR_TO_HITCH,L_HITCH_TO_FOLLOWER_AXLE, deg2rad(15),1.5);
     for(int y = task_count; y > 0;){
         y = task_count;
         for(int x = 0; x < task_count; x++)

@@ -8,7 +8,7 @@ static const float car2hitch = 0.1;
 static const float hitch2axle = 0.6;
 
 //linear trailer control
-static const float linear_factor;
+static const float linear_factor = 1.5;
 
 // control constants of the table
 static const int lookup_index0_max = 30;
