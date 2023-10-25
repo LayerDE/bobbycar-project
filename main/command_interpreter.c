@@ -11,6 +11,7 @@
 #include "pid_controls.h"
 #include "logging.h"
 #include "config.h"
+#include "rc_manager.h"
 
 #include "syscommands.h"
 
@@ -165,6 +166,11 @@ static bool cmd_get_follower(const char* argv, c_data* out){
     else{
         return false;
     }
+}
+
+static bool cmd_get_rc_channels(const char* argv, c_data* out){
+    dump_channels(out);
+    return true;
 }
 
 
@@ -343,6 +349,7 @@ static const command commands[] = {
     {"setki",cmd_set_pid_ki},
     {"setkd",cmd_set_pid_kd},
     {"getpo",cmd_get_pid_out},
+    {"getrc",cmd_get_rc_channels},
     {"getlog",cmd_get_log},
     {"setlog",cmd_set_log},
     {"startlog",cmd_start_log},

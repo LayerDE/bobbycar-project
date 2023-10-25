@@ -77,3 +77,15 @@ extern "C" void crsf_task()
         //crsf->loop();
     //printf("CH: %i %i %i %i %i %i\n",crsf.channels[0],crsf.channels[1],crsf.channels[2],crsf.channels[3],crsf.channels[4],crsf.channels[5]);
 }
+
+extern "C" void dump_channels(c_data *out){
+    char buffer[20];
+    sprintf(buffer, "RC=");
+    c_data_extend_raw(out, buffer, strlen(buffer));
+    memset(buffer,'\0',20);
+    for(int i = 0; i < 16; i++){
+        sprintf(buffer, "%i: %i;%c",i,crsf.channels[i], i == 15 ? '\n':'\t');
+        c_data_extend_raw(out, buffer, strlen(buffer));
+        memset(buffer,'\0',20);
+    }  
+}
