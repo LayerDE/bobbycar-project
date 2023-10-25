@@ -172,9 +172,17 @@ float pushed_follower::calc_alpha(float beta_old, float beta_new){
     if(data_table.constant_table == false &&
             simulation == nullptr)
                 return calc_alpha_linear(beta_old, beta_new);
-    unsigned int indexA = get_lookup(beta_old, data_table.beta_max, data_table.lookup_index0_max, false);
-    unsigned int indexB = get_lookup(beta_new, data_table.beta_max, data_table.lookup_index1_max, true);
-    return data_table.lookup_alpha_by_beta[indexA][indexB];
+    else if(data_table.constant_table == true){
+        unsigned int indexA = get_lookup(beta_old, data_table.beta_max, data_table.lookup_index0_max, false);
+        unsigned int indexB = get_lookup(beta_new, data_table.beta_max, data_table.lookup_index1_max, true);
+        return data_table.lookup_alpha_by_beta[indexA][indexB];
+    }else {
+        return create_alpha_sim(
+                beta_old,
+                    beta_new,
+                        get_lookup_reverse(1,data_table.beta_max,data_table.lookup_index1_max,false)/2.0f, // precision
+                        simulator_distance);
+    }
 }
 
 float pushed_follower::calc_beta(float alpha, float beta_old) {
