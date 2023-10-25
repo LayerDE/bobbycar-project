@@ -10,6 +10,7 @@
 #include "defines.h"
 #include <math.h>
 #include "math_functions.h"
+#include <c_data.h>
 CRSF crsf;
 
 
