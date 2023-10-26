@@ -21,22 +21,27 @@ CRSF crsf;
 #define CRSF_CHANNEL_VALUE_MIN  172
 #define CRSF_CHANNEL_VALUE_MID  992
 #define CRSF_CHANNEL_VALUE_MAX  1811
+#define MODE_COUNT_MAIN 6
+
+static int map(int x, int in_min, int in_max, int out_min, int out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
 static int typecast_throttle(unsigned int us_in, int mode){
-    int throttle = ((float)us_in-1000.0f)*1.23f;
+    int throttle = map(us_in, CRSF_CHANNEL_VALUE_MIN,CRSF_CHANNEL_VALUE_MAX,0,THROTTLE_MAX);
     switch(mode){
         case 0: // switch in reverse
-            return CLAMP(throttle *3 / 10,-THROTTLE_REVERSE_MAX,0);
+            return throttle_calc(-throttle); // expo from adc
         case 1: //switch in the middle
         default:
             return 0;
         case 2: // switch in forward
-            return CLAMP(throttle,0,THROTTLE_MAX);
+            return throttle_calc(throttle); // expo from adc
     }
 }
 
 static float typecast_steering(unsigned int us_in){
-    return ((float)us_in-1000.0f) * 0.0007f; //  pi mal daumen
+    return ((float)us_in-(float)CRSF_CHANNEL_VALUE_MID) * 0.0007f; //  pi mal daumen
 }
 
 
@@ -45,9 +50,9 @@ extern "C" void init_crsf()
     crsf.begin();
 }
 
-const int mode_count_main = 6;
-const int rc_ch_range = 2000;
+const int rc_ch_range = CRSF_CHANNEL_VALUE_MAX - CRSF_CHANNEL_VALUE_MIN;
 int decode_mode(int ch_in, int mode_count){
+    ch_in -= CRSF_CHANNEL_VALUE_MIN;
     for(int x = 0; x < mode_count-1; x++)
         if(ch_in < (rc_ch_range / mode_count)*(x+1))
             return x;
@@ -60,7 +65,7 @@ extern "C" void crsf_task()
     crsf.UpdateChannels();
     if(crsf.failsafe_status == CRSF_SIGNAL_OK){
         int forward_reverse = decode_mode(crsf.channels[CHANNEL_REVERSE],3);
-        int mode = decode_mode(crsf.channels[CHANNEL_MODE],mode_count_main);
+        int mode = decode_mode(crsf.channels[CHANNEL_MODE],MODE_COUNT_MAIN);
         int throttle = typecast_throttle(crsf.channels[CHANNEL_THROTTLE],forward_reverse);
         float rc_steer = typecast_steering(crsf.channels[CHANNEL_STEERING]);
         if(get_input_src() == INPUT_RC){
@@ -91,9 +96,6 @@ extern "C" void crsf_task()
             set_input_src(INPUT_RC);
             break;
     }
-        // Must call CrsfSerial.loop() in loop() to process data
-        //crsf->loop();
-    //printf("CH: %i %i %i %i %i %i\n",crsf.channels[0],crsf.channels[1],crsf.channels[2],crsf.channels[3],crsf.channels[4],crsf.channels[5]);
 }
 
 extern "C" void dump_channels(c_data *out){

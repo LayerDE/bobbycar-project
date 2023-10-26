@@ -12,6 +12,7 @@
 #include "logging.h"
 #include "config.h"
 #include "rc_manager.h"
+#include "gamepad_manager.h"
 
 #include "syscommands.h"
 
@@ -324,7 +325,13 @@ static bool cmd_get_mode(const char* argv, c_data* out){
     c_data_extend_raw(out, buffer, strlen(buffer));
     return true;
 }
-
+ static bool cmd_reset_bt_lib(const char* argv, c_data* out){
+    reset_gamepads();
+    char buffer[30];
+    sprintf(buffer, "Bluetooth Keys deleted\n");
+    c_data_extend_raw(out, buffer, strlen(buffer));
+    return true;
+ }
 
 
 
@@ -355,7 +362,8 @@ static const command commands[] = {
     {"startlog",cmd_start_log},
     {"autolvl",cmd_autolevel},
     {"exec",exec},
-    {"reset", reset_cmd}
+    {"reset", reset_cmd},
+    {"resetbt",cmd_reset_bt_lib}
 };
 
 static bool print_help_of(const char* argv, c_data* out){
