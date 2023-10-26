@@ -130,8 +130,10 @@ void set_des_steering(float steering, unsigned int src){
 void set_input_src(unsigned int src){
     if(src >= INPUT_COUNT || src == get_input_src())
         return;
-    if(src != 0)
+    if(src != INPUT_ADC)
         set_des_steering(get_steering(), src);
+    else
+        set_mode(DEFAULT_MODE);
     input_src = src;
 }
 

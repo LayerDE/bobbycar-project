@@ -22,12 +22,17 @@ CRSF crsf;
 #define CRSF_CHANNEL_VALUE_MID  992
 #define CRSF_CHANNEL_VALUE_MAX  1811
 
-static int typecast_throttle(unsigned int us_in, bool reverse){
+static int typecast_throttle(unsigned int us_in, int mode){
     int throttle = ((float)us_in-1000.0f)*1.23f;
-    if(throttle < 0)
-        return CLAMP(throttle *3 / 10,THROTTLE_REVERSE_MAX,0);
-    else
-        return CLAMP(throttle,0,THROTTLE_MAX);
+    switch(mode){
+        case 0: // switch in reverse
+            return CLAMP(throttle *3 / 10,-THROTTLE_REVERSE_MAX,0);
+        case 1: //switch in the middle
+        default:
+            return 0;
+        case 2: // switch in forward
+            return CLAMP(throttle,0,THROTTLE_MAX);
+    }
 }
 
 static float typecast_steering(unsigned int us_in){
@@ -54,9 +59,9 @@ extern "C" void crsf_task()
     crsf.GetCrsfPacket();
     crsf.UpdateChannels();
     if(crsf.failsafe_status == CRSF_SIGNAL_OK){
-        bool reverse = decode_mode(crsf.channels[CHANNEL_REVERSE],2);
+        int forward_reverse = decode_mode(crsf.channels[CHANNEL_REVERSE],3);
         int mode = decode_mode(crsf.channels[CHANNEL_MODE],mode_count_main);
-        int throttle = typecast_throttle(crsf.channels[CHANNEL_THROTTLE],reverse);
+        int throttle = typecast_throttle(crsf.channels[CHANNEL_THROTTLE],forward_reverse);
         float rc_steer = typecast_steering(crsf.channels[CHANNEL_STEERING]);
         if(get_input_src() == INPUT_RC){
             if(get_mode()!= mode)
@@ -75,11 +80,16 @@ extern "C" void crsf_task()
         set_des_steering(0,INPUT_RC);
         set_ext_throttle(0,INPUT_RC);
     }
-    if(crsf.channels[CHANNEL_INPUT_SRC]>1500 && get_input_src() != INPUT_RC)
-        set_input_src(INPUT_RC);
-    else if(get_input_src() == INPUT_RC && crsf.channels[5]<500){
-        set_mode(-1);
-        set_input_src(DEFAULT_INPUT);
+    switch(decode_mode(crsf.channels[CHANNEL_INPUT_SRC],3)){ // select input
+        case 0:
+            if(get_input_src() == INPUT_RC)
+                set_input_src(DEFAULT_INPUT);
+            break;
+        case 1:
+            break;// do nothing no change (middle position)
+        case 2:
+            set_input_src(INPUT_RC);
+            break;
     }
         // Must call CrsfSerial.loop() in loop() to process data
         //crsf->loop();

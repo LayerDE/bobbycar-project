@@ -9,7 +9,11 @@
         "*.tcc": "cpp",
         "chrono": "cpp",
         "ostream": "cpp",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "algorithm": "cpp",
+        "forward_list": "cpp",
+        "list": "cpp",
+        "xutility": "cpp"
     },
     "idf.portWin": "COM8",
     "cmake.configureOnOpen": false

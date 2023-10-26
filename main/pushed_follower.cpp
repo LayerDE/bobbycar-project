@@ -108,7 +108,7 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
     alpha_max_steer = 0;
     data_table.beta_max = beta_max;
     simulator_distance = linear_factor; // sim distance reused
-    create_beta_const(deg2rad(20.0));
+    create_alpha_lookup();
     printf("init trailer linear\n");
 }
 
@@ -373,6 +373,6 @@ float pushed_follower::calc_alpha_linear(float beta_old, float beta_new){
     float regulation_correction = delta_beta * c_p_beta / data_table.linear_alpha_beta_faktor;
     float output = stabe_alpha - regulation_correction;
     //float tmp_o = CLAMP(output,-alpha_max,alpha_max); // doesnt work always return -7.33
-    //printf("reg sum: %f;%f:%f=%f\n",rad2deg(output),rad2deg(beta_old),rad2deg(stabe_alpha),rad2deg(regulation_correction));
+    printf("reg sum: %f; %f:%f=%f\n",rad2deg(output),rad2deg(beta_old),rad2deg(stabe_alpha),rad2deg(regulation_correction));
     return output;
 }
