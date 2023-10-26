@@ -72,14 +72,8 @@ extern "C" void crsf_task()
             if(get_mode()!= mode)
                 set_mode(mode);
         }
-        else{
-            set_des_steering(0,INPUT_RC);
-            set_ext_throttle(0,INPUT_RC);
-        }
         set_des_steering(throttle,INPUT_RC);
-        set_ext_throttle(rc_steer,INPUT_RC);//printf("T: %i,%i; S: %i,%f; Switch: %i\n",crsf.channels[2],get_throttle(),crsf.channels[0],rad2deg(get_des_steering()), crsf.channels[5]);
-        //for(int i = 0; i < 16; i++)
-        //    printf("%i: %i;%c",i,crsf.channels[i], i == 15 ? '\n':'\t');
+        set_ext_throttle(rc_steer,INPUT_RC);
     }
     else{
         set_des_steering(0,INPUT_RC);
