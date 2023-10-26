@@ -13,7 +13,14 @@
 #include <c_data.h>
 CRSF crsf;
 
-
+#define CHANNEL_MODE 6
+#define CHANNEL_INPUT_SRC 4
+#define CHANNEL_THROTTLE 2
+#define CHANNEL_STEERING 0
+#define CHANNEL_REVERSE 5
+#define CRSF_CHANNEL_VALUE_MIN  172
+#define CRSF_CHANNEL_VALUE_MID  992
+#define CRSF_CHANNEL_VALUE_MAX  1811
 
 static int typecast_throttle(unsigned int us_in, bool reverse){
     int throttle = ((float)us_in-1000.0f)*1.23f;
@@ -47,10 +54,10 @@ extern "C" void crsf_task()
     crsf.GetCrsfPacket();
     crsf.UpdateChannels();
     if(crsf.failsafe_status == CRSF_SIGNAL_OK){
-        bool reverse = decode_mode(crsf.channels[7],2);
-        int mode = decode_mode(crsf.channels[6],mode_count_main);
-        int throttle = typecast_throttle(crsf.channels[2],reverse);
-        float rc_steer = typecast_steering(crsf.channels[0]);
+        bool reverse = decode_mode(crsf.channels[CHANNEL_REVERSE],2);
+        int mode = decode_mode(crsf.channels[CHANNEL_MODE],mode_count_main);
+        int throttle = typecast_throttle(crsf.channels[CHANNEL_THROTTLE],reverse);
+        float rc_steer = typecast_steering(crsf.channels[CHANNEL_STEERING]);
         if(get_input_src() == INPUT_RC){
             if(get_mode()!= mode)
                 set_mode(mode);
@@ -68,7 +75,7 @@ extern "C" void crsf_task()
         set_des_steering(0,INPUT_RC);
         set_ext_throttle(0,INPUT_RC);
     }
-    if(crsf.channels[4]>1500 && get_input_src() != INPUT_RC)
+    if(crsf.channels[CHANNEL_INPUT_SRC]>1500 && get_input_src() != INPUT_RC)
         set_input_src(INPUT_RC);
     else if(get_input_src() == INPUT_RC && crsf.channels[5]<500){
         set_mode(-1);
