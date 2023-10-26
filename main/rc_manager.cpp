@@ -29,6 +29,7 @@ static int map(int x, int in_min, int in_max, int out_min, int out_max) {
 
 static int typecast_throttle(unsigned int us_in, int mode){
     int throttle = map(us_in, CRSF_CHANNEL_VALUE_MIN,CRSF_CHANNEL_VALUE_MAX,0,THROTTLE_MAX);
+    printf("%i\n", throttle);
     switch(mode){
         case 0: // switch in reverse
             return throttle_calc(-throttle); // expo from adc
