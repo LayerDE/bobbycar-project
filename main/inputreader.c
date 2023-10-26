@@ -10,6 +10,8 @@
 #include <Arduino.h>
 #include <stddef.h>
 
+#include "inputreader.h"
+
 #include "syscommands.h"
 
 volatile static int adc_throttle;
@@ -32,6 +34,8 @@ int get_mode(){
 }
 
 void set_mode(int mode){
+    if(get_input_src() == INPUT_ADC)
+        return; //adc no mode change
     if(last_mode != mode)
         switch(last_mode = mode){
             case 0: // rc no trailer
@@ -49,17 +53,13 @@ void set_mode(int mode){
                 trailer_connected = true;
                 trailer_control = true;
                 break;
-            case 3: //rc kids mode (no steering)
-                active_steering = false;
-                trailer_connected = false;
-                trailer_control = false;
-                break;
-            case 4: //rc kids trailprotect mode
+            case 3: //rc kids trailprotect mode
                 active_steering = false;
                 trailer_connected = true;
                 trailer_control = false;
                 break;
             default:
+            case 4: //rc kids
                 active_steering = false;
                 trailer_connected = false;
                 trailer_control = false;
@@ -130,10 +130,12 @@ void set_des_steering(float steering, unsigned int src){
 void set_input_src(unsigned int src){
     if(src >= INPUT_COUNT || src == get_input_src())
         return;
-    if(src != INPUT_ADC)
+    if(src != INPUT_ADC){
         set_des_steering(get_steering(), src);
-    else
         set_mode(DEFAULT_MODE);
+    }
+    else //adc
+        set_mode(5);
     input_src = src;
 }
 

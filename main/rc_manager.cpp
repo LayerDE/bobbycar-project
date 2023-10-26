@@ -65,10 +65,11 @@ extern "C" void crsf_task()
     crsf.UpdateChannels();
     if(crsf.failsafe_status == CRSF_SIGNAL_OK){
         int forward_reverse = decode_mode(crsf.channels[CHANNEL_REVERSE],3);
-        int mode = decode_mode(crsf.channels[CHANNEL_MODE],MODE_COUNT_MAIN);
+
         int throttle = typecast_throttle(crsf.channels[CHANNEL_THROTTLE],forward_reverse);
         float rc_steer = typecast_steering(crsf.channels[CHANNEL_STEERING]);
         //printf("%i : %i\n", throttle,forward_reverse);
+        int mode = decode_mode(crsf.channels[CHANNEL_MODE],MODE_COUNT_MAIN);
         if(get_input_src() == INPUT_RC){
             if(get_mode()!= mode)
                 set_mode(mode);
@@ -89,6 +90,11 @@ extern "C" void crsf_task()
             break;// do nothing no change (middle position)
         case 2:
             set_input_src(INPUT_RC);
+            int mode = decode_mode(crsf.channels[CHANNEL_MODE],MODE_COUNT_MAIN);
+            if(get_input_src() == INPUT_RC){
+                if(get_mode()!= mode)
+                    set_mode(mode);
+            }
             break;
     }
 }
