@@ -29,7 +29,6 @@ static int map(int x, int in_min, int in_max, int out_min, int out_max) {
 
 static int typecast_throttle(unsigned int us_in, int mode){
     int throttle = map(us_in, CRSF_CHANNEL_VALUE_MIN,CRSF_CHANNEL_VALUE_MAX,0,THROTTLE_MAX);
-    printf("%i\n", throttle);
     switch(mode){
         case 0: // switch in reverse
             return throttle_calc(-throttle); // expo from adc
@@ -69,12 +68,13 @@ extern "C" void crsf_task()
         int mode = decode_mode(crsf.channels[CHANNEL_MODE],MODE_COUNT_MAIN);
         int throttle = typecast_throttle(crsf.channels[CHANNEL_THROTTLE],forward_reverse);
         float rc_steer = typecast_steering(crsf.channels[CHANNEL_STEERING]);
+        //printf("%i : %i\n", throttle,forward_reverse);
         if(get_input_src() == INPUT_RC){
             if(get_mode()!= mode)
                 set_mode(mode);
         }
-        set_des_steering(throttle,INPUT_RC);
-        set_ext_throttle(rc_steer,INPUT_RC);
+        set_des_steering(rc_steer,INPUT_RC);
+        set_ext_throttle(throttle,INPUT_RC);
     }
     else{
         set_des_steering(0,INPUT_RC);
