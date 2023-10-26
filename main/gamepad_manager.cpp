@@ -141,11 +141,11 @@ extern "C" void gpm_read(int *throttle,int *steering, int *active){
     }
 }
 
-bool get_gamepad_connected(){
+extern "C" bool get_gamepad_connected(){
     return myGamepads[0] && myGamepads[0]->isConnected();
 }
 
-void reset_gamepads(){
+extern "C" void reset_gamepads(){
     BP32.forgetBluetoothKeys();
     BP32.enableNewBluetoothConnections(true);
 }
