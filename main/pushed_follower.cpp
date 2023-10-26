@@ -109,6 +109,7 @@ pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2t
     data_table.beta_max = beta_max;
     simulator_distance = linear_factor; // sim distance reused
     create_beta_const(deg2rad(20.0));
+    printf("init trailer linear\n");
 }
 
 pushed_follower::pushed_follower(int c_wheelbase, int rc_axle2hitch, int hitch2trail_axle,float alpha_max, float beta_max, int sim_distance){ // live simulation
@@ -170,13 +171,16 @@ float pushed_follower::calc_beta_const(float alpha_steer){
 
 float pushed_follower::calc_alpha(float beta_old, float beta_new){
     if(data_table.constant_table == false &&
-            simulation == nullptr)
+            simulation == nullptr){
+                //printf("linear\n");
                 return calc_alpha_linear(beta_old, beta_new);
-    else if(data_table.constant_table == true){
+    }else if(data_table.constant_table == true){
+        //printf("table\n");
         unsigned int indexA = get_lookup(beta_old, data_table.beta_max, data_table.lookup_index0_max, false);
         unsigned int indexB = get_lookup(beta_new, data_table.beta_max, data_table.lookup_index1_max, true);
         return data_table.lookup_alpha_by_beta[indexA][indexB];
     }else {
+        //printf("sim\n");
         return create_alpha_sim(
                 beta_old,
                     beta_new,
@@ -361,8 +365,9 @@ bool pushed_follower::protection(float alpha, float beta, int speed){
 const float c_p_beta = 1.75;
 
 float pushed_follower::calc_alpha_linear(float beta_old, float beta_new){
+    //printf("calc linear\n");
     float stabe_alpha = calc_alpha_const(beta_old)*simulator_distance; // sin distance is reused
-    if(abs(beta_old)>data_table.beta_max)
+    if(abs(beta_old)>data_table.beta_max) //todo
         return 0;
     float delta_beta = beta_old - beta_new;
     float regulation_correction = delta_beta * c_p_beta / data_table.linear_alpha_beta_faktor;

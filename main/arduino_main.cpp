@@ -264,7 +264,7 @@ void loop() {
         if(get_trailer_control()){ // trailer beta control
             if(sign(throttle) == -1)
                 DISPLAY_LOG("%f\n",rad2deg(
-                    tmpSteering = trailer->calc_alpha_linear(trailer_angle, trailer->calc_beta_const(des_steering))
+                    tmpSteering = trailer->calc_alpha(trailer_angle, trailer->calc_beta_const(des_steering))
                 ));
         }
         if(get_trailer_connected()){ // trailer collision protection
