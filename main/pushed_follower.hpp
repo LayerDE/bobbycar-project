@@ -31,7 +31,7 @@ class pushed_follower{
         float alpha_max;
         float alpha_max_steer;
         simulator* simulation;
-        int hitch2axle;
+        float hitch2axle;
         void export_lookuptalbe_c();
         void create_alpha_lookup();
         void create_alpha_beta_sim_lookup(float distance);
