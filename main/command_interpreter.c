@@ -28,7 +28,7 @@ typedef struct
 const char* inputs[] = {"ADC","CONSOLE", "GAMEPAD", "RC"};
 
 
-void clean_argv_cdata(c_data* argv){
+static void clean_argv_cdata(c_data* argv){
     if(argv->size)
         for (int i=0; ((char*)argv->content)[i] && i < argv->size; i++){
             if(((char*)argv->content)[i]==' ' || ((char*)argv->content)[i]=='\n' || ((char*)argv->content)[i]=='\t'){
